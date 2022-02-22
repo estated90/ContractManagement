@@ -1,6 +1,7 @@
 package com.auxime.contract.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.GeneratedValue;
@@ -34,11 +35,12 @@ public abstract class Contract {
 	private String contractTitle;
 	private PortageCompanies structureContract;
 	private UUID idAccount;
-	private String lastName;
-	private String firstName;
 	private ContractType contractType;
 	private UUID contractAmendment;
 	private LocalDate startAmendment;
 	private LocalDate endAmendment;
+	private boolean status;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 	
 }

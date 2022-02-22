@@ -11,5 +11,10 @@ public class ExceptionMessageConstant {
 	private ExceptionMessageConstant() {
 		 throw new IllegalStateException("Utility class");
 	}
+	
+	// CAPE Exception
+	public static final String CAPE_NOT_FOUND = "This CAPE is not in DB";
+	public static final String CAPE_FOUND = "This CAPE is already in DB";
+	
 
 }

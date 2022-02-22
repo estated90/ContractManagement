@@ -1,6 +1,6 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Cape extends Contract{
 
-	private LocalDateTime endDate;
+	private LocalDate endDate;
 	private boolean fse;
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
 	private CommentsContract comment;

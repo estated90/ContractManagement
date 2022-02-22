@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.auxime.contract.exception.CapeException;
+
 /**
  * @author Nicolas
  * @version 1.0.0
@@ -34,5 +36,13 @@ public class ApiExceptionHandler {
 				"You do not have the rigths to use this API");
 		return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
+	
+	@ExceptionHandler(CapeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleApiException(
+    		CapeException ex) {
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    } 
 
 }
