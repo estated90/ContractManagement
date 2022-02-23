@@ -15,6 +15,15 @@ public class ExceptionMessageConstant {
 	// CAPE Exception
 	public static final String CAPE_NOT_FOUND = "This CAPE is not in DB";
 	public static final String CAPE_FOUND = "This CAPE is already in DB";
+	public static final String COMMERCIAL_CONTRACT_FOUND = "This commercial contract is already in DB";
+	public static final String COMMERCIAL_CONTRACT_NOT_FOUND = "This commercial contract is not in DB";
+	public static final String PORTAGE_CONVENTION_FOUND = "This portage convention is already in DB";
+	public static final String PORTAGE_CONVENTION_NOT_FOUND = "This portage convention is not in DB";
+	public static final String PERMANENT_CONTRACT_FOUND = "This permanent contract is already in DB";
+	public static final String PERMANENT_CONTRACT_NOT_FOUND = "This commercial contract is not in DB";
+	public static final String TEMPORARY_CONTRACT_FOUND = "This temporary contract is already in DB";
+	public static final String TEMPORARY_CONTRACT_NOT_FOUND = "This temporary contract is not in DB";
+	
 	
 
 }

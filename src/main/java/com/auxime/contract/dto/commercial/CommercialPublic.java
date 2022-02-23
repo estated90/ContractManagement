@@ -1,23 +1,22 @@
-package com.auxime.contract.dto.cape;
+package com.auxime.contract.dto.commercial;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.springframework.validation.annotation.Validated;
-
+import com.auxime.contract.constants.DurationUnit;
 import com.auxime.contract.model.enums.PortageCompanies;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Validated
 @Getter
 @Setter
 @NoArgsConstructor
-public class CapePublic {
-
+public class CommercialPublic {
+	
 	@NotNull
 	private LocalDate contractDate;
 	@NotNull
@@ -27,5 +26,15 @@ public class CapePublic {
 	@NotNull
 	private PortageCompanies structureContract;
 	@NotNull
-	private Boolean fse;
+	private LocalDate endDate;
+	@NotNull
+	private UUID clientId;
+	@NotNull
+	private Double globalAmount;
+	@NotNull
+	private Double monthlyAmount;
+	@NotNull
+	private int missionDuration;
+	@NotNull
+	private DurationUnit durationUnit;
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -64,6 +65,16 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 		return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
 	}
 
+	@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		logger.info(ex.getClass().getName());
+		logger.error("error", ex);
+		//
+		final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "An error occured while deserializing the data");
+		return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+
 	/**
 	 * 
 	 * <p>
@@ -113,8 +124,9 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 	/**
 	 * 
 	 * <p>
-	 * Raised when the part of a "multipart/form-data" request identified by its name cannot be found. 
-	 * It will return the list of incorrect element as a json list.
+	 * Raised when the part of a "multipart/form-data" request identified by its
+	 * name cannot be found. It will return the list of incorrect element as a json
+	 * list.
 	 * 
 	 * @param ex      Exception raised when the method arguments are incorrect
 	 * @param request The request received by the controller
@@ -132,9 +144,8 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 	/**
 	 * 
 	 * <p>
-	 * ServletRequestBindingException subclass that indicates a missing parameter. 
-	 * It will return the list of incorrect element as a json
-	 * list.
+	 * ServletRequestBindingException subclass that indicates a missing parameter.
+	 * It will return the list of incorrect element as a json list.
 	 * 
 	 * @param ex      Exception raised when the method arguments are incorrect
 	 * @param request The request received by the controller
@@ -237,8 +248,8 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 	/**
 	 * <p>
 	 * Exception thrown when a client POSTs, PUTs, or PATCHes content of a type not
-	 * supported by request handler. It will send the possible correction as JSON
-	 * in the message.
+	 * supported by request handler. It will send the possible correction as JSON in
+	 * the message.
 	 * </p>
 	 * 
 	 * @param ex      Exception raised when the media type is not supported

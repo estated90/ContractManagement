@@ -1,13 +1,16 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import javax.validation.constraints.DecimalMax;
+
+import com.auxime.contract.constants.DurationUnit;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,11 +24,17 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CommercialContract extends Contract{
 
-	private LocalDateTime endDate;
+	@Column(name = "end_date")
+	private LocalDate endDate;
+	@Column(name = "client_id")
 	private UUID clientId;
-	@DecimalMax("2")
+	@Column(name="global_amount")
 	private double globalAmount;
-	@DecimalMax("2")
+	@Column(name="monthly_amount")
 	private double monthlyAmount;
+	@Column(name = "mission_duration")
 	private int missionDuration;
+	@Column(name = "duration_unit")
+	@Enumerated(EnumType.STRING)
+	private DurationUnit durationUnit;
 }

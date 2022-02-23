@@ -17,28 +17,27 @@ import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.exception.CapeException;
-import com.auxime.contract.model.Cape;
+import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.enums.ContractType;
-import com.auxime.contract.repository.CapeRepository;
-import com.auxime.contract.service.CapeService;
+import com.auxime.contract.repository.PortageConventionRepository;
+import com.auxime.contract.service.PortageConvention;
 
 @Service
 @Transactional
-public class CapeServiceImpl implements CapeService {
+public class PortageConventionServiceImpl {
 
-	private static final Logger logger = LogManager.getLogger(CapeServiceImpl.class);
+	private static final Logger logger = LogManager.getLogger(PortageConventionServiceImpl.class);
 	@Autowired
-	private CapeRepository capeRepo;
+	private PortageConventionRepository portageRepo;
 
 	/**
 	 * Method to return all contract in DB
 	 * 
 	 * @return The list of Cape
 	 */
-	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCape() {
-		return capeRepo.findAll();
+	public List<PortageConvention> getAllPortageConvention() {
+		return portageRepo.findAll();
 	}
 
 	/**
@@ -46,10 +45,9 @@ public class CapeServiceImpl implements CapeService {
 	 * 
 	 * @return The list of Cape
 	 */
-	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCapeFromAccount(UUID accountId) {
-		return capeRepo.findByAccountId(accountId);
+	public List<PortageConvention> getAllCapeFromAccount(UUID accountId) {
+		return portageRepo.findByAccountId(accountId);
 	}
 
 	/**
@@ -59,12 +57,10 @@ public class CapeServiceImpl implements CapeService {
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
-	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Optional<Cape> getContractById(UUID id) {
-		logger.info("Returning CAPE with id {}", id);
-		Optional<Cape> capeOpt = capeRepo.findById(id);
-		return capeOpt;
+	public Optional<PortageConvention> getContractById(UUID id) {
+		logger.info("Returning Portage Convention with id {}", id);
+		return portageRepo.findById(id);
 	}
 
 	/**
@@ -76,17 +72,16 @@ public class CapeServiceImpl implements CapeService {
 	 * @return The new updated contract object will be returned
 	 * @throws CapeException When an error is detected
 	 */
-	@Override
-	@Transactional(rollbackFor = { CapeException.class })
-	public Cape createNewContract(CapeCreate contractPublic) throws CapeException {
-		logger.info("Creating a new CAPE");
-		Cape contract = settingCommonFields(new Cape(), contractPublic);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setContractType(ContractType.CONTRACT);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setStatus(true);
-		contract.setAccountId(contractPublic.getAccountId());
-		return capeRepo.save(contract);
+	@Transactional(rollbackFor = { PortageConventionException.class })
+	public PortageConvention createNewContract(CapeCreate contractPublic) throws PortageConventionException {
+		logger.info("Creating a new Portage Convention");
+		PortageConvention portage = settingCommonFields(new PortageConvention(), contractPublic);
+		portage.setCreatedAt(LocalDateTime.now());
+		portage.setContractType(ContractType.CONTRACT);
+		portage.setCreatedAt(LocalDateTime.now());
+		portage.setStatus(true);
+		portage.setAccountId(contractPublic.getAccountId());
+		return portageRepo.save(portage);
 	}
 
 	/**
@@ -97,20 +92,18 @@ public class CapeServiceImpl implements CapeService {
 	 * @return The new updated contract object will be returned
 	 * @throws CapeException When an error is detected
 	 */
-	@Override
-	@Transactional(rollbackFor = { CapeException.class })
-	public Cape updateContractFromId(CapeUpdate contractPublic) throws CapeException {
-		logger.info("Updating CAPE with id : {}", contractPublic.getContractId());
-		Optional<Cape> contractOpt = capeRepo.findById(contractPublic.getContractId());
-		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
-			logger.info(ExceptionMessageConstant.CAPE_FOUND);
-			Cape contract = settingCommonFields(contractOpt.get(), contractPublic);
-			contract.setUpdatedAt(LocalDateTime.now());
-			return capeRepo.save(contract);
-		} else {
-			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
-			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
+	@Transactional(rollbackFor = { PortageConventionException.class })
+	public PortageConvention updateContractFromId(CapeUpdate contractPublic) throws PortageConventionException {
+		logger.info("Updating Portage Convention with id : {}", contractPublic.getContractId());
+		Optional<PortageConvention> contractOpt = portageRepo.findById(contractPublic.getContractId());
+		if (contractOpt.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
+			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 		}
+		logger.info(ExceptionMessageConstant.CAPE_FOUND);
+		PortageConvention portage = settingCommonFields(contractOpt.get(), contractPublic);
+		portage.setUpdatedAt(LocalDateTime.now());
+		return portageRepo.save(portage);
 	}
 
 	/**
@@ -121,19 +114,17 @@ public class CapeServiceImpl implements CapeService {
 	 * @throws CapeException     When an error is raised if not found
 	 * @throws ActivityException
 	 */
-	@Override
-	@Transactional(rollbackFor = { CapeException.class })
-	public void deleteContract(CapeUpdate contractPublic) throws CapeException {
-		logger.info("Deleting a CAPE {}", contractPublic.getContractId());
-		Optional<Cape> contractOpt = capeRepo.findById(contractPublic.getContractId());
-		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
-			logger.info("Activity is in DB and is being deleted");
-			contractOpt.get().setStatus(false);
-			capeRepo.save(contractOpt.get());
-		} else {
-			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
-			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
+	@Transactional(rollbackFor = { PortageConventionException.class })
+	public void deleteContract(CapeUpdate contractPublic) throws PortageConventionException {
+		logger.info("Deleting a Portage Convention {}", contractPublic.getContractId());
+		Optional<PortageConvention> contractOpt = portageRepo.findById(contractPublic.getContractId());
+		if (contractOpt.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
+			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 		}
+		logger.info("Activity is in DB and is being deleted");
+		contractOpt.get().setStatus(false);
+		portageRepo.save(contractOpt.get());
 	}
 
 	/**
@@ -146,14 +137,12 @@ public class CapeServiceImpl implements CapeService {
 	 *                       update
 	 * @return The contract updated
 	 */
-	private Cape settingCommonFields(Cape contract, CapePublic contractPublic) {
+	private PortageConvention settingCommonFields(PortageConvention contract, CapePublic contractPublic) {
 		logger.info("Updating the fields");
 		contract.setContractDate(contractPublic.getContractDate());
 		contract.setStartingDate(contractPublic.getStartingDate());
 		contract.setContractTitle(contractPublic.getContractTitle());
 		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
-		contract.setFse(contractPublic.getFse());
 		return contract;
 	}
 }

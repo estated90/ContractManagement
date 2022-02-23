@@ -1,6 +1,6 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
@@ -22,8 +22,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TemporaryContract extends Contract{
 
-	private LocalDateTime ruptureDate;
-	private LocalDateTime endDate;
+	private LocalDate ruptureDate;
+	private LocalDate endDate;
 	private boolean fse;
 	@DecimalMax("2")
 	private double hourlyRate;

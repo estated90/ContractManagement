@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -30,17 +33,31 @@ public abstract class Contract {
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	private UUID id;
+	@Column(name = "contract_date")
 	private LocalDate contractDate;
+	@Column(name = "starting_date")
 	private LocalDate startingDate;
+	@Column(name = "contract_title")
 	private String contractTitle;
+	@Column(name = "structure_contract")
+	@Enumerated(EnumType.STRING)
 	private PortageCompanies structureContract;
-	private UUID idAccount;
-	private ContractType contractType;
-	private UUID contractAmendment;
-	private LocalDate startAmendment;
-	private LocalDate endAmendment;
+	@Column(name = "account_id")
+	private UUID accountId;
+	@Column(name = "status")
 	private boolean status;
+	@Column(name = "contract_type")
+	@Enumerated(EnumType.STRING)
+	private ContractType contractType;
+	@Column(name = "contract_amendment")
+	private UUID contractAmendment;
+	@Column(name = "start_amendment")
+	private LocalDate startAmendment;
+	@Column(name = "end_amendment")
+	private LocalDate endAmendment;
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
 }

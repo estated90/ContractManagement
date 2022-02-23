@@ -1,0 +1,153 @@
+package com.auxime.contract.service.implementation;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.permanent.PermanentCreate;
+import com.auxime.contract.dto.permanent.PermanentPublic;
+import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PermanentContractException;
+import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.repository.PermanentContractRepository;
+
+@Service
+@Transactional
+public class PermanentContractServiceImpl {
+
+	private static final Logger logger = LogManager.getLogger(PermanentContractServiceImpl.class);
+	@Autowired
+	private PermanentContractRepository permanentRepo;
+
+	/**
+	 * Method to return all contract in DB
+	 * 
+	 * @return The list of Cape
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<PermanentContract> getAllCape() {
+		return permanentRepo.findAll();
+	}
+
+	/**
+	 * Method to return all contract in DB of an account
+	 * 
+	 * @return The list of Cape
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<PermanentContract> getAllCapeFromAccount(UUID accountId) {
+		return permanentRepo.findByAccountId(accountId);
+	}
+
+	/**
+	 * This function is using the ID of a cape to return its informations
+	 * 
+	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @return An optional account, if found. The account will return all the linked
+	 *         objects
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Optional<PermanentContract> getContractById(UUID id) {
+		logger.info("Returning Permanent Contract with id {}", id);
+		return permanentRepo.findById(id);
+	}
+
+	/**
+	 * This service will be used to create a CAPE object using the ID of the account
+	 * to link it to.
+	 * 
+	 * @param contractPublic The object contractPublic with the fields mandatory
+	 *                       except for the contract id.
+	 * @return The new updated contract object will be returned
+	 * @throws PermanentContractException When an error is detected
+	 */
+	@Transactional(rollbackFor = { PermanentContractException.class })
+	public PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException {
+		logger.info("Creating a new Permanent Contract");
+		PermanentContract contract = settingCommonFields(new PermanentContract(), contractPublic);
+		contract.setCreatedAt(LocalDateTime.now());
+		contract.setContractType(ContractType.CONTRACT);
+		contract.setCreatedAt(LocalDateTime.now());
+		contract.setStatus(true);
+		contract.setAccountId(contractPublic.getAccountId());
+		return permanentRepo.save(contract);
+	}
+
+	/**
+	 * This service will be used to update a contract object in the DB using the ID
+	 * of the contract object.
+	 * 
+	 * @param contractPublic The object contractPublic with the fields mandatory.
+	 * @return The new updated contract object will be returned
+	 * @throws PermanentContractException When an error is detected
+	 */
+	@Transactional(rollbackFor = { PermanentContractException.class })
+	public PermanentContract updateContractFromId(PermanentUpdate contractPublic) throws PermanentContractException {
+		logger.info("Updating Permanent Contract with id : {}", contractPublic.getContractId());
+		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractPublic.getContractId());
+		if (contractOpt.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+		}
+		logger.info(ExceptionMessageConstant.CAPE_FOUND);
+		PermanentContract contract = settingCommonFields(contractOpt.get(), contractPublic);
+		contract.setUpdatedAt(LocalDateTime.now());
+		return permanentRepo.save(contract);
+	}
+
+	/**
+	 * This service will be used to delete a contract object in the DB using the ID
+	 * of the contract object.
+	 * 
+	 * @param contractPublic The object activityPublic with the fields mandatory
+	 * @throws PermanentContractException     When an error is raised if not found
+	 * @throws ActivityException
+	 */
+	@Transactional(rollbackFor = { PermanentContractException.class })
+	public void deleteContract(PermanentUpdate contractPublic) throws PermanentContractException {
+		logger.info("Deleting a Permanent Contract {}", contractPublic.getContractId());
+		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractPublic.getContractId());
+		if (contractOpt.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+		}
+		logger.info("Activity is in DB and is being deleted");
+		contractOpt.get().setStatus(false);
+		permanentRepo.save(contractOpt.get());
+	}
+
+	/**
+	 * 
+	 * Function to update the object for the common fields between creation and
+	 * update
+	 * 
+	 * @param contract       The contract found in the DB
+	 * @param contractPublic The object with the new information to use for the
+	 *                       update
+	 * @return The contract updated
+	 */
+	private PermanentContract settingCommonFields(PermanentContract contract, PermanentPublic contractPublic) {
+		logger.info("Updating the fields");
+		contract.setContractDate(contractPublic.getContractDate());
+		contract.setStartingDate(contractPublic.getStartingDate());
+		contract.setContractTitle(contractPublic.getContractTitle());
+		contract.setStructureContract(contractPublic.getStructureContract());
+		contract.setAccountId(contractPublic.getIdAccount());
+		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		contract.setFse(contractPublic.isFse());
+		contract.setHourlyRate(contractPublic.getHourlyRate());
+		contract.setRuptureDate(contractPublic.getRuptureDate());
+		contract.setWorkTime(contractPublic.getWorkTime());
+		return contract;
+	}
+}
