@@ -1,9 +1,7 @@
 package com.auxime.contract.dto.permanent;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
-import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.NotNull;
 
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -25,17 +23,12 @@ public class PermanentPublic {
 	private String contractTitle;
 	@NotNull
 	private PortageCompanies structureContract;
-	@NotNull
-	private UUID idAccount;
-	@NotNull
-	private boolean status;
 	private LocalDate ruptureDate;
 	private LocalDate endDate;
 	@NotNull
-	private boolean fse;
+	private Boolean fse;
 	@NotNull
-	@DecimalMax("2")
-	private double hourlyRate;
+	private Double hourlyRate;
 	@NotNull
-	private double workTime;
+	private Double workTime;
 }

@@ -20,10 +20,11 @@ import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.PermanentContractRepository;
+import com.auxime.contract.service.PermanentContractService;
 
 @Service
 @Transactional
-public class PermanentContractServiceImpl {
+public class PermanentContractServiceImpl implements PermanentContractService {
 
 	private static final Logger logger = LogManager.getLogger(PermanentContractServiceImpl.class);
 	@Autowired
@@ -34,8 +35,9 @@ public class PermanentContractServiceImpl {
 	 * 
 	 * @return The list of Cape
 	 */
+	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllCape() {
+	public List<PermanentContract> getAllPermanentContract() {
 		return permanentRepo.findAll();
 	}
 
@@ -44,8 +46,9 @@ public class PermanentContractServiceImpl {
 	 * 
 	 * @return The list of Cape
 	 */
+	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllCapeFromAccount(UUID accountId) {
+	public List<PermanentContract> getAllPermanentContractFromAccount(UUID accountId) {
 		return permanentRepo.findByAccountId(accountId);
 	}
 
@@ -56,6 +59,7 @@ public class PermanentContractServiceImpl {
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
+	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Optional<PermanentContract> getContractById(UUID id) {
 		logger.info("Returning Permanent Contract with id {}", id);
@@ -71,6 +75,7 @@ public class PermanentContractServiceImpl {
 	 * @return The new updated contract object will be returned
 	 * @throws PermanentContractException When an error is detected
 	 */
+	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
 	public PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException {
 		logger.info("Creating a new Permanent Contract");
@@ -91,6 +96,7 @@ public class PermanentContractServiceImpl {
 	 * @return The new updated contract object will be returned
 	 * @throws PermanentContractException When an error is detected
 	 */
+	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
 	public PermanentContract updateContractFromId(PermanentUpdate contractPublic) throws PermanentContractException {
 		logger.info("Updating Permanent Contract with id : {}", contractPublic.getContractId());
@@ -113,6 +119,7 @@ public class PermanentContractServiceImpl {
 	 * @throws PermanentContractException     When an error is raised if not found
 	 * @throws ActivityException
 	 */
+	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
 	public void deleteContract(PermanentUpdate contractPublic) throws PermanentContractException {
 		logger.info("Deleting a Permanent Contract {}", contractPublic.getContractId());
@@ -142,9 +149,7 @@ public class PermanentContractServiceImpl {
 		contract.setStartingDate(contractPublic.getStartingDate());
 		contract.setContractTitle(contractPublic.getContractTitle());
 		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setAccountId(contractPublic.getIdAccount());
 		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
-		contract.setFse(contractPublic.isFse());
 		contract.setHourlyRate(contractPublic.getHourlyRate());
 		contract.setRuptureDate(contractPublic.getRuptureDate());
 		contract.setWorkTime(contractPublic.getWorkTime());

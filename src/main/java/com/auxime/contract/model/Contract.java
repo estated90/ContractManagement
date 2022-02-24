@@ -15,6 +15,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
 
@@ -42,6 +43,9 @@ public abstract class Contract {
 	@Column(name = "structure_contract")
 	@Enumerated(EnumType.STRING)
 	private PortageCompanies structureContract;
+	@Column(name = "contract_state")
+	@Enumerated(EnumType.STRING)
+	private ContractState contractState;
 	@Column(name = "account_id")
 	private UUID accountId;
 	@Column(name = "status")

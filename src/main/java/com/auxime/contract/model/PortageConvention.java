@@ -10,7 +10,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
-import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.DurationUnit;
 
 import lombok.Getter;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class CommercialContract extends Contract{
+public class PortageConvention extends Contract{
 
 	@Column(name = "end_date")
 	private LocalDate endDate;
@@ -38,8 +37,4 @@ public class CommercialContract extends Contract{
 	@Column(name = "duration_unit")
 	@Enumerated(EnumType.STRING)
 	private DurationUnit durationUnit;
-	@Column(name = "contract_status")
-	@Enumerated(EnumType.STRING)
-	private ContractStatus contractStatus;
-	
 }

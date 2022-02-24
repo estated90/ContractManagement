@@ -18,9 +18,9 @@ import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.exception.PortageConventionException;
+import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.PortageConventionRepository;
-import com.auxime.contract.service.PortageConvention;
 
 @Service
 @Transactional
@@ -34,7 +34,7 @@ public class PortageConventionServiceImpl {
 	 * Method to return all contract in DB
 	 * 
 	 * @return The list of Cape
-	 */
+	 */ 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PortageConvention> getAllPortageConvention() {
 		return portageRepo.findAll();

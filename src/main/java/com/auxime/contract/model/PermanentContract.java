@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.DecimalMax;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,6 @@ public class PermanentContract extends Contract{
 	private LocalDate ruptureDate;
 	private LocalDate endDate;
 	private boolean fse;
-	@DecimalMax("2")
 	private double hourlyRate;
 	private double workTime;
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
