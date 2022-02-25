@@ -26,8 +26,6 @@ public class TemporaryContract extends Contract{
 
 	private LocalDate ruptureDate;
 	private LocalDate endDate;
-	private boolean fse;
-	@DecimalMax("2")
 	private double hourlyRate;
 	private double workTime;
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)

@@ -2,7 +2,6 @@ package com.auxime.contract.dto.temporary;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.NotNull;
 
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -30,10 +29,7 @@ public class TemporaryPublic {
 	@NotNull
 	private LocalDate endDate;
 	@NotNull
-	private boolean fse;
+	private Double hourlyRate;
 	@NotNull
-	@DecimalMax("2")
-	private double hourlyRate;
-	@NotNull
-	private double workTime;
+	private Double workTime;
 }
