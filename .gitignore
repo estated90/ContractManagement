@@ -35,3 +35,5 @@ doc/
 .apt_generated_tests/
 src/main/resources/application.properties
 /bin/
+.project
+target/

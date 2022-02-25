@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.auxime.contract.constants.ContractState;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,4 +30,18 @@ public class PermanentContract extends Contract{
 	private double workTime;
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
 	private CommentsContract comment;
+	
+	public PermanentContract createStateContract() {
+		if (this.getContractState() == ContractState.CANCELED) {
+		} else {
+			if (this.getStartingDate().isAfter(LocalDate.now())) {
+				this.setContractState(ContractState.NOT_STARTED);
+			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
+				this.setContractState(ContractState.ACTIVE);
+			} else if (LocalDate.now().isAfter(this.getEndDate())) {
+				this.setContractState(ContractState.INACTIVE);
+			}
+		}
+		return this;
+	}
 }

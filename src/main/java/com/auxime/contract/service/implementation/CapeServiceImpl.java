@@ -86,6 +86,7 @@ public class CapeServiceImpl implements CapeService {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
+		contract.createStateContract();
 		return capeRepo.save(contract);
 	}
 

@@ -86,6 +86,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
+		contract.createStateContract();
 		return commercialeRepo.save(contract);
 	}
 

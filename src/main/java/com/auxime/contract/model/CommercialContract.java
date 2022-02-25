@@ -10,6 +10,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.DurationUnit;
 
@@ -42,4 +43,17 @@ public class CommercialContract extends Contract{
 	@Enumerated(EnumType.STRING)
 	private ContractStatus contractStatus;
 	
+	public CommercialContract createStateContract() {
+		if (this.getContractState() == ContractState.CANCELED) {
+		} else {
+			if (this.getStartingDate().isAfter(LocalDate.now())) {
+				this.setContractState(ContractState.NOT_STARTED);
+			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
+				this.setContractState(ContractState.ACTIVE);
+			} else if (LocalDate.now().isAfter(this.getEndDate())) {
+				this.setContractState(ContractState.INACTIVE);
+			}
+		}
+		return this;
+	}
 }

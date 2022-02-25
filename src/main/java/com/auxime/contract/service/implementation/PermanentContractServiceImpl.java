@@ -85,6 +85,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
+		contract.createStateContract();
 		return permanentRepo.save(contract);
 	}
 

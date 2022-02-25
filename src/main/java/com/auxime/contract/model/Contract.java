@@ -64,4 +64,14 @@ public abstract class Contract {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
+	protected boolean dateCheckerBetween(LocalDate dateToVerify, LocalDate startDate, LocalDate endDate) {
+		if (startDate == null) {
+			return endDate == null || dateToVerify.isBefore(endDate) || dateToVerify.isEqual(endDate);
+		} else if (endDate == null) {
+			return dateToVerify.isAfter(startDate) || dateToVerify.isEqual(startDate);
+		} else {
+			return dateToVerify.isAfter(startDate) && dateToVerify.isBefore(endDate) || dateToVerify.isEqual(startDate)
+					|| dateToVerify.isEqual(endDate);
+		}
+	}
 }

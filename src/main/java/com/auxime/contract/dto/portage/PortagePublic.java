@@ -1,7 +1,6 @@
 package com.auxime.contract.dto.portage;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -24,10 +23,6 @@ public class PortagePublic {
 	private String contractTitle;
 	@NotNull
 	private PortageCompanies structureContract;
-	@NotNull
-	private UUID idAccount;
-	@NotNull
-	private boolean status;
 	@NotNull
 	private LocalDate endDate;
 }

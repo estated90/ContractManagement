@@ -1,7 +1,6 @@
 package com.auxime.contract.dto.temporary;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.NotNull;
@@ -25,8 +24,6 @@ public class TemporaryPublic {
 	private String contractTitle;
 	@NotNull
 	private PortageCompanies structureContract;
-	@NotNull
-	private UUID idAccount;
 	@NotNull
 	private boolean status;
 	private LocalDate ruptureDate;

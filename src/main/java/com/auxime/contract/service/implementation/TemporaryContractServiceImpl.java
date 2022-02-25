@@ -80,6 +80,7 @@ public class TemporaryContractServiceImpl {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
+		contract.createStateContract();
 		return temporaryRepo.save(contract);
 	}
 
@@ -142,7 +143,6 @@ public class TemporaryContractServiceImpl {
 		contract.setStartingDate(contractPublic.getStartingDate());
 		contract.setContractTitle(contractPublic.getContractTitle());
 		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setAccountId(contractPublic.getIdAccount());
 		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		contract.setFse(contractPublic.isFse());
 		contract.setHourlyRate(contractPublic.getHourlyRate());
