@@ -15,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Entity
 @Table(name="permanent_contract")
 @AttributeOverride(name = "id", column = @Column(name = "permanent_contract_id"))
@@ -31,6 +35,11 @@ public class PermanentContract extends Contract{
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
 	private CommentsContract comment;
 	
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
 	public PermanentContract createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 		} else {

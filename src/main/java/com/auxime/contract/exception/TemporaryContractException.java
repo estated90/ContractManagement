@@ -1,5 +1,9 @@
 package com.auxime.contract.exception;
 
+/**
+ * @author Nicolas
+ *
+ */
 public class TemporaryContractException extends Exception {
 	/**
 	 * 

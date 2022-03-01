@@ -12,6 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Object to communicate with all action on CAPE. 
+ * @author Nicolas
+ *
+ */
 @Validated
 @Getter
 @Setter

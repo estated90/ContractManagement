@@ -9,17 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class use to create a commercial contract
+ * Class to create a Commercial contract amendment
  * 
  * @author Nicolas
  *
  */
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class CommercialCreate extends CommercialPublic {
-
-	@NotNull(message = "Account Id cannot be null")
-	private UUID accountId;
-
+public class CreateCommercialAmendment extends CommercialCreate {
+	@NotNull
+	private UUID contractAmendment;
 }

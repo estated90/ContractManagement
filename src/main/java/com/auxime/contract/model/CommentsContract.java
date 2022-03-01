@@ -15,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Entity
 @Table(name="comments_contract")
 @AttributeOverride(name = "id", column = @Column(name = "comments_contract_id"))

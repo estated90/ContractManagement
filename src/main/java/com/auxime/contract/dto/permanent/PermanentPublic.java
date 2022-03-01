@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Object to communicate with all action on Permanent contract.
+ * @author Nicolas
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -9,14 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
+ * Class to create a portage convention amendment
+ * 
  * @author Nicolas
  *
  */
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class PortageUpdate extends PortagePublic {
-
-	@NotNull(message = "Contract Id cannot be null")
-	private UUID contractId;
+public class CreatePortageAmendment extends PortageCreate {
+	@NotNull
+	private UUID contractAmendment;
 }

@@ -1,5 +1,10 @@
 package com.auxime.contract.exception;
 
+/**
+ * Exception linked to all action on the CAPE
+ * @author Nicolas
+ *
+ */
 public class CapeException extends Exception {
 	/**
 	 * 

@@ -15,6 +15,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ * @version 1.0.0
+ *
+ */
 @Entity
 @Table(name = "cape")
 @AttributeOverride(name = "id", column = @Column(name = "cape_id"))
@@ -28,6 +33,12 @@ public class Cape extends Contract {
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
 	private CommentsContract comment;
 
+	
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
 	public Cape createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 		} else {

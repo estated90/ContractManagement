@@ -4,36 +4,41 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
-import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 
+/**
+ * @author Nicolas
+ *
+ */
 public interface PortageConventionService {
 
 	/**
 	 * Method to return all contract in DB
 	 * 
-	 * @return The list of Cape
+	 * @return The list of PortageConvention
 	 */
 	List<PortageConvention> getAllContract();
 
 	/**
-	 * Method to return all contract in DB of an account
+	 * Method to return all amendment on a contract in DB
 	 * 
-	 * @return The list of Cape
+	 * @param accountId The the contract ID to look the amendment linked to.
+	 * @return The list of Commercial Contract amendment
 	 */
 	List<PortageConvention> getAllContractFromAccount(UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId the ID of the contract to extract the details from.
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
-	Optional<PortageConvention> getContractById(UUID id);
+	Optional<PortageConvention> getContractById(UUID contractId);
 
 	/**
 	 * This service will be used to create a CAPE object using the ID of the account
@@ -41,8 +46,8 @@ public interface PortageConventionService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
-	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @return The new created contract object will be returned
+	 * @throws PortageConventionException When an error is detected
 	 */
 	PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException;
 
@@ -52,7 +57,7 @@ public interface PortageConventionService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory.
 	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @throws PortageConventionException When an error is detected
 	 */
 	PortageConvention updateContractFromId(PortageUpdate contractPublic) throws PortageConventionException;
 
@@ -61,9 +66,25 @@ public interface PortageConventionService {
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws CapeException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws PortageConventionException When an error is raised if not found
 	 */
 	void deleteContract(PortageUpdate contractPublic) throws PortageConventionException;
+
+	/**
+	 * Create an addendum to a Portage Convention
+	 * 
+	 * @param contractPublic The object contract with the fields mandatory
+	 * @return Portage Convention the created object
+	 * @throws PortageConventionException When an error is thrown during the process
+	 */
+	PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic) throws PortageConventionException;
+
+	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param contractId the ID of the contract to extract the details from.
+	 * @return The list of Portage Convention amendment
+	 */
+	List<PortageConvention> getAllAmendmentContract(UUID contractId);
 
 }

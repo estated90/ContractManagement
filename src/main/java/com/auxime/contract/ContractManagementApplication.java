@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 
+/**
+ * @author Nicolas
+ *
+ */
 @SpringBootApplication
 @EnableTransactionManagement
 @EnableJpaRepositories
@@ -19,6 +23,9 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 @EnableScheduling
 public class ContractManagementApplication {
 
+	/**
+	 * @param args argument for the application launch
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(ContractManagementApplication.class, args);
 	}

@@ -16,12 +16,18 @@ import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.dto.cape.CapeUpdate;
+import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.CapeRepository;
 import com.auxime.contract.service.CapeService;
 
+/**
+ * @author Nicolas
+ * @version 1.0.0
+ *
+ */
 @Service
 @Transactional
 public class CapeServiceImpl implements CapeService {
@@ -42,9 +48,23 @@ public class CapeServiceImpl implements CapeService {
 	}
 
 	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param contractId The Id of the contract to extract
+	 * @return The list of Cape amendment
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Cape> getAllAmendmentContract(UUID contractId) {
+		return capeRepo.FindAllAmendment(contractId);
+	}
+
+	/**
 	 * Method to return all contract in DB of an account
 	 * 
+	 * @param accountId ID of the account to extract the contract from
 	 * @return The list of Cape
+	 * 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -55,15 +75,15 @@ public class CapeServiceImpl implements CapeService {
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId The Id of the contract to extract
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Optional<Cape> getContractById(UUID id) {
-		logger.info("Returning CAPE with id {}", id);
-		Optional<Cape> capeOpt = capeRepo.findById(id);
+	public Optional<Cape> getContractById(UUID contractId) {
+		logger.info("Returning CAPE with id {}", contractId);
+		Optional<Cape> capeOpt = capeRepo.findById(contractId);
 		return capeOpt;
 	}
 
@@ -86,7 +106,6 @@ public class CapeServiceImpl implements CapeService {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
-		contract.createStateContract();
 		return capeRepo.save(contract);
 	}
 
@@ -119,18 +138,22 @@ public class CapeServiceImpl implements CapeService {
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws CapeException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws CapeException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
 	public void deleteContract(CapeUpdate contractPublic) throws CapeException {
 		logger.info("Deleting a CAPE {}", contractPublic.getContractId());
+		Cape cape = capeVerifier(contractPublic);
+		cape.setStatus(false);
+		capeRepo.save(cape);
+	}
+
+	private Cape capeVerifier(CapeUpdate contractPublic) throws CapeException {
+		logger.info("Deleting a CAPE {}", contractPublic.getContractId());
 		Optional<Cape> contractOpt = capeRepo.findById(contractPublic.getContractId());
 		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
-			logger.info("Activity is in DB and is being deleted");
-			contractOpt.get().setStatus(false);
-			capeRepo.save(contractOpt.get());
+			return contractOpt.get();
 		} else {
 			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
 			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
@@ -155,6 +178,32 @@ public class CapeServiceImpl implements CapeService {
 		contract.setStructureContract(contractPublic.getStructureContract());
 		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		contract.setFse(contractPublic.getFse());
+		contract.createStateContract();
 		return contract;
+	}
+
+	/**
+	 * Create an addendum to a CAPE contract
+	 * 
+	 * @param contract The object contract with the fields mandatory
+	 * @return CAPE Contract the created object
+	 * @throws CapeException When an error is thrown during the process
+	 */
+	@Override
+	public Cape createAmendmentCape(CreateCapeAmendment contract) throws CapeException {
+		logger.info("Creat an amendment to CAPE {}", contract.getContractAmendment());
+		if (capeRepo.existsById(contract.getContractAmendment())) {
+			Cape cape = settingCommonFields(new Cape(), contract);
+			cape.createStateContract();
+			cape.setAccountId(contract.getAccountId());
+			cape.setStatus(true);
+			cape.setContractType(ContractType.AMENDMENT);
+			cape.setContractAmendment(contract.getContractAmendment());
+			cape.setCreatedAt(LocalDateTime.now());
+			return capeRepo.save(cape);
+		} else {
+			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
+			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
+		}
 	}
 }

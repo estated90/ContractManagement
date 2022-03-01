@@ -16,13 +16,17 @@ import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
-import com.auxime.contract.exception.CapeException;
+import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Service
 @Transactional
 public class CommercialContractServiceImpl implements CommercialContractService {
@@ -43,9 +47,22 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	}
 
 	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param contractId The the contract ID to look the amendment linked to.
+	 * @return The list of Commercial Contract amendment
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CommercialContract> getAllAmendmentContract(UUID contractId) {
+		return commercialeRepo.FindAllAmendment(contractId);
+	}
+
+	/**
 	 * Method to return all contract in DB of an account
 	 * 
-	 * @return The list of Cape
+	 * @param accountId ID of the account to extract the contract from
+	 * @return The list of Commercial Contract
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -56,15 +73,16 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId The public ID is an UUID linked to the accounts of the
+	 *                   users
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Optional<CommercialContract> getCommercialById(UUID id) {
-		logger.info("Returning Commercial Contract with id {}", id);
-		return commercialeRepo.findById(id);
+	public Optional<CommercialContract> getCommercialById(UUID contractId) {
+		logger.info("Returning Commercial Contract with id {}", contractId);
+		return commercialeRepo.findById(contractId);
 	}
 
 	/**
@@ -74,7 +92,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @throws CommercialContractException When an error is detected
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
@@ -96,18 +114,18 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory.
 	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @throws CommercialContractException When an error is detected
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
-	public CommercialContract updateCommercialFromId(CommercialUpdate contractPublic) throws CommercialContractException {
+	public CommercialContract updateCommercialFromId(CommercialUpdate contractPublic)
+			throws CommercialContractException {
 		logger.info("Updating Commercial Contract with id : {}", contractPublic.getContractId());
 		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractPublic.getContractId());
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
-		logger.info(ExceptionMessageConstant.CAPE_FOUND);
 		CommercialContract contract = settingCommonFields(contractOpt.get(), contractPublic);
 		contract.setUpdatedAt(LocalDateTime.now());
 		return commercialeRepo.save(contract);
@@ -118,8 +136,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws CapeException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws CommercialContractException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
@@ -153,10 +170,36 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		contract.setStructureContract(contractPublic.getStructureContract());
 		contract.setEndDate(contractPublic.getEndDate());
 		contract.setClientId(contractPublic.getClientId());
-		contract.setGlobalAmount(Math.round(contractPublic.getGlobalAmount()*100.0)/100.0);
-		contract.setMonthlyAmount(Math.round(contractPublic.getMonthlyAmount()*100.0)/100.0);
+		contract.setGlobalAmount(Math.round(contractPublic.getGlobalAmount() * 100.0) / 100.0);
+		contract.setMonthlyAmount(Math.round(contractPublic.getMonthlyAmount() * 100.0) / 100.0);
 		contract.setMissionDuration(contractPublic.getMissionDuration());
 		contract.setDurationUnit(contractPublic.getDurationUnit());
 		return contract;
+	}
+
+	/**
+	 * Create an addendum to a CAPE contract
+	 * 
+	 * @param contractPublic The object contract with the fields mandatory
+	 * @return CommercialContract Contract the created object
+	 * @throws CommercialContractException When an error is thrown during the process
+	 */
+	@Override
+	public CommercialContract createAmendmentCommercial(CreateCommercialAmendment contractPublic)
+			throws CommercialContractException {
+		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
+		if (commercialeRepo.existsById(contractPublic.getContractAmendment())) {
+			CommercialContract contract = settingCommonFields(new CommercialContract(), contractPublic);
+			contract.createStateContract();
+			contract.setAccountId(contractPublic.getAccountId());
+			contract.setStatus(true);
+			contract.setContractType(ContractType.AMENDMENT);
+			contract.setContractAmendment(contractPublic.getContractAmendment());
+			contract.setCreatedAt(LocalDateTime.now());
+			return commercialeRepo.save(contract);
+		} else {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
 	}
 }

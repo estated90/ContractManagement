@@ -13,6 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Entity
 @Table(name="commercial_contract")
 @AttributeOverride(name = "id", column = @Column(name = "commercial_contract_id"))
@@ -26,6 +30,11 @@ public class PortageConvention extends Contract{
 	@Column(name="commission")
 	private int commission;
 	
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
 	public PortageConvention createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 		} else {

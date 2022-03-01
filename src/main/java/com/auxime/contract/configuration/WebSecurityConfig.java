@@ -88,6 +88,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
 	}
 
+	/**
+	 * @return The denied handler
+	 */
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler() {
 		return (request, response, ex) -> {

@@ -23,12 +23,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.service.PortageConventionService;
 
+/**
+ * @author Nicolas
+ *
+ */
 @RestController
 @Validated
 @RequestMapping("/api/contract/portageConvention")
@@ -40,9 +45,10 @@ public class PortageConventionController {
 
 	/**
 	 * 
-	 * This controller is designed to return all the information of the CAPE.
+	 * This controller is designed to return all the information of the
+	 * PortageConvention.
 	 * 
-	 * @return A List<Cape> in DB
+	 * @return A list of contract in DB
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,9 +59,26 @@ public class PortageConventionController {
 
 	/**
 	 * 
-	 * This controller is designed to return all the information of the CAPE.
+	 * This controller is designed to return all amendment of a PortageConvention.
 	 * 
-	 * @return A List<Cape> in DB
+	 * @param contractId The Id of the contract to extract
+	 * @return A list of contract in DB filtered
+	 * 
+	 */
+	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<PortageConvention>> getListCommercialContractAmendment(
+			@RequestParam @NotNull UUID contractId) {
+		logger.info("Getting contracts with linked to {}", contractId);
+		return new ResponseEntity<>(portageService.getAllAmendmentContract(contractId), HttpStatus.OK);
+	}
+
+	/**
+	 * 
+	 * This controller is designed to return all the information of the
+	 * PortageConvention.
+	 * 
+	 * @param accountId The Id of the account to extract the contract from
+	 * @return A list of contract in DB
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,14 +92,14 @@ public class PortageConventionController {
 	 * This controller is designed to return all the information about a contract.
 	 * It will allow the display of all these information in a designed form.
 	 * 
-	 * @param publicId The public ID is an int linked to the contract of the users
+	 * @param contractId The ID of the contract to extract
 	 * @return A ContractPublic, if found. The account will return all the linked
 	 *         objects
 	 */
 	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<PortageConvention>> getContractById(@RequestParam @NotNull UUID capeId) {
+	public ResponseEntity<Optional<PortageConvention>> getContractById(@RequestParam @NotNull UUID contractId) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(portageService.getContractById(capeId), HttpStatus.OK);
+		return new ResponseEntity<>(portageService.getContractById(contractId), HttpStatus.OK);
 	}
 
 	/**
@@ -87,8 +110,7 @@ public class PortageConventionController {
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
 	 * @throws PortageConventionException An exception is raised if any problem is
-	 *                                     encountered when getting or reading the
-	 *                                     id
+	 *                                    encountered when getting or reading the id
 	 */
 	@PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PortageConvention> updateContract(@RequestBody @Valid PortageUpdate contractPublic)
@@ -103,8 +125,8 @@ public class PortageConventionController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws ContractException An exception is raised if any problem is
-	 *                           encountered when getting or reading the id
+	 * @throws PortageConventionException An exception is raised if any problem is
+	 *                                    encountered when getting or reading the id
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PortageConvention> createContract(@RequestBody @Valid PortageCreate contractPublic)
@@ -115,13 +137,29 @@ public class PortageConventionController {
 
 	/**
 	 * 
+	 * This controller is designed to create a new amendment in DB.
+	 * 
+	 * @param contractPublic Object with all the field of the contract for its
+	 *                       creation
+	 * @return A Permanent Contract object with the ID and infos
+	 * @throws PortageConventionException An exception is raised if any problem is
+	 *                                    encountered when getting or reading the id
+	 */
+	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PortageConvention> createAmendmentContract(
+			@RequestBody @Valid CreatePortageAmendment contractPublic) throws PortageConventionException {
+		logger.info("Creating amendment contract");
+		return new ResponseEntity<>(portageService.createPortageConventionContract(contractPublic), HttpStatus.CREATED);
+	}
+
+	/**
+	 * 
 	 * This controller is designed to create a new contract in DB.
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws ContractException An exception is raised if any problem is
-	 *                           encountered when getting or reading the id
-	 * @throws ActivityException
+	 * @throws PortageConventionException An exception is raised if any problem is
+	 *                                    encountered when getting or reading the id
 	 */
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PortageConvention> deleteContract(@Valid @RequestBody PortageUpdate contractPublic)

@@ -8,6 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Class use to update a commercial contract
+ * 
+ * @author Nicolas
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

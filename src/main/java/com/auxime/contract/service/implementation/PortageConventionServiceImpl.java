@@ -13,16 +13,20 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortagePublic;
 import com.auxime.contract.dto.portage.PortageUpdate;
-import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.PortageConventionRepository;
 import com.auxime.contract.service.PortageConventionService;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Service
 @Transactional
 public class PortageConventionServiceImpl implements PortageConventionService {
@@ -34,14 +38,26 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	/**
 	 * Method to return all contract in DB
 	 * 
-	 * @return The list of Cape
-	 */ 
+	 * @return The list of PortageConvention
+	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<PortageConvention> getAllContract() {
 		return portageRepo.findAll();
 	}
 
+	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param contractId the ID of the contract to extract the details from.
+	 * @return The list of Portage Convention amendment
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<PortageConvention> getAllAmendmentContract(UUID contractId) {
+		return portageRepo.FindAllAmendment(contractId);
+	}
+	
 	/**
 	 * Method to return all contract in DB of an account
 	 * 
@@ -56,15 +72,15 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId the ID of the contract to extract the details from.
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Optional<PortageConvention> getContractById(UUID id) {
-		logger.info("Returning Portage Convention with id {}", id);
-		return portageRepo.findById(id);
+	public Optional<PortageConvention> getContractById(UUID contractId) {
+		logger.info("Returning Portage Convention with id {}", contractId);
+		return portageRepo.findById(contractId);
 	}
 
 	/**
@@ -73,8 +89,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
-	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @return The new created contract object will be returned
+	 * @throws PortageConventionException When an error is detected
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
@@ -96,7 +112,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory.
 	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @throws PortageConventionException When an error is detected
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
@@ -118,8 +134,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws CapeException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws PortageConventionException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
@@ -152,5 +167,30 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 		contract.setContractTitle(contractPublic.getContractTitle());
 		contract.setStructureContract(contractPublic.getStructureContract());
 		return contract;
+	}
+	
+	/**
+	 * Create an addendum to a temporary contract
+	 * 
+	 * @param contractPublic The object contract with the fields mandatory
+	 * @return Portage Convention the created object
+	 * @throws PortageConventionException When an error is thrown during the process
+	 */
+	@Override
+	public PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic) throws PortageConventionException {
+		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
+		if (portageRepo.existsById(contractPublic.getContractAmendment())) {
+			PortageConvention contract = settingCommonFields(new PortageConvention(), contractPublic);
+			contract.createStateContract();
+			contract.setAccountId(contractPublic.getAccountId());
+			contract.setStatus(true);
+			contract.setContractType(ContractType.AMENDMENT);
+			contract.setContractAmendment(contractPublic.getContractAmendment());
+			contract.setCreatedAt(LocalDateTime.now());
+			return portageRepo.save(contract);
+		} else {
+			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
+			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
+		}
 	}
 }

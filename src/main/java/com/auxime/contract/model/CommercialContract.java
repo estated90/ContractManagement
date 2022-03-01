@@ -18,21 +18,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ * @version 1.0.0
+ */
 @Entity
-@Table(name="commercial_contract")
+@Table(name = "commercial_contract")
 @AttributeOverride(name = "id", column = @Column(name = "commercial_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
-public class CommercialContract extends Contract{
+public class CommercialContract extends Contract {
 
 	@Column(name = "end_date")
 	private LocalDate endDate;
 	@Column(name = "client_id")
 	private UUID clientId;
-	@Column(name="global_amount")
+	@Column(name = "global_amount")
 	private double globalAmount;
-	@Column(name="monthly_amount")
+	@Column(name = "monthly_amount")
 	private double monthlyAmount;
 	@Column(name = "mission_duration")
 	private int missionDuration;
@@ -42,7 +46,12 @@ public class CommercialContract extends Contract{
 	@Column(name = "contract_status")
 	@Enumerated(EnumType.STRING)
 	private ContractStatus contractStatus;
-	
+
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
 	public CommercialContract createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 		} else {

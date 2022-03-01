@@ -31,7 +31,7 @@ public class FeignClientInterceptor implements RequestInterceptor {
 	 * Apply method overriding. It transfer the authorization received by API to the
 	 * other microservice. It will allow to authorize the request.
 	 * 
-	 * @param requestTemplate
+	 * @param requestTemplate to intercept
 	 */
 	@Override
 	public void apply(RequestTemplate requestTemplate) {

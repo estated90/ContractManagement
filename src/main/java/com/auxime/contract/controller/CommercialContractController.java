@@ -23,45 +23,68 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auxime.contract.dto.permanent.PermanentCreate;
-import com.auxime.contract.dto.permanent.PermanentUpdate;
-import com.auxime.contract.exception.PermanentContractException;
-import com.auxime.contract.model.PermanentContract;
-import com.auxime.contract.service.PermanentContractService;
+import com.auxime.contract.dto.commercial.CommercialCreate;
+import com.auxime.contract.dto.commercial.CommercialUpdate;
+import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
+import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.model.CommercialContract;
+import com.auxime.contract.service.CommercialContractService;
 
+/**
+ * @author Nicolas
+ *
+ */
 @RestController
 @Validated
-@RequestMapping("/api/contract/permanentContract")
+@RequestMapping("/api/contract/commercialContract")
 public class CommercialContractController {
 
 	private static final Logger logger = LogManager.getLogger(CommercialContractController.class);
 	@Autowired
-	private PermanentContractService permanentService;
+	private CommercialContractService commercialService;
 
 	/**
 	 * 
-	 * This controller is designed to return all the information of the CAPE.
+	 * This controller is designed to return all the information of the
+	 * CommercialContract.
 	 * 
-	 * @return A List<Cape> in DB
+	 * @return A List Commercial Contract in DB
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getAllCape() {
+	public ResponseEntity<List<CommercialContract>> getAllCape() {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(permanentService.getAllPermanentContract(), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllCommercial(), HttpStatus.OK);
 	}
 
 	/**
 	 * 
-	 * This controller is designed to return all the information of the CAPE.
+	 * This controller is designed to return all amendment of a CommercialContract.
 	 * 
-	 * @return A List<Cape> in DB
+	 * @param contractId The Id of the contract to extract
+	 * @return A List Commercial Contract in DB filtered
+	 * 
+	 */
+	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<CommercialContract>> getListCommercialContractAmendment(
+			@RequestParam @NotNull UUID contractId) {
+		logger.info("Getting contracts with linked to {}", contractId);
+		return new ResponseEntity<>(commercialService.getAllAmendmentContract(contractId), HttpStatus.OK);
+	}
+
+	/**
+	 * 
+	 * This controller is designed to return all the contract of an
+	 * account.
+	 * 
+	 * @param accountId The Id of the account to extract the contract from
+	 * @return A List Commercial Contract in DB
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<CommercialContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(permanentService.getAllPermanentContractFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllCommercialFromAccount(accountId), HttpStatus.OK);
 	}
 
 	/**
@@ -69,14 +92,14 @@ public class CommercialContractController {
 	 * This controller is designed to return all the information about a contract.
 	 * It will allow the display of all these information in a designed form.
 	 * 
-	 * @param publicId The public ID is an int linked to the contract of the users
+	 * @param capeId The ID of the contract to extract
 	 * @return A ContractPublic, if found. The account will return all the linked
 	 *         objects
 	 */
 	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<PermanentContract>> getContractById(@RequestParam @NotNull UUID capeId) {
+	public ResponseEntity<Optional<CommercialContract>> getContractById(@RequestParam @NotNull UUID capeId) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(permanentService.getContractById(capeId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getCommercialById(capeId), HttpStatus.OK);
 	}
 
 	/**
@@ -86,16 +109,15 @@ public class CommercialContractController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws PermanentContractException 
-	 * @throws ContractException           An exception is raised if any problem is
+	 * @throws CommercialContractException An exception is raised if any problem is
 	 *                                     encountered when getting or reading the
 	 *                                     id
 	 */
 	@PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PermanentContract> updateContract(@RequestBody @Valid PermanentUpdate contractPublic)
-			throws PermanentContractException {
+	public ResponseEntity<CommercialContract> updateContract(@RequestBody @Valid CommercialUpdate contractPublic)
+			throws CommercialContractException {
 		logger.info("Updating contracts with id : {}", contractPublic.getContractId());
-		return new ResponseEntity<>(permanentService.updateContractFromId(contractPublic), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.updateCommercialFromId(contractPublic), HttpStatus.OK);
 	}
 
 	/**
@@ -104,14 +126,33 @@ public class CommercialContractController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws ContractException An exception is raised if any problem is
-	 *                           encountered when getting or reading the id
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PermanentContract> createContract(@RequestBody @Valid PermanentCreate contractPublic)
-			throws PermanentContractException {
+	public ResponseEntity<CommercialContract> createContract(@RequestBody @Valid CommercialCreate contractPublic)
+			throws CommercialContractException {
 		logger.info("Creating contracts");
-		return new ResponseEntity<>(permanentService.createNewContract(contractPublic), HttpStatus.CREATED);
+		return new ResponseEntity<>(commercialService.createNewCommercial(contractPublic), HttpStatus.CREATED);
+	}
+
+	/**
+	 * 
+	 * This controller is designed to create a new amendment in DB.
+	 * 
+	 * @param contractPublic Object with all the field of the contract for its
+	 *                       creation
+	 * @return A Permanent Contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> createAmendmentContract(
+			@RequestBody @Valid CreateCommercialAmendment contractPublic) throws CommercialContractException {
+		logger.info("Creating amendment contract");
+		return new ResponseEntity<>(commercialService.createAmendmentCommercial(contractPublic), HttpStatus.CREATED);
 	}
 
 	/**
@@ -120,15 +161,15 @@ public class CommercialContractController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws ContractException An exception is raised if any problem is
-	 *                           encountered when getting or reading the id
-	 * @throws ActivityException
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
 	 */
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PermanentContractException> deleteContract(@Valid @RequestBody PermanentUpdate contractPublic)
-			throws PermanentContractException {
+	public ResponseEntity<CommercialContract> deleteContract(@Valid @RequestBody CommercialUpdate contractPublic)
+			throws CommercialContractException {
 		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		permanentService.deleteContract(contractPublic);
+		commercialService.deleteCommercial(contractPublic);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

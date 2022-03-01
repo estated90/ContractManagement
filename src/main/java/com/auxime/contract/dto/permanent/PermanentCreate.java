@@ -8,6 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Object used to create a Permanent contract in DB
+ * 
+ * @author Nicolas
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

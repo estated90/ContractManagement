@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentPublic;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
@@ -22,6 +23,10 @@ import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.PermanentContractRepository;
 import com.auxime.contract.service.PermanentContractService;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Service
 @Transactional
 public class PermanentContractServiceImpl implements PermanentContractService {
@@ -33,7 +38,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	/**
 	 * Method to return all contract in DB
 	 * 
-	 * @return The list of Cape
+	 * @return The list of PermanentContract
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -42,9 +47,22 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	}
 
 	/**
-	 * Method to return all contract in DB of an account
+	 * Method to return all amendment on a contract in DB
 	 * 
-	 * @return The list of Cape
+	 * @param contractId the ID of the contract to extract the details from.
+	 * @return The list of Permanent Contract amendment
+	 */
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<PermanentContract> getAllAmendmentContract(UUID contractId) {
+		return permanentRepo.FindAllAmendment(contractId);
+	}
+	
+	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param accountId The the contract ID to look the amendment linked to.
+	 * @return The list of Permanent Contract amendment
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -55,15 +73,15 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId the ID of the contract to extract the details from.
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Optional<PermanentContract> getContractById(UUID id) {
-		logger.info("Returning Permanent Contract with id {}", id);
-		return permanentRepo.findById(id);
+	public Optional<PermanentContract> getContractById(UUID contractId) {
+		logger.info("Returning Permanent Contract with id {}", contractId);
+		return permanentRepo.findById(contractId);
 	}
 
 	/**
@@ -72,7 +90,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
-	 * @return The new updated contract object will be returned
+	 * @return The new created contract object will be returned
 	 * @throws PermanentContractException When an error is detected
 	 */
 	@Override
@@ -106,7 +124,6 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 		}
-		logger.info(ExceptionMessageConstant.CAPE_FOUND);
 		PermanentContract contract = settingCommonFields(contractOpt.get(), contractPublic);
 		contract.setUpdatedAt(LocalDateTime.now());
 		return permanentRepo.save(contract);
@@ -117,8 +134,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws PermanentContractException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws PermanentContractException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
@@ -155,5 +171,31 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 		contract.setRuptureDate(contractPublic.getRuptureDate());
 		contract.setWorkTime(contractPublic.getWorkTime());
 		return contract;
+	}
+
+	/**
+	 * Create an addendum to a temporary contract
+	 * 
+	 * @param contractPublic The object contract with the fields mandatory
+	 * @return Portage Convention the created object
+	 * @throws PermanentContractException When an error is thrown during the process
+	 */
+	@Override
+	public PermanentContract createPermanentContractAmendment(CreatePermanentAmendment contractPublic)
+			throws PermanentContractException {
+		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
+		if (permanentRepo.existsById(contractPublic.getContractAmendment())) {
+			PermanentContract contract = settingCommonFields(new PermanentContract(), contractPublic);
+			contract.createStateContract();
+			contract.setAccountId(contractPublic.getAccountId());
+			contract.setStatus(true);
+			contract.setContractType(ContractType.AMENDMENT);
+			contract.setContractAmendment(contractPublic.getContractAmendment());
+			contract.setCreatedAt(LocalDateTime.now());
+			return permanentRepo.save(contract);
+		} else {
+			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+		}
 	}
 }

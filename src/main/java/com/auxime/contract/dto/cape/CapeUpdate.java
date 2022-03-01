@@ -8,6 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Class used to update the CAPE
+ * 
+ * @author Nicolas
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

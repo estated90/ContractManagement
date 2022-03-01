@@ -23,6 +23,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ * @version 1.0.0
+ *
+ */
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @MappedSuperclass
 @Setter
@@ -33,7 +38,7 @@ public abstract class Contract {
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	private UUID id;
+	private UUID contractId;
 	@Column(name = "contract_date")
 	private LocalDate contractDate;
 	@Column(name = "starting_date")
@@ -55,15 +60,19 @@ public abstract class Contract {
 	private ContractType contractType;
 	@Column(name = "contract_amendment")
 	private UUID contractAmendment;
-	@Column(name = "start_amendment")
-	private LocalDate startAmendment;
-	@Column(name = "end_amendment")
-	private LocalDate endAmendment;
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
+	/**
+	 * Return if the date is between a starting date and an ending date
+	 * 
+	 * @param dateToVerify Date to use to calculate if true or false
+	 * @param startDate Starting date to evaluate
+	 * @param endDate Ending date to evaluate
+	 * @return Boolean value that validate if the date is between the two bornes
+	 */
 	protected boolean dateCheckerBetween(LocalDate dateToVerify, LocalDate startDate, LocalDate endDate) {
 		if (startDate == null) {
 			return endDate == null || dateToVerify.isBefore(endDate) || dateToVerify.isEqual(endDate);

@@ -4,32 +4,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
-import com.auxime.contract.dto.permanent.PermanentCreate;
-import com.auxime.contract.dto.permanent.PermanentUpdate;
-import com.auxime.contract.exception.PermanentContractException;
-import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
+import com.auxime.contract.dto.temporary.TemporaryCreate;
+import com.auxime.contract.dto.temporary.TemporaryUpdate;
+import com.auxime.contract.exception.TemporaryContractException;
+import com.auxime.contract.model.TemporaryContract;
 
 /**
  * @author Nicolas
  *
  */
-public interface PermanentContractService {
+public interface TemporaryContractService {
 
 	/**
 	 * Method to return all contract in DB
 	 * 
-	 * @return The list of PermanentContract
+	 * @return The list of TemporaryContract
 	 */
-	List<PermanentContract> getAllPermanentContract();
+	List<TemporaryContract> getAllContract();
 
 	/**
-	 * Method to return all amendment on a contract in DB
+	 * Method to return all contract in DB from account
 	 * 
 	 * @param accountId The the contract ID to look the amendment linked to.
-	 * @return The list of Commercial Contract amendment
+	 * @return The list of Temporary Contract amendment
 	 */
-	List<PermanentContract> getAllPermanentContractFromAccount(UUID accountId);
+	List<TemporaryContract> getAllContractFromAccount(UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -38,7 +38,7 @@ public interface PermanentContractService {
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
-	Optional<PermanentContract> getContractById(UUID contractId);
+	Optional<TemporaryContract> getContractById(UUID contractId);
 
 	/**
 	 * This service will be used to create a CAPE object using the ID of the account
@@ -47,9 +47,9 @@ public interface PermanentContractService {
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
-	 * @throws PermanentContractException When an error is detected
+	 * @throws TemporaryContractException When an error is detected
 	 */
-	PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException;
+	TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID
@@ -57,36 +57,35 @@ public interface PermanentContractService {
 	 * 
 	 * @param contractPublic The object contractPublic with the fields mandatory.
 	 * @return The new updated contract object will be returned
-	 * @throws PermanentContractException When an error is detected
+	 * @throws TemporaryContractException When an error is detected
 	 */
-	PermanentContract updateContractFromId(PermanentUpdate contractPublic) throws PermanentContractException;
+	TemporaryContract updateContractFromId(TemporaryUpdate contractPublic) throws TemporaryContractException;
 
 	/**
 	 * This service will be used to delete a contract object in the DB using the ID
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws PermanentContractException When an error is raised if not found
+	 * @throws TemporaryContractException When an error is raised if not found
 	 */
-	void deleteContract(PermanentUpdate contractPublic) throws PermanentContractException;
+	void deleteContract(TemporaryUpdate contractPublic) throws TemporaryContractException;
 
 	/**
 	 * Create an addendum to a temporary contract
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
-	 * @return Portage Convention the created object
-	 * @throws PermanentContractException When an error is thrown during the process
+	 * @return Temporary Contract the created object
+	 * @throws TemporaryContractException When an error is thrown during the process
 	 */
-	PermanentContract createPermanentContractAmendment(
-			CreatePermanentAmendment contractPublic)
-			throws PermanentContractException;
+	TemporaryContract createTemporaryContractAmendment(CreateTemporaryAmendment contractPublic)
+			throws TemporaryContractException;
 
 	/**
 	 * Method to return all amendment on a contract in DB
 	 * 
 	 * @param contractId the ID of the contract to extract the details from.
-	 * @return The list of Commercial Permanent amendment
+	 * @return The list of Temporary Contract amendment
 	 */
-	List<PermanentContract> getAllAmendmentContract(UUID contractId);
+	List<TemporaryContract> getAllAmendmentContract(UUID contractId);
 
 }

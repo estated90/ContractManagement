@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Class used to update the Permanent contract
+ * Class to create a permanent contract amendment
+ * 
  * @author Nicolas
  *
  */
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class PermanentUpdate extends PermanentPublic {
-
-	@NotNull(message = "Contract Id cannot be null")
-	private UUID contractId;
+public class CreatePermanentAmendment extends PermanentCreate {
+	@NotNull
+	private UUID contractAmendment;
 }

@@ -6,9 +6,14 @@ import java.util.UUID;
 
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
+import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.model.Cape;
 
+/**
+ * @author Nicolas
+ * @version 1.0.0
+ */
 public interface CapeService {
 
 	/**
@@ -21,18 +26,20 @@ public interface CapeService {
 	/**
 	 * Method to return all contract in DB of an account
 	 * 
+	 * @param accountId ID of the account to extract the contract from
 	 * @return The list of Cape
+	 * 
 	 */
 	List<Cape> getAllCapeFromAccount(UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
 	 * 
-	 * @param publicId The public ID is an UUID linked to the accounts of the users
+	 * @param contractId The Id of the contract to extract
 	 * @return An optional account, if found. The account will return all the linked
 	 *         objects
 	 */
-	Optional<Cape> getContractById(UUID id);
+	Optional<Cape> getContractById(UUID contractId);
 
 	/**
 	 * This service will be used to create a CAPE object using the ID of the account
@@ -60,9 +67,25 @@ public interface CapeService {
 	 * of the contract object.
 	 * 
 	 * @param contractPublic The object activityPublic with the fields mandatory
-	 * @throws CapeException     When an error is raised if not found
-	 * @throws ActivityException
+	 * @throws CapeException When an error is raised if not found
 	 */
 	void deleteContract(CapeUpdate contractPublic) throws CapeException;
+
+	/**
+	 * Create an addendum to a CAPE contract
+	 * 
+	 * @param contract The object contract with the fields mandatory
+	 * @return CAPE Contract the created object
+	 * @throws CapeException When an error is thrown during the process
+	 */
+	Cape createAmendmentCape(CreateCapeAmendment contract) throws CapeException;
+
+	/**
+	 * Method to return all amendment on a contract in DB
+	 * 
+	 * @param contractId The Id of the contract to extract
+	 * @return The list of Cape amendment
+	 */
+	List<Cape> getAllAmendmentContract(UUID contractId);
 
 }

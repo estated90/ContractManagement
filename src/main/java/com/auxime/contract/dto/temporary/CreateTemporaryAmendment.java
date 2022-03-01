@@ -9,14 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
+ * Class to create a Temporary contract amendment
+ * 
  * @author Nicolas
  *
  */
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class TemporaryUpdate extends TemporaryPublic {
-
-	@NotNull(message = "Contract Id cannot be null")
-	private UUID contractId;
+public class CreateTemporaryAmendment extends TemporaryCreate {
+	@NotNull
+	private UUID contractAmendment;
 }

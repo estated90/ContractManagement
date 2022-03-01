@@ -10,6 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import com.auxime.contract.model.TemporaryContract;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Repository
 public interface TemporaryContractRepository extends JpaRepository<TemporaryContract, UUID> {
 
@@ -19,5 +23,12 @@ public interface TemporaryContractRepository extends JpaRepository<TemporaryCont
 	 */
 	@Query("SELECT i FROM TemporaryContract i WHERE accountId= :accountId")
 	List<TemporaryContract> findByAccountId(@Param("accountId") UUID accountId);
+	
+	/**
+	 * @param contractId Id of the contract to find the amendment linked.
+	 * @return An optional list of Temporary Contract
+	 */
+	@Query("SELECT i FROM TemporaryContract i WHERE contractAmendment= :contractId AND status=true")
+	List<TemporaryContract> FindAllAmendment(@Param("contractId") UUID contractId);
 	
 }

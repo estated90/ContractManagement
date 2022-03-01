@@ -12,6 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Common class of the commercial contract for API use
+ * @author Nicolas
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

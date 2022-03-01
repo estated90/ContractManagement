@@ -1,4 +1,4 @@
-package com.auxime.contract.dto.portage;
+package com.auxime.contract.dto.cape;
 
 import java.util.UUID;
 
@@ -9,14 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
+ * Class to create a CAPE amendment
+ * 
  * @author Nicolas
  *
  */
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class PortageUpdate extends PortagePublic {
-
-	@NotNull(message = "Contract Id cannot be null")
-	private UUID contractId;
+public class CreateCapeAmendment extends CapeCreate {
+	@NotNull
+	private UUID contractAmendment;
 }

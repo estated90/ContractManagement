@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.DecimalMax;
 
 import com.auxime.contract.constants.ContractState;
 
@@ -16,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Nicolas
+ *
+ */
 @Entity
 @Table(name="temporary_contract")
 @AttributeOverride(name = "id", column = @Column(name = "temporary_contract_id"))
@@ -31,6 +34,11 @@ public class TemporaryContract extends Contract{
 	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
 	private CommentsContract comment;
 	
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
 	public TemporaryContract createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 		} else {
