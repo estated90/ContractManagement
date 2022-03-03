@@ -1,13 +1,17 @@
 package com.auxime.contract.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.auxime.contract.constants.ContractState;
@@ -46,6 +50,8 @@ public class CommercialContract extends Contract {
 	@Column(name = "contract_status")
 	@Enumerated(EnumType.STRING)
 	private ContractStatus contractStatus;
+	@OneToMany(targetEntity = CommentCommercialContract.class, cascade = CascadeType.ALL)
+	private Set<CommentCommercialContract> comments = new HashSet<>();
 
 	/**
 	 * Calculate the State of a contract and apply it
@@ -64,5 +70,9 @@ public class CommercialContract extends Contract {
 			}
 		}
 		return this;
+	}
+	
+	public void addComment(CommentCommercialContract comment) {
+		this.comments.add(comment);
 	}
 }

@@ -12,12 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.model.CommentCommercialContract;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.CommercialRepository;
@@ -105,6 +108,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
 		contract.createStateContract();
+		contract.setContractStatus(ContractStatus.DRAFT);
 		return commercialeRepo.save(contract);
 	}
 
@@ -182,7 +186,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return CommercialContract Contract the created object
-	 * @throws CommercialContractException When an error is thrown during the process
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
 	 */
 	@Override
 	public CommercialContract createAmendmentCommercial(CreateCommercialAmendment contractPublic)
@@ -201,5 +206,124 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
+	}
+
+	/**
+	 * Validate a contract in DB. Will generate the PDF.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return Updated CommercialContract
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
+	 */
+	@Override
+	public CommercialContract validateContract(UUID contractId) throws CommercialContractException {
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
+		if (contractOpt.isEmpty() || !contractOpt.get().getContractStatus().equals(ContractStatus.PENDING_VALIDATION)
+				&& !contractOpt.get().getContractStatus().equals(ContractStatus.MODIFICATION_REQUIRED)) {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
+		CommercialContract contract = contractOpt.get();
+		contract.setContractStatus(ContractStatus.VALIDATED);
+		return commercialeRepo.save(contract);
+	}
+
+	/**
+	 * Refuse a contract in DB.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return Updated CommercialContract
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
+	 */
+	@Override
+	public CommercialContract refuseContract(UUID contractId) throws CommercialContractException {
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
+		if (contractOpt.isEmpty() || !contractOpt.get().getContractStatus().equals(ContractStatus.PENDING_VALIDATION)
+				&& !contractOpt.get().getContractStatus().equals(ContractStatus.MODIFICATION_REQUIRED)) {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
+		CommercialContract contract = contractOpt.get();
+		contract.setContractStatus(ContractStatus.REFUSED);
+		return commercialeRepo.save(contract);
+	}
+
+	/**
+	 * Put a contract in waiting for validation by auxime.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return Updated CommercialContract
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
+	 */
+	@Override
+	public CommercialContract pendingValidationContract(UUID contractId) throws CommercialContractException {
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
+		if (contractOpt.isEmpty() || !contractOpt.get().getContractStatus().equals(ContractStatus.DRAFT)) {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
+		CommercialContract contract = contractOpt.get();
+		contract.setContractStatus(ContractStatus.PENDING_VALIDATION);
+		return commercialeRepo.save(contract);
+	}
+
+	/**
+	 * Ask for modification for a contract in DB.
+	 * 
+	 * @param contractId    The ID of the contract to change the status
+	 * @param commentCreate The comment to ask the modification
+	 * @return Updated CommercialContract
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
+	 */
+	@Override
+	public CommercialContract modificationRequired(UUID contractId, CommentCommercialPublic commentCreate)
+			throws CommercialContractException {
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
+		if (contractOpt.isEmpty() || !contractOpt.get().getContractStatus().equals(ContractStatus.PENDING_VALIDATION)) {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
+		CommercialContract contract = contractOpt.get();
+		contract.setContractStatus(ContractStatus.MODIFICATION_REQUIRED);
+		CommentCommercialContract comment = setCommonFieldsComments(new CommentCommercialContract(), commentCreate);
+		contract.addComment(comment);
+		return commercialeRepo.save(contract);
+	}
+
+	/**
+	 * Adding a comment to answer.
+	 * 
+	 * @param contractId    The ID of the contract to change the status
+	 * @param commentCreate The comment to ask the modification
+	 * @return Updated CommercialContract
+	 * @throws CommercialContractException When an error is thrown during the
+	 *                                     process
+	 */
+	@Override
+	public CommercialContract commentingContract(UUID contractId, CommentCommercialPublic commentCreate)
+			throws CommercialContractException {
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
+		if (contractOpt.isEmpty()
+				|| !contractOpt.get().getContractStatus().equals(ContractStatus.MODIFICATION_REQUIRED)) {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+		}
+		CommercialContract contract = contractOpt.get();
+		CommentCommercialContract comment = setCommonFieldsComments(new CommentCommercialContract(), commentCreate);
+		contract.addComment(comment);
+		return commercialeRepo.save(contract);
+	}
+
+	private CommentCommercialContract setCommonFieldsComments(CommentCommercialContract comment,
+			CommentCommercialPublic commentCreate) {
+		comment.setComment(commentCreate.getComment());
+		comment.setCreatedAt(LocalDateTime.now());
+		comment.setFirstName(commentCreate.getFirstName());
+		comment.setLastName(commentCreate.getLastName());
+		return comment;
 	}
 }

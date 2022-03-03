@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
@@ -74,8 +75,7 @@ public class CommercialContractController {
 
 	/**
 	 * 
-	 * This controller is designed to return all the contract of an
-	 * account.
+	 * This controller is designed to return all the contract of an account.
 	 * 
 	 * @param accountId The Id of the account to extract the contract from
 	 * @return A List Commercial Contract in DB
@@ -97,9 +97,9 @@ public class CommercialContractController {
 	 *         objects
 	 */
 	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<CommercialContract>> getContractById(@RequestParam @NotNull UUID capeId) {
+	public ResponseEntity<Optional<CommercialContract>> getContractById(@RequestParam @NotNull UUID accountId) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(commercialService.getCommercialById(capeId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getCommercialById(accountId), HttpStatus.OK);
 	}
 
 	/**
@@ -171,5 +171,92 @@ public class CommercialContractController {
 		logger.info("Deleting contracts : {}", contractPublic.getContractId());
 		commercialService.deleteCommercial(contractPublic);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	/**
+	 * 
+	 * Controller to ask modification to a contract. Will have a feed of comments.
+	 * 
+	 * @param contractId    The ID of the contract to change the status
+	 * @param commentCreate The comment to ask the modification
+	 * @return A contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PutMapping(value = "/askModification", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> askModificationToUser(@RequestParam @Valid UUID contractId,
+			@RequestBody @Valid CommentCommercialPublic commentCreate) throws CommercialContractException {
+		logger.info("Asking modification on contract id : {}", contractId);
+		return new ResponseEntity<>(commercialService.modificationRequired(contractId, commentCreate), HttpStatus.OK);
+	}
+
+	/**
+	 * 
+	 * Controller to ask for validation for a contract.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return A contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PutMapping(value = "/pendingValidation", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> askForValidation(@RequestParam @Valid UUID contractId)
+			throws CommercialContractException {
+		logger.info("Asking validation for contract id : {}", contractId);
+		return new ResponseEntity<>(commercialService.pendingValidationContract(contractId), HttpStatus.OK);
+	}
+	
+	/**
+	 * 
+	 * Controller to refuse a contract. It will not be allowed to update it after.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return A contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PutMapping(value = "/refuseContract", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> refuseContractDraft(@RequestParam @Valid UUID contractId)
+			throws CommercialContractException {
+		logger.info("Refusal for contract id : {}", contractId);
+		return new ResponseEntity<>(commercialService.refuseContract(contractId), HttpStatus.OK);
+	}
+	
+	/**
+	 * 
+	 * Controller to validate a contract. It will not be allowed to update it after.
+	 * 
+	 * @param contractId The ID of the contract to change the status
+	 * @return A contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PutMapping(value = "/validateContract", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> validateContractDraft(@RequestParam @Valid UUID contractId)
+			throws CommercialContractException {
+		logger.info("Validation for contract id : {}", contractId);
+		return new ResponseEntity<>(commercialService.validateContract(contractId), HttpStatus.OK);
+	}
+	
+	/**
+	 * 
+	 * Controller to add comments to a contract.
+	 * 
+	 * @param contractId    The ID of the contract to change the status
+	 * @param commentCreate The comment to ask the modification
+	 * @return A contract object with the ID and infos
+	 * @throws CommercialContractException An exception is raised if any problem is
+	 *                                     encountered when getting or reading the
+	 *                                     id
+	 */
+	@PutMapping(value = "/addComment", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> addCommentToContract(@RequestParam @Valid UUID contractId,
+			@RequestBody @Valid CommentCommercialPublic commentCreate) throws CommercialContractException {
+		logger.info("Adding comment on contract id : {}", contractId);
+		return new ResponseEntity<>(commercialService.commentingContract(contractId, commentCreate), HttpStatus.OK);
 	}
 }

@@ -31,8 +31,8 @@ public class TemporaryContract extends Contract{
 	private LocalDate endDate;
 	private double hourlyRate;
 	private double workTime;
-	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
-	private CommentsContract comment;
+	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
+	private CommentExit comment;
 	
 	/**
 	 * Calculate the State of a contract and apply it

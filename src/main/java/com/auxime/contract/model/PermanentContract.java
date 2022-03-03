@@ -32,8 +32,8 @@ public class PermanentContract extends Contract{
 	private boolean fse;
 	private double hourlyRate;
 	private double workTime;
-	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
-	private CommentsContract comment;
+	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
+	private CommentExit comment;
 	
 	/**
 	 * Calculate the State of a contract and apply it

@@ -30,8 +30,8 @@ public class Cape extends Contract {
 
 	private LocalDate endDate;
 	private boolean fse;
-	@OneToOne(targetEntity = CommentsContract.class, cascade = CascadeType.ALL)
-	private CommentsContract comment;
+	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
+	private CommentExit comment;
 
 	
 	/**
