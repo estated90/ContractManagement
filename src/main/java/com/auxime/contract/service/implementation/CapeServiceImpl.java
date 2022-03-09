@@ -22,6 +22,7 @@ import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.CapeRepository;
 import com.auxime.contract.service.CapeService;
+import com.auxime.contract.utils.PdfGenerator;
 
 /**
  * @author Nicolas
@@ -35,6 +36,8 @@ public class CapeServiceImpl implements CapeService {
 	private static final Logger logger = LogManager.getLogger(CapeServiceImpl.class);
 	@Autowired
 	private CapeRepository capeRepo;
+	@Autowired
+	private PdfGenerator pdfGenerator;
 
 	/**
 	 * Method to return all contract in DB
@@ -94,11 +97,11 @@ public class CapeServiceImpl implements CapeService {
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
-	 * @throws CapeException When an error is detected
+	 * @throws Exception 
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
-	public Cape createNewContract(CapeCreate contractPublic) throws CapeException {
+	public Cape createNewContract(CapeCreate contractPublic) throws Exception {
 		logger.info("Creating a new CAPE");
 		Cape contract = settingCommonFields(new Cape(), contractPublic);
 		contract.setCreatedAt(LocalDateTime.now());
@@ -106,6 +109,7 @@ public class CapeServiceImpl implements CapeService {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
+		pdfGenerator.pdfGenerator(contract);
 		return capeRepo.save(contract);
 	}
 

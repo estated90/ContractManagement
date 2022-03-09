@@ -1,17 +1,16 @@
 package com.auxime.contract.constants;
 
-
 /**
  * @author Nicolas
  * @version 1.0.0
  * @since 1.0.0
  */
 public class ExceptionMessageConstant {
-	
+
 	private ExceptionMessageConstant() {
-		 throw new IllegalStateException("Utility class");
+		throw new IllegalStateException("Utility class");
 	}
-	
+
 	// CAPE Exception
 	public static final String CAPE_NOT_FOUND = "This CAPE is not in DB";
 	public static final String CAPE_FOUND = "This CAPE is already in DB";
@@ -23,7 +22,9 @@ public class ExceptionMessageConstant {
 	public static final String PERMANENT_CONTRACT_NOT_FOUND = "This commercial contract is not in DB";
 	public static final String TEMPORARY_CONTRACT_FOUND = "This temporary contract is already in DB";
 	public static final String TEMPORARY_CONTRACT_NOT_FOUND = "This temporary contract is not in DB";
-	
-	
+	public static final String PROFILE_NOT_RETRIEVED = "No Profile returned for that account";
+	public static final String MODEL_NOT_FOUND = "The model of the document was not found";
+	public static final String PATH_NOT_FOUND = "The saving path of the document was not found";
+	public static final String CLOSE_DOC_ERROR = "The closing of the workbooks failed";
 
 }

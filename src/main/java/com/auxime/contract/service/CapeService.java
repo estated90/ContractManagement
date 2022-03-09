@@ -49,8 +49,9 @@ public interface CapeService {
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
 	 * @throws CapeException When an error is detected
+	 * @throws Exception 
 	 */
-	Cape createNewContract(CapeCreate contractPublic) throws CapeException;
+	Cape createNewContract(CapeCreate contractPublic) throws CapeException, Exception;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID

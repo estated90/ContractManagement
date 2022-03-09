@@ -121,11 +121,10 @@ public class CapeController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws CapeException An exception is raised if any problem is encountered
-	 *                       when getting or reading the id
+	 * @throws Exception 
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic) throws CapeException {
+	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic) throws Exception {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(capeService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}

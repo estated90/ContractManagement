@@ -29,7 +29,7 @@ public class JwtUtils {
 
 	private static final Logger logger = LogManager.getLogger(JwtUtils.class);
 
-	@Value("${auxime.app.jwtSecret}")
+	@Value("#{systemEnvironment['JWT_SECRET']}")
 	private String jwtSecret;
 
 	@Value("${auxime.app.jwtExpiration}")
