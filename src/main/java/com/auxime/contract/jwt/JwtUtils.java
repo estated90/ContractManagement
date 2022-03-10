@@ -29,11 +29,8 @@ public class JwtUtils {
 
 	private static final Logger logger = LogManager.getLogger(JwtUtils.class);
 
-	@Value("#{systemEnvironment['JWT_SECRET']}")
+	@Value("#{systemEnvironment['AUXIME_JWT_SECRET']}")
 	private String jwtSecret;
-
-	@Value("${auxime.app.jwtExpiration}")
-	private int jwtExpiration;
 
 	/**
 	 * @param authToken Token provided in the authorized header
