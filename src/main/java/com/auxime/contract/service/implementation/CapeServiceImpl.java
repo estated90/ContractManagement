@@ -19,6 +19,7 @@ import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.Rates;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.CapeRepository;
 import com.auxime.contract.service.CapeService;
@@ -104,6 +105,13 @@ public class CapeServiceImpl implements CapeService {
 	public Cape createNewContract(CapeCreate contractPublic) throws Exception {
 		logger.info("Creating a new CAPE");
 		Cape contract = settingCommonFields(new Cape(), contractPublic);
+		contractPublic.getRates().forEach(rateDto -> {
+			Rates rate = new Rates();
+			rate.setCreatedAt(LocalDateTime.now());
+			rate.setRate(rateDto.getRate());
+			rate.setTypeRate(rateDto.getTypeRate());
+			contract.addRate(rate);
+		});
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setContractType(ContractType.CONTRACT);
 		contract.setCreatedAt(LocalDateTime.now());

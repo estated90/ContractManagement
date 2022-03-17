@@ -5,9 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +25,8 @@ import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.ProfileInfo;
+import com.auxime.contract.model.Rates;
+import com.auxime.contract.model.enums.TypeRate;
 import com.auxime.contract.proxy.AccountFeign;
 
 @Service
@@ -122,6 +126,11 @@ public class PdfGenerator {
 		list.put("${TITLE}", profileInfo.getTitle());
 		list.put("${END_DATE}", cape.getEndDate().toString());
 		list.put("${STARTING_DATE}", cape.getStartingDate().toString());
+		Comparator<Rates> comparator = Comparator.comparing( Rates::getCreatedAt);
+		List<Rates> ratesActivity = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
+		list.put("${ACTIVITY_RATE}", Integer.toString(ratesActivity.stream().max(comparator).get().getRate()));
+		List<Rates> ratesQualiopy = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
+		list.put("${QUALIOPY_RATE}", Integer.toString(ratesQualiopy.stream().max(comparator).get().getRate()));
 		return list;
 	}
 

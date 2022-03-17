@@ -1,11 +1,14 @@
 package com.auxime.contract.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -32,8 +35,9 @@ public class Cape extends Contract {
 	private boolean fse;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
 	private CommentExit comment;
+	@OneToMany(orphanRemoval = true, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	private List<Rates> rates = new ArrayList<>();
 
-	
 	/**
 	 * Calculate the State of a contract and apply it
 	 * 
@@ -51,5 +55,13 @@ public class Cape extends Contract {
 			}
 		}
 		return this;
+	}
+	
+	public void addRate(Rates rate) {
+		this.rates.add(rate);
+	}
+	
+	public void removeActivity(Rates rate) {
+		this.rates.remove(rate);
 	}
 }
