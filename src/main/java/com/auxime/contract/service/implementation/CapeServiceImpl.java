@@ -2,6 +2,7 @@ package com.auxime.contract.service.implementation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,11 +19,15 @@ import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.Rates;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.CapeRepository;
 import com.auxime.contract.service.CapeService;
+import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
 
 /**
@@ -98,7 +103,7 @@ public class CapeServiceImpl implements CapeService {
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
@@ -117,7 +122,7 @@ public class CapeServiceImpl implements CapeService {
 		contract.setCreatedAt(LocalDateTime.now());
 		contract.setStatus(true);
 		contract.setAccountId(contractPublic.getAccountId());
-		pdfGenerator.pdfGenerator(contract);
+		pdfGenerator(contract, "CAPE VIERGE 2022.docx");
 		return capeRepo.save(contract);
 	}
 
@@ -217,5 +222,21 @@ public class CapeServiceImpl implements CapeService {
 			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
 			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
 		}
+	}
+
+	@Autowired
+	private AccountFeign accountFeign;
+
+	private void pdfGenerator(Cape cape, String file) throws PdfGeneratorException {
+		// Getting the info linked to the profile of contract account
+		ProfileInfo profileInfo = accountFeign.getProfilesFromAccountId(cape.getAccountId());
+		if (profileInfo == null) {
+			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+		}
+		Map<String, String> listWords = GenerateListVariable.setListVariable(cape, profileInfo);
+		String fileName = cape.getContractType().toString() + " CAPE " + profileInfo.getLastName() + " "
+				+ profileInfo.getFistName() + " " + LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }

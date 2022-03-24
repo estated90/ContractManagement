@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.exception.TemporaryContractException;
@@ -103,6 +104,20 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		TemporaryContractException ex) {
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    } 
+	
+	/**
+	 * Method to manage all CapeException exceptions
+	 * 
+	 * @param ex Exception thrown by a method
+	 * @return ResponseEntity Object Return the APIError answer
+	 */
+	@ExceptionHandler(PdfGeneratorException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleApiException(
+    		PdfGeneratorException ex) {
     	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
