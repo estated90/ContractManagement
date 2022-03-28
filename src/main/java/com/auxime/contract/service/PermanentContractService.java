@@ -21,7 +21,7 @@ public interface PermanentContractService {
 	 * 
 	 * @return The list of PermanentContract
 	 */
-	List<PermanentContract> getAllPermanentContract();
+	List<PermanentContract> getAllPermanentContract(int page, int size);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -29,7 +29,7 @@ public interface PermanentContractService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<PermanentContract> getAllPermanentContractFromAccount(UUID accountId);
+	List<PermanentContract> getAllPermanentContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -77,8 +77,7 @@ public interface PermanentContractService {
 	 * @return Portage Convention the created object
 	 * @throws PermanentContractException When an error is thrown during the process
 	 */
-	PermanentContract createPermanentContractAmendment(
-			CreatePermanentAmendment contractPublic)
+	PermanentContract createPermanentContractAmendment(CreatePermanentAmendment contractPublic)
 			throws PermanentContractException;
 
 	/**
@@ -87,6 +86,6 @@ public interface PermanentContractService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Commercial Permanent amendment
 	 */
-	List<PermanentContract> getAllAmendmentContract(UUID contractId);
+	List<PermanentContract> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

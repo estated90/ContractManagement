@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -53,9 +54,10 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<CommercialContract>> getAllCape() {
+	public ResponseEntity<List<CommercialContract>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(commercialService.getAllCommercial(), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllCommercial(page, size), HttpStatus.OK);
 	}
 
 	/**
@@ -68,9 +70,10 @@ public class CommercialContractController {
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<CommercialContract>> getListCommercialContractAmendment(
-			@RequestParam @NotNull UUID contractId) {
+			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
-		return new ResponseEntity<>(commercialService.getAllAmendmentContract(contractId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
 	}
 
 	/**
@@ -82,9 +85,11 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<CommercialContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<CommercialContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(commercialService.getAllCommercialFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllCommercialFromAccount(page, size, accountId),
+				HttpStatus.OK);
 	}
 
 	/**
@@ -207,7 +212,7 @@ public class CommercialContractController {
 		logger.info("Asking validation for contract id : {}", contractId);
 		return new ResponseEntity<>(commercialService.pendingValidationContract(contractId), HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 
 	 * Controller to refuse a contract. It will not be allowed to update it after.
@@ -224,7 +229,7 @@ public class CommercialContractController {
 		logger.info("Refusal for contract id : {}", contractId);
 		return new ResponseEntity<>(commercialService.refuseContract(contractId), HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 
 	 * Controller to validate a contract. It will not be allowed to update it after.
@@ -241,7 +246,7 @@ public class CommercialContractController {
 		logger.info("Validation for contract id : {}", contractId);
 		return new ResponseEntity<>(commercialService.validateContract(contractId), HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 
 	 * Controller to add comments to a contract.

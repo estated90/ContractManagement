@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +53,10 @@ public class CapeController {
 	 * 
 	 */
 	@GetMapping(value = "/listCape", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> getAllCape() {
-		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(capeService.getAllCape(), HttpStatus.OK);
+	public ResponseEntity<List<Cape>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
+		logger.info("Getting contracts list");
+		return new ResponseEntity<>(capeService.getAllCape(page, size), HttpStatus.OK);
 	}
 
 	/**
@@ -64,24 +66,25 @@ public class CapeController {
 	 * @return A List of Cape in DB filtered
 	 */
 	@GetMapping(value = "/listCapeAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> getListCapeAmendment(@RequestParam @NotNull UUID contractId) {
+	public ResponseEntity<List<Cape>> getListCapeAmendment(@RequestParam @NotNull UUID contractId,
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
-		return new ResponseEntity<>(capeService.getAllAmendmentContract(contractId), HttpStatus.OK);
+		return new ResponseEntity<>(capeService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
 	}
 
 	/**
 	 * 
-	 * This controller is designed to return all the contract of an
-	 * account.
+	 * This controller is designed to return all the contract of an account.
 	 * 
 	 * @param accountId The Id of the account to extract the contract from
 	 * @return A List Commercial Contract in DB
 	 * 
 	 */
 	@GetMapping(value = "/listCapeAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<Cape>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(capeService.getAllCapeFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(capeService.getAllCapeFromAccount(page, size, accountId), HttpStatus.OK);
 	}
 
 	/**
@@ -121,7 +124,7 @@ public class CapeController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic) throws Exception {

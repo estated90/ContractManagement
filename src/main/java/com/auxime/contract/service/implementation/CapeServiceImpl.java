@@ -9,6 +9,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +55,10 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCape() {
-		return capeRepo.findAll();
+	public List<Cape> getAllCape(int page, int size) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<Cape> pagedResult = capeRepo.findAll(paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -64,8 +69,10 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllAmendmentContract(UUID contractId) {
-		return capeRepo.FindAllAmendment(contractId);
+	public List<Cape> getAllAmendmentContract(int page, int size, UUID contractId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<Cape> pagedResult = capeRepo.findAllAmendment(contractId, paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -77,8 +84,10 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCapeFromAccount(UUID accountId) {
-		return capeRepo.findByAccountId(accountId);
+	public List<Cape> getAllCapeFromAccount(int page, int size, UUID accountId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<Cape> pagedResult = capeRepo.findByAccountId(accountId, paging);
+		return pagedResult.toList();
 	}
 
 	/**

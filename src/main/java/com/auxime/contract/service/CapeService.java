@@ -21,7 +21,7 @@ public interface CapeService {
 	 * 
 	 * @return The list of Cape
 	 */
-	List<Cape> getAllCape();
+	List<Cape> getAllCape(int page, int size);
 
 	/**
 	 * Method to return all contract in DB of an account
@@ -30,7 +30,7 @@ public interface CapeService {
 	 * @return The list of Cape
 	 * 
 	 */
-	List<Cape> getAllCapeFromAccount(UUID accountId);
+	List<Cape> getAllCapeFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -49,7 +49,7 @@ public interface CapeService {
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
 	 * @throws CapeException When an error is detected
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	Cape createNewContract(CapeCreate contractPublic) throws CapeException, Exception;
 
@@ -87,6 +87,6 @@ public interface CapeService {
 	 * @param contractId The Id of the contract to extract
 	 * @return The list of Cape amendment
 	 */
-	List<Cape> getAllAmendmentContract(UUID contractId);
+	List<Cape> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

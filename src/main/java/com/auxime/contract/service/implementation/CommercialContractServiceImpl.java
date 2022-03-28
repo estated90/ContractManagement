@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +48,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercial() {
-		return commercialeRepo.findAll();
+	public List<CommercialContract> getAllCommercial(int page, int size) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<CommercialContract> pagedResult = commercialeRepo.findAll(paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -57,8 +62,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllAmendmentContract(UUID contractId) {
-		return commercialeRepo.FindAllAmendment(contractId);
+	public List<CommercialContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<CommercialContract> pagedResult = commercialeRepo.findAllAmendment(contractId, paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -69,8 +76,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercialFromAccount(UUID accountId) {
-		return commercialeRepo.findByAccountId(accountId);
+	public List<CommercialContract> getAllCommercialFromAccount(int page, int size, UUID accountId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<CommercialContract> pagedResult = commercialeRepo.findByAccountId(accountId, paging);
+		return pagedResult.toList();
 	}
 
 	/**

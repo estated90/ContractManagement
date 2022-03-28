@@ -3,6 +3,8 @@ package com.auxime.contract.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,10 +22,11 @@ public interface CapeRepository extends JpaRepository<Cape, UUID> {
 
 	/**
 	 * @param accountId Id of the account to retrieve the cape from.
+	 * @param paging 
 	 * @return An optional list of Cape
 	 */
 	@Query("SELECT i FROM Cape i WHERE accountId= :accountId AND status=true")
-	List<Cape> findByAccountId(@Param("accountId") UUID accountId);
+	Page<Cape> findByAccountId(@Param("accountId") UUID accountId, Pageable paging);
 	
 	/**
 	 * @return An optional list of Cape
@@ -34,9 +37,10 @@ public interface CapeRepository extends JpaRepository<Cape, UUID> {
 	
 	/**
 	 * @param contractId Id of the contract to find the amendment linked.
+	 * @param paging 
 	 * @return An optional list of Cape
 	 */
 	@Query("SELECT i FROM Cape i WHERE contractAmendment= :contractId AND status=true")
-	List<Cape> FindAllAmendment(@Param("contractId") UUID contractId);
+	Page<Cape> findAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
 	
 }

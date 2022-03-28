@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -53,11 +54,12 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> getAllTemporaryContract() {
+	public ResponseEntity<List<TemporaryContract>> getAllTemporaryContract(
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(temporaryService.getAllContract(), HttpStatus.OK);
+		return new ResponseEntity<>(temporaryService.getAllContract(page, size), HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 
 	 * This controller is designed to return all amendment of a TemporaryContract.
@@ -67,10 +69,12 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> getListTemporaryContractAmendment(@RequestParam @NotNull UUID contractId) {
+	public ResponseEntity<List<TemporaryContract>> getListTemporaryContractAmendment(
+			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
-		return new ResponseEntity<>(temporaryService.getAllAmendmentContract(contractId), HttpStatus.OK);
-	} 
+		return new ResponseEntity<>(temporaryService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
+	}
 
 	/**
 	 * 
@@ -82,9 +86,11 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> extractAllTemporaryContractAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<TemporaryContract>> extractAllTemporaryContractAccount(
+			@RequestParam @NotNull UUID accountId, @RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(temporaryService.getAllContractFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(temporaryService.getAllContractFromAccount(page, size, accountId), HttpStatus.OK);
 	}
 
 	/**
@@ -134,7 +140,7 @@ public class TemporaryContractController {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(temporaryService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}
-	
+
 	/**
 	 * 
 	 * This controller is designed to create a new amendment in DB.
@@ -146,10 +152,11 @@ public class TemporaryContractController {
 	 *                                    encountered when getting or reading the id
 	 */
 	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<TemporaryContract> createAmendmentContract(@RequestBody @Valid CreateTemporaryAmendment contractPublic)
-			throws TemporaryContractException {
+	public ResponseEntity<TemporaryContract> createAmendmentContract(
+			@RequestBody @Valid CreateTemporaryAmendment contractPublic) throws TemporaryContractException {
 		logger.info("Creating amendment contract");
-		return new ResponseEntity<>(temporaryService.createTemporaryContractAmendment(contractPublic), HttpStatus.CREATED);
+		return new ResponseEntity<>(temporaryService.createTemporaryContractAmendment(contractPublic),
+				HttpStatus.CREATED);
 	}
 
 	/**

@@ -21,7 +21,7 @@ public interface PortageConventionService {
 	 * 
 	 * @return The list of PortageConvention
 	 */
-	List<PortageConvention> getAllContract();
+	List<PortageConvention> getAllContract(int page, int size);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -29,7 +29,7 @@ public interface PortageConventionService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<PortageConvention> getAllContractFromAccount(UUID accountId);
+	List<PortageConvention> getAllContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -77,7 +77,8 @@ public interface PortageConventionService {
 	 * @return Portage Convention the created object
 	 * @throws PortageConventionException When an error is thrown during the process
 	 */
-	PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic) throws PortageConventionException;
+	PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic)
+			throws PortageConventionException;
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -85,6 +86,6 @@ public interface PortageConventionService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Portage Convention amendment
 	 */
-	List<PortageConvention> getAllAmendmentContract(UUID contractId);
+	List<PortageConvention> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

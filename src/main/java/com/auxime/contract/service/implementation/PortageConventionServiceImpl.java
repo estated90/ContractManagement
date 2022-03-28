@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +45,10 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllContract() {
-		return portageRepo.findAll();
+	public List<PortageConvention> getAllContract(int page, int size) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PortageConvention> pagedResult = portageRepo.findAll(paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -54,10 +59,12 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllAmendmentContract(UUID contractId) {
-		return portageRepo.FindAllAmendment(contractId);
+	public List<PortageConvention> getAllAmendmentContract(int page, int size, UUID contractId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PortageConvention> pagedResult = portageRepo.findAllAmendment(contractId, paging);
+		return pagedResult.toList();
 	}
-	
+
 	/**
 	 * Method to return all contract in DB of an account
 	 * 
@@ -65,8 +72,10 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllContractFromAccount(UUID accountId) {
-		return portageRepo.findByAccountId(accountId);
+	public List<PortageConvention> getAllContractFromAccount(int page, int size, UUID accountId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PortageConvention> pagedResult = portageRepo.findByAccountId(accountId, paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -168,7 +177,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 		contract.setStructureContract(contractPublic.getStructureContract());
 		return contract;
 	}
-	
+
 	/**
 	 * Create an addendum to a temporary contract
 	 * 
@@ -177,7 +186,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 * @throws PortageConventionException When an error is thrown during the process
 	 */
 	@Override
-	public PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic) throws PortageConventionException {
+	public PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic)
+			throws PortageConventionException {
 		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
 		if (portageRepo.existsById(contractPublic.getContractAmendment())) {
 			PortageConvention contract = settingCommonFields(new PortageConvention(), contractPublic);

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +53,10 @@ public class PortageConventionController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PortageConvention>> getAllCape() {
+	public ResponseEntity<List<PortageConvention>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(portageService.getAllContract(), HttpStatus.OK);
+		return new ResponseEntity<>(portageService.getAllContract(page, size), HttpStatus.OK);
 	}
 
 	/**
@@ -67,9 +69,10 @@ public class PortageConventionController {
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PortageConvention>> getListCommercialContractAmendment(
-			@RequestParam @NotNull UUID contractId) {
+			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
-		return new ResponseEntity<>(portageService.getAllAmendmentContract(contractId), HttpStatus.OK);
+		return new ResponseEntity<>(portageService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
 	}
 
 	/**
@@ -82,9 +85,10 @@ public class PortageConventionController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PortageConvention>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<PortageConvention>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(portageService.getAllContractFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(portageService.getAllContractFromAccount(page, size, accountId), HttpStatus.OK);
 	}
 
 	/**

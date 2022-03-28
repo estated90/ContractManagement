@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +46,10 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllContract() {
-		return temporaryRepo.findAll();
+	public List<TemporaryContract> getAllContract(int page, int size) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -55,8 +60,10 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllAmendmentContract(UUID contractId) {
-		return temporaryRepo.FindAllAmendment(contractId);
+	public List<TemporaryContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<TemporaryContract> pagedResult = temporaryRepo.FindAllAmendment(contractId, paging);
+		return pagedResult.toList();
 	}
 	
 	/**
@@ -67,8 +74,10 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllContractFromAccount(UUID accountId) {
-		return temporaryRepo.findByAccountId(accountId);
+	public List<TemporaryContract> getAllContractFromAccount(int page, int size, UUID accountId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<TemporaryContract> pagedResult = temporaryRepo.findByAccountId(accountId, paging);
+		return pagedResult.toList();
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +53,10 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getAllCape() {
+	public ResponseEntity<List<PermanentContract>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(permanentService.getAllPermanentContract(), HttpStatus.OK);
+		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size), HttpStatus.OK);
 	}
 
 	/**
@@ -67,9 +69,10 @@ public class PermanentContractController {
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PermanentContract>> getListCommercialContractAmendment(
-			@RequestParam @NotNull UUID contractId) {
+			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
-		return new ResponseEntity<>(permanentService.getAllAmendmentContract(contractId), HttpStatus.OK);
+		return new ResponseEntity<>(permanentService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
 	}
 
 	/**
@@ -81,9 +84,11 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<List<PermanentContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
-		return new ResponseEntity<>(permanentService.getAllPermanentContractFromAccount(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(permanentService.getAllPermanentContractFromAccount(page, size, accountId),
+				HttpStatus.OK);
 	}
 
 	/**

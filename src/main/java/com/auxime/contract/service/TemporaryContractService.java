@@ -19,9 +19,12 @@ public interface TemporaryContractService {
 	/**
 	 * Method to return all contract in DB
 	 * 
+	 * @param size
+	 * @param page
+	 * 
 	 * @return The list of TemporaryContract
 	 */
-	List<TemporaryContract> getAllContract();
+	List<TemporaryContract> getAllContract(int page, int size);
 
 	/**
 	 * Method to return all contract in DB from account
@@ -29,7 +32,7 @@ public interface TemporaryContractService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Temporary Contract amendment
 	 */
-	List<TemporaryContract> getAllContractFromAccount(UUID accountId);
+	List<TemporaryContract> getAllContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -86,6 +89,6 @@ public interface TemporaryContractService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Temporary Contract amendment
 	 */
-	List<TemporaryContract> getAllAmendmentContract(UUID contractId);
+	List<TemporaryContract> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

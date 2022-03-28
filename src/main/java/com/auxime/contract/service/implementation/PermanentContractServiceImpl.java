@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +45,10 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContract() {
-		return permanentRepo.findAll();
+	public List<PermanentContract> getAllPermanentContract(int page, int size) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PermanentContract> pagedResult = permanentRepo.findAll(paging);
+		return pagedResult.toList();
 	}
 
 	/**
@@ -54,8 +59,10 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllAmendmentContract(UUID contractId) {
-		return permanentRepo.FindAllAmendment(contractId);
+	public List<PermanentContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PermanentContract> pagedResult = permanentRepo.FindAllAmendment(contractId, paging);
+		return pagedResult.toList();
 	}
 	
 	/**
@@ -66,8 +73,10 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContractFromAccount(UUID accountId) {
-		return permanentRepo.findByAccountId(accountId);
+	public List<PermanentContract> getAllPermanentContractFromAccount(int page, int size, UUID accountId) {
+		Pageable paging = PageRequest.of(page - 1, size);
+		Page<PermanentContract> pagedResult = permanentRepo.findByAccountId(accountId, paging);
+		return pagedResult.toList();
 	}
 
 	/**
