@@ -29,11 +29,8 @@ public class JwtUtils {
 
 	private static final Logger logger = LogManager.getLogger(JwtUtils.class);
 
-	@Value("${auxime.app.jwtSecret}")
+	@Value("#{systemEnvironment['AUXIME_JWT_SECRET']}")
 	private String jwtSecret;
-
-	@Value("${auxime.app.jwtExpiration}")
-	private int jwtExpiration;
 
 	/**
 	 * @param authToken Token provided in the authorized header
@@ -80,16 +77,12 @@ public class JwtUtils {
 		return UUID.fromString(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getId());
 	}
 
+	/**
+	 * @param token Token provided in the authorized header
+	 * @return the claims of the request
+	 */
 	public Claims getBoby(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-	}
-
-	public void setJwtSecret(String jwtSecret) {
-		this.jwtSecret = jwtSecret;
-	}
-
-	public void setJwtExpiration(int jwtExpiration) {
-		this.jwtExpiration = jwtExpiration;
 	}
 
 }

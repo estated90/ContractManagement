@@ -1,8 +1,8 @@
 package com.auxime.contract.model;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,22 +11,30 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.auxime.contract.model.enums.TypeRate;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="comments_contract")
-@AttributeOverride(name = "id", column = @Column(name = "comments_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
-public class CommentsContract {
+@Table(name = "rates")
+public class Rates {
 
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	private UUID id;
-	private String commentExit;
-	private String motivesExit;
+	@Column(name = "rate_id")
+	private UUID rateId;
+	@Column(name = "rate")
+	private int rate;
+	@Column(name = "type_rate")
+	private TypeRate typeRate;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 }

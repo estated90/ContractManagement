@@ -11,8 +11,18 @@ import org.springframework.http.HttpStatus;
  */
 public class ApiError {
 
+    /**
+     * Http status to use for the API answer
+     */
     private HttpStatus status;
+    /**
+     * Message to display to the user
+     */
     private String message;
+    
+    /**
+     * List of errors to display 
+     */
     private List<String> errors;
 
     /**
