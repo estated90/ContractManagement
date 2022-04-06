@@ -38,7 +38,7 @@ import com.auxime.contract.service.CommercialContractService;
  */
 @RestController
 @Validated
-@RequestMapping("/api/contract/commercialContract")
+@RequestMapping("/commercialContract")
 public class CommercialContractController {
 
 	private static final Logger logger = LogManager.getLogger(CommercialContractController.class);

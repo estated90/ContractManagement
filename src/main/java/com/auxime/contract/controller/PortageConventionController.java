@@ -37,7 +37,7 @@ import com.auxime.contract.service.PortageConventionService;
  */
 @RestController
 @Validated
-@RequestMapping("/api/contract/portageConvention")
+@RequestMapping("/portageConvention")
 public class PortageConventionController {
 
 	private static final Logger logger = LogManager.getLogger(PortageConventionController.class);

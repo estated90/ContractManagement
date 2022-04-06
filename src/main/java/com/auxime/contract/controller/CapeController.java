@@ -38,7 +38,7 @@ import com.auxime.contract.service.CapeService;
  */
 @RestController
 @Validated
-@RequestMapping("/api/contract/cape")
+@RequestMapping("/cape")
 public class CapeController {
 
 	private static final Logger logger = LogManager.getLogger(CapeController.class);

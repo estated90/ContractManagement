@@ -37,7 +37,7 @@ import com.auxime.contract.service.PermanentContractService;
  */
 @RestController
 @Validated
-@RequestMapping("/api/contract/permanentContract")
+@RequestMapping("/permanentContract")
 public class PermanentContractController {
 
 	private static final Logger logger = LogManager.getLogger(PermanentContractController.class);
