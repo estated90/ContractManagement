@@ -38,7 +38,7 @@ import com.auxime.contract.service.TemporaryContractService;
  */
 @RestController
 @Validated
-@RequestMapping("/api/contract/temporaryContract")
+@RequestMapping("/temporaryContract")
 public class TemporaryContractController {
 
 	private static final Logger logger = LogManager.getLogger(TemporaryContractController.class);
