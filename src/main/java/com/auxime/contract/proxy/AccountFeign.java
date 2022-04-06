@@ -18,10 +18,10 @@ import com.auxime.contract.model.ProfileInfo;
 @FeignClient(value = "microservice-profiles", url = "http://10.10.10.18:8081")
 public interface AccountFeign {
 
-	@GetMapping(value = "/api/accounts/doExist", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/api/accountManagement/accounts/doExist", produces = MediaType.APPLICATION_JSON_VALUE)
 	boolean getAccountsyExist(@RequestParam("accountId") UUID id);
 
-	@GetMapping(value = "/api/accounts/detailsFromAccount", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/api/accountManagement/accounts/detailsFromAccount", produces = MediaType.APPLICATION_JSON_VALUE)
 	ProfileInfo getProfilesFromAccountId(@RequestParam("accountId") UUID id);
 
 }
