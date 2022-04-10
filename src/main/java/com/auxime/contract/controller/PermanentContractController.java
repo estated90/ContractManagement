@@ -8,6 +8,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
+import com.auxime.contract.dto.permanent.PermanentCreate;
+import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PermanentContractException;
+import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.service.PermanentContractService;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,19 +32,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
-import com.auxime.contract.dto.permanent.PermanentCreate;
-import com.auxime.contract.dto.permanent.PermanentUpdate;
-import com.auxime.contract.exception.PermanentContractException;
-import com.auxime.contract.model.PermanentContract;
-import com.auxime.contract.service.PermanentContractService;
-
 /**
  * @author Nicolas
  *
  */
 @RestController
 @Validated
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/permanentContract")
 public class PermanentContractController {
 

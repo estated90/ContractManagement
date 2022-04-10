@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,13 +32,13 @@ import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.service.CommercialContractService;
-
 /**
  * @author Nicolas
  *
  */
 @RestController
 @Validated
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/commercialContract")
 public class CommercialContractController {
 
