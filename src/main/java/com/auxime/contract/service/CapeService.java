@@ -21,7 +21,7 @@ public interface CapeService {
 	 * 
 	 * @return The list of Cape
 	 */
-	List<Cape> getAllCape(int page, int size);
+	Map<String, Object> getAllCape(int page, int size);
 
 	/**
 	 * Method to return all contract in DB of an account
@@ -30,7 +30,7 @@ public interface CapeService {
 	 * @return The list of Cape
 	 * 
 	 */
-	List<Cape> getAllCapeFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllCapeFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -87,6 +87,6 @@ public interface CapeService {
 	 * @param contractId The Id of the contract to extract
 	 * @return The list of Cape amendment
 	 */
-	List<Cape> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

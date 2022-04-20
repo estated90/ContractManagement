@@ -55,7 +55,7 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
 		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size), HttpStatus.OK);
@@ -70,7 +70,7 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getListCommercialContractAmendment(
+	public ResponseEntity<Map<String, Object>> getListCommercialContractAmendment(
 			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
@@ -86,7 +86,7 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+	public ResponseEntity<Map<String, Object>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
 		return new ResponseEntity<>(permanentService.getAllPermanentContractFromAccount(page, size, accountId),

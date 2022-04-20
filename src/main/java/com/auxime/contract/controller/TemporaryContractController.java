@@ -56,7 +56,7 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> getAllTemporaryContract(
+	public ResponseEntity<Map<String, Object>> getAllTemporaryContract(
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id");
 		return new ResponseEntity<>(temporaryService.getAllContract(page, size), HttpStatus.OK);
@@ -71,7 +71,7 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> getListTemporaryContractAmendment(
+	public ResponseEntity<Map<String, Object>> getListTemporaryContractAmendment(
 			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
@@ -88,7 +88,7 @@ public class TemporaryContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TemporaryContract>> extractAllTemporaryContractAccount(
+	public ResponseEntity<Map<String, Object>> extractAllTemporaryContractAccount(
 			@RequestParam @NotNull UUID accountId, @RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);

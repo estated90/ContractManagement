@@ -48,10 +48,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercial(int page, int size) {
+	public Map<String, Object> getAllCommercial(int page, int size) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAll(paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -62,10 +67,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -76,10 +86,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercialFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllCommercialFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**

@@ -55,10 +55,15 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCape(int page, int size) {
+	public Map<String, Object> getAllCape(int page, int size) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAll(paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -69,10 +74,15 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -84,10 +94,15 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Cape> getAllCapeFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllCapeFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**

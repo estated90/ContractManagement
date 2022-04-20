@@ -55,7 +55,7 @@ public class CapeController {
 	 * 
 	 */
 	@GetMapping(value = "/listCape", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts list");
 		return new ResponseEntity<>(capeService.getAllCape(page, size), HttpStatus.OK);
@@ -68,7 +68,7 @@ public class CapeController {
 	 * @return A List of Cape in DB filtered
 	 */
 	@GetMapping(value = "/listCapeAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> getListCapeAmendment(@RequestParam @NotNull UUID contractId,
+	public ResponseEntity<Map<String, Object>> getListCapeAmendment(@RequestParam @NotNull UUID contractId,
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
 		return new ResponseEntity<>(capeService.getAllAmendmentContract(page, size, contractId), HttpStatus.OK);
@@ -83,7 +83,7 @@ public class CapeController {
 	 * 
 	 */
 	@GetMapping(value = "/listCapeAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Cape>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+	public ResponseEntity<Map<String, Object>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
 		return new ResponseEntity<>(capeService.getAllCapeFromAccount(page, size, accountId), HttpStatus.OK);

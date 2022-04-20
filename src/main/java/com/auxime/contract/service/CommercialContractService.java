@@ -22,7 +22,7 @@ public interface CommercialContractService {
 	 * 
 	 * @return The list of Commercial Contract
 	 */
-	List<CommercialContract> getAllCommercial(int page, int size);
+	Map<String, Object> getAllCommercial(int page, int size);
 
 	/**
 	 * Method to return all contract in DB of an account
@@ -30,7 +30,7 @@ public interface CommercialContractService {
 	 * @param accountId ID of the account to extract the contract from
 	 * @return The list of Commercial Contract
 	 */
-	List<CommercialContract> getAllCommercialFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllCommercialFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -39,7 +39,7 @@ public interface CommercialContractService {
 	 *                   users
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<CommercialContract> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations

@@ -21,7 +21,7 @@ public interface PortageConventionService {
 	 * 
 	 * @return The list of PortageConvention
 	 */
-	List<PortageConvention> getAllContract(int page, int size);
+	Map<String, Object> getAllContract(int page, int size);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -29,7 +29,7 @@ public interface PortageConventionService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<PortageConvention> getAllContractFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -86,6 +86,6 @@ public interface PortageConventionService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Portage Convention amendment
 	 */
-	List<PortageConvention> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

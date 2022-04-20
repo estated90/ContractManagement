@@ -45,10 +45,15 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContract(int page, int size) {
+	public Map<String, Object> getAllPermanentContract(int page, int size) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PermanentContract> pagedResult = permanentRepo.findAll(paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -59,10 +64,15 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PermanentContract> pagedResult = permanentRepo.FindAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 	
 	/**
@@ -73,10 +83,15 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContractFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllPermanentContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PermanentContract> pagedResult = permanentRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
