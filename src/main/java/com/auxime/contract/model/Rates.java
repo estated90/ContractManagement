@@ -30,7 +30,7 @@ public class Rates {
 	@Column(name = "rate_id")
 	private UUID rateId;
 	@Column(name = "rate")
-	private int rate;
+	private Integer rate;
 	@Column(name = "type_rate")
 	private TypeRate typeRate;
 	@Column(name = "created_at")

@@ -1,19 +1,10 @@
 package com.auxime.contract.service.implementation;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
@@ -25,6 +16,16 @@ import com.auxime.contract.model.TemporaryContract;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.repository.TemporaryContractRepository;
 import com.auxime.contract.service.TemporaryContractService;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas

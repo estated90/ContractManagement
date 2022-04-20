@@ -1,21 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapePublic;
@@ -27,11 +20,22 @@ import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.Rates;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.CapeRepository;
 import com.auxime.contract.service.CapeService;
 import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -47,6 +51,8 @@ public class CapeServiceImpl implements CapeService {
 	private CapeRepository capeRepo;
 	@Autowired
 	private PdfGenerator pdfGenerator;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -55,9 +61,11 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllCape(int page, int size) {
+	public Map<String, Object> getAllCape(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract, Integer rate) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<Cape> pagedResult = capeRepo.findAll(paging);
+		Page<Cape> pagedResult = capeRepo.findAll(
+				builder.getAllCape(filter, startDate, endDate, contractState, structureContract, rate), paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);

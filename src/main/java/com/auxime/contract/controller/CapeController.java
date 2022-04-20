@@ -1,6 +1,7 @@
 package com.auxime.contract.controller;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,16 +9,19 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.service.CapeService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,9 +60,15 @@ public class CapeController {
 	 */
 	@GetMapping(value = "/listCape", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
-			@RequestParam(defaultValue = "10") @Min(1) int size) {
+			@RequestParam(defaultValue = "10") @Min(1) int size,
+			@RequestParam(required = false) String filter, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) ContractState contractState, 
+			@RequestParam(required = false) PortageCompanies structureContract, 
+			@RequestParam(required = false) Integer rate) {
 		logger.info("Getting contracts list");
-		return new ResponseEntity<>(capeService.getAllCape(page, size), HttpStatus.OK);
+		return new ResponseEntity<>(capeService.getAllCape(page, size, filter, startDate, endDate, contractState, structureContract, rate), HttpStatus.OK);
 	}
 
 	/**

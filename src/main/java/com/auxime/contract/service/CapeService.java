@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -19,9 +22,17 @@ public interface CapeService {
 	/**
 	 * Method to return all contract in DB
 	 * 
+	 * @param rate
+	 * @param structureContract
+	 * @param contractState
+	 * @param endDate
+	 * @param startDate
+	 * @param filter
+	 * 
 	 * @return The list of Cape
 	 */
-	Map<String, Object> getAllCape(int page, int size);
+	Map<String, Object> getAllCape(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract, Integer rate);
 
 	/**
 	 * Method to return all contract in DB of an account
