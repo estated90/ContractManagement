@@ -1,5 +1,6 @@
 package com.auxime.contract.controller;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -8,16 +9,19 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.service.PermanentContractService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,10 +60,15 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
-			@RequestParam(defaultValue = "10") @Min(1) int size) {
+	public ResponseEntity<Map<String, Object>> getAllPermanentContract(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size,
+			@RequestParam(required = false) String filter, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) ContractState contractState, 
+			@RequestParam(required = false) PortageCompanies structureContract) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size), HttpStatus.OK);
+		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size, filter, startDate, endDate, contractState, structureContract), HttpStatus.OK);
 	}
 
 	/**

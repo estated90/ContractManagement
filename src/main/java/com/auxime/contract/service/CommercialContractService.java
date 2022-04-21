@@ -1,15 +1,19 @@
 package com.auxime.contract.service;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommercialContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -19,10 +23,12 @@ public interface CommercialContractService {
 
 	/**
 	 * Method to return all contract in DB
+	 * @param contractStatus
 	 * 
 	 * @return The list of Commercial Contract
 	 */
-	Map<String, Object> getAllCommercial(int page, int size);
+	Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus);
 
 	/**
 	 * Method to return all contract in DB of an account

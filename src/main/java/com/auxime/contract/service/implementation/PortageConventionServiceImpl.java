@@ -1,11 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
@@ -14,6 +17,7 @@ import com.auxime.contract.dto.portage.PortageUpdate;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.repository.PortageConventionRepository;
 import com.auxime.contract.service.PortageConventionService;
 
@@ -38,6 +42,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	private static final Logger logger = LogManager.getLogger(PortageConventionServiceImpl.class);
 	@Autowired
 	private PortageConventionRepository portageRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -46,9 +52,11 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllContract(int page, int size) {
+	public Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<PortageConvention> pagedResult = portageRepo.findAll(paging);
+		Page<PortageConvention> pagedResult = portageRepo.findAll(
+				builder.filterSqlPortage(filter, startDate, endDate, contractState, structureContract), paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);

@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -21,7 +24,8 @@ public interface PermanentContractService {
 	 * 
 	 * @return The list of PermanentContract
 	 */
-	Map<String, Object> getAllPermanentContract(int page, int size);
+	Map<String, Object> getAllPermanentContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract);
 
 	/**
 	 * Method to return all amendment on a contract in DB

@@ -1,11 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
@@ -14,6 +17,7 @@ import com.auxime.contract.dto.permanent.PermanentUpdate;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.repository.PermanentContractRepository;
 import com.auxime.contract.service.PermanentContractService;
 
@@ -38,6 +42,8 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	private static final Logger logger = LogManager.getLogger(PermanentContractServiceImpl.class);
 	@Autowired
 	private PermanentContractRepository permanentRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -46,9 +52,12 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllPermanentContract(int page, int size) {
+	public Map<String, Object> getAllPermanentContract(int page, int size, String filter, LocalDate startDate,
+			LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<PermanentContract> pagedResult = permanentRepo.findAll(paging);
+		Page<PermanentContract> pagedResult = permanentRepo.findAll(
+				builder.filterSqlPermanent(filter, startDate, endDate, contractState, structureContract), paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -75,7 +84,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 		response.put("totalPages", pagedResult.getTotalPages());
 		return response;
 	}
-	
+
 	/**
 	 * Method to return all amendment on a contract in DB
 	 * 

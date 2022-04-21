@@ -1,11 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.CommentCommercialPublic;
@@ -17,6 +20,7 @@ import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommentCommercialContract;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
 
@@ -41,6 +45,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	private static final Logger logger = LogManager.getLogger(CommercialContractServiceImpl.class);
 	@Autowired
 	private CommercialRepository commercialeRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -49,9 +55,12 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllCommercial(int page, int size) {
+	public Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate,
+			LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<CommercialContract> pagedResult = commercialeRepo.findAll(paging);
+		Page<CommercialContract> pagedResult = commercialeRepo.findAll(
+				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract, contractStatus), paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);

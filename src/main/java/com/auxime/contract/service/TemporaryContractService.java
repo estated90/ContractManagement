@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
 import com.auxime.contract.dto.temporary.TemporaryUpdate;
 import com.auxime.contract.exception.TemporaryContractException;
 import com.auxime.contract.model.TemporaryContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -24,7 +27,8 @@ public interface TemporaryContractService {
 	 * 
 	 * @return The list of TemporaryContract
 	 */
-	Map<String, Object> getAllContract(int page, int size);
+	Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract);
 
 	/**
 	 * Method to return all contract in DB from account

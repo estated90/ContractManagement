@@ -1,11 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
@@ -14,6 +17,7 @@ import com.auxime.contract.dto.temporary.TemporaryUpdate;
 import com.auxime.contract.exception.TemporaryContractException;
 import com.auxime.contract.model.TemporaryContract;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.repository.TemporaryContractRepository;
 import com.auxime.contract.service.TemporaryContractService;
 
@@ -39,6 +43,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 
 	@Autowired
 	private TemporaryContractRepository temporaryRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -47,9 +53,11 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllContract(int page, int size) {
+	public Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(paging);
+		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(
+				builder.filterSqlTemporary(filter, startDate, endDate, contractState, structureContract), paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -76,7 +84,7 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 		response.put("totalPages", pagedResult.getTotalPages());
 		return response;
 	}
-	
+
 	/**
 	 * Method to return all contract in DB from account
 	 * 

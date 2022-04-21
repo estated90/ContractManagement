@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -21,7 +24,8 @@ public interface PortageConventionService {
 	 * 
 	 * @return The list of PortageConvention
 	 */
-	Map<String, Object> getAllContract(int page, int size);
+	Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract);
 
 	/**
 	 * Method to return all amendment on a contract in DB
