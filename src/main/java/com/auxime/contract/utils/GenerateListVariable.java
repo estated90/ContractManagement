@@ -41,7 +41,7 @@ public class GenerateListVariable {
 		list.put("${TITLE}", profileInfo.getTitle());
 		list.put("${END_DATE}", cape.getEndDate().toString());
 		list.put("${STARTING_DATE}", cape.getStartingDate().toString());
-		Comparator<Rates> comparator = Comparator.comparing( Rates::getCreatedAt);
+		Comparator<Rates> comparator = Comparator.comparing(Rates::getCreatedAt);
 		List<Rates> ratesActivity = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
 		list.put("${ACTIVITY_RATE}", Integer.toString(ratesActivity.stream().max(comparator).get().getRate()));
 		List<Rates> ratesQualiopy = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());

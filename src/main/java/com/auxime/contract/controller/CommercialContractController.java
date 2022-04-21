@@ -1,6 +1,7 @@
 package com.auxime.contract.controller;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,9 +9,21 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractStatus;
+import com.auxime.contract.dto.CommentCommercialPublic;
+import com.auxime.contract.dto.commercial.CommercialCreate;
+import com.auxime.contract.dto.commercial.CommercialUpdate;
+import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
+import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.model.CommercialContract;
+import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.service.CommercialContractService;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +31,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,13 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auxime.contract.dto.CommentCommercialPublic;
-import com.auxime.contract.dto.commercial.CommercialCreate;
-import com.auxime.contract.dto.commercial.CommercialUpdate;
-import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
-import com.auxime.contract.exception.CommercialContractException;
-import com.auxime.contract.model.CommercialContract;
-import com.auxime.contract.service.CommercialContractService;
 /**
  * @author Nicolas
  *
@@ -55,10 +62,17 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<CommercialContract>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
-			@RequestParam(defaultValue = "10") @Min(1) int size) {
+	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size,
+			@RequestParam(required = false) String filter,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(required = false) ContractState contractState,
+			@RequestParam(required = false) PortageCompanies structureContract,
+			@RequestParam(required = false) ContractStatus contractStatus) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(commercialService.getAllCommercial(page, size), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getAllCommercial(page, size, filter, startDate, endDate,
+				contractState, structureContract, contractStatus), HttpStatus.OK);
 	}
 
 	/**
@@ -70,7 +84,7 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<CommercialContract>> getListCommercialContractAmendment(
+	public ResponseEntity<Map<String, Object>> getListCommercialContractAmendment(
 			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
@@ -86,7 +100,7 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<CommercialContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+	public ResponseEntity<Map<String, Object>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
 		return new ResponseEntity<>(commercialService.getAllCommercialFromAccount(page, size, accountId),
@@ -171,11 +185,11 @@ public class CommercialContractController {
 	 *                                     encountered when getting or reading the
 	 *                                     id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommercialContract> deleteContract(@Valid @RequestBody CommercialUpdate contractPublic)
+	@DeleteMapping(value = "/delete/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> deleteContract(@Valid @PathVariable UUID contractId)
 			throws CommercialContractException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		commercialService.deleteCommercial(contractPublic);
+		logger.info("Deleting contracts : {}", contractId);
+		commercialService.deleteCommercial(contractId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

@@ -2,21 +2,22 @@ package com.auxime.contract.repository;
 
 import java.util.UUID;
 
+import com.auxime.contract.model.CommercialContract;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import com.auxime.contract.model.CommercialContract;
 
 /**
  * @author Nicolas
  *
  */
 @Repository
-public interface CommercialRepository extends JpaRepository<CommercialContract, UUID> {
+public interface CommercialRepository extends JpaRepository<CommercialContract, UUID> , JpaSpecificationExecutor<CommercialContract>{
 
 	/**
 	 * @param accountId Id of the account to retrieve the cape from.

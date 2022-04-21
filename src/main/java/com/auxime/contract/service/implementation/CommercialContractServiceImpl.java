@@ -1,20 +1,14 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.CommentCommercialPublic;
@@ -26,8 +20,19 @@ import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommentCommercialContract;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -40,6 +45,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	private static final Logger logger = LogManager.getLogger(CommercialContractServiceImpl.class);
 	@Autowired
 	private CommercialRepository commercialeRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -48,10 +55,18 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercial(int page, int size) {
+	public Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate,
+			LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<CommercialContract> pagedResult = commercialeRepo.findAll(paging);
-		return pagedResult.toList();
+		Page<CommercialContract> pagedResult = commercialeRepo.findAll(
+				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract, contractStatus), paging);
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -62,10 +77,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -76,10 +96,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<CommercialContract> getAllCommercialFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllCommercialFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -153,9 +178,9 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
-	public void deleteCommercial(CommercialUpdate contractPublic) throws CommercialContractException {
-		logger.info("Deleting Commercial Contract {}", contractPublic.getContractId());
-		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractPublic.getContractId());
+	public void deleteCommercial(UUID contractId) throws CommercialContractException {
+		logger.info("Deleting Commercial Contract {}", contractId);
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);

@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
 import com.auxime.contract.dto.temporary.TemporaryUpdate;
 import com.auxime.contract.exception.TemporaryContractException;
 import com.auxime.contract.model.TemporaryContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -24,7 +27,8 @@ public interface TemporaryContractService {
 	 * 
 	 * @return The list of TemporaryContract
 	 */
-	List<TemporaryContract> getAllContract(int page, int size);
+	Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract);
 
 	/**
 	 * Method to return all contract in DB from account
@@ -32,7 +36,7 @@ public interface TemporaryContractService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Temporary Contract amendment
 	 */
-	List<TemporaryContract> getAllContractFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -71,7 +75,7 @@ public interface TemporaryContractService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws TemporaryContractException When an error is raised if not found
 	 */
-	void deleteContract(TemporaryUpdate contractPublic) throws TemporaryContractException;
+	void deleteContract(UUID contractId) throws TemporaryContractException;
 
 	/**
 	 * Create an addendum to a temporary contract
@@ -89,6 +93,6 @@ public interface TemporaryContractService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Temporary Contract amendment
 	 */
-	List<TemporaryContract> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }

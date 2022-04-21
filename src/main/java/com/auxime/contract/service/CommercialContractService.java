@@ -1,15 +1,19 @@
 package com.auxime.contract.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommercialContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -19,10 +23,12 @@ public interface CommercialContractService {
 
 	/**
 	 * Method to return all contract in DB
+	 * @param contractStatus
 	 * 
 	 * @return The list of Commercial Contract
 	 */
-	List<CommercialContract> getAllCommercial(int page, int size);
+	Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus);
 
 	/**
 	 * Method to return all contract in DB of an account
@@ -30,7 +36,7 @@ public interface CommercialContractService {
 	 * @param accountId ID of the account to extract the contract from
 	 * @return The list of Commercial Contract
 	 */
-	List<CommercialContract> getAllCommercialFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllCommercialFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -39,7 +45,7 @@ public interface CommercialContractService {
 	 *                   users
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<CommercialContract> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -89,7 +95,7 @@ public interface CommercialContractService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws CommercialContractException When an error is raised if not found
 	 */
-	void deleteCommercial(CommercialUpdate contractPublic) throws CommercialContractException;
+	void deleteCommercial(UUID contractId) throws CommercialContractException;
 
 	/**
 	 * Ask for modification for a contract in DB.
