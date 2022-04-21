@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -165,16 +166,16 @@ public class TemporaryContractController {
 	 * 
 	 * This controller is designed to create a new contract in DB.
 	 * 
-	 * @param contractPublic Object with all the field of the contract for update
+	 * @param contractId Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
 	 * @throws TemporaryContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PortageConvention> deleteContract(@Valid @RequestBody TemporaryUpdate contractPublic)
+	@DeleteMapping(value = "/delete/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PortageConvention> deleteContract(@Valid  @PathVariable UUID contractId)
 			throws TemporaryContractException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		temporaryService.deleteContract(contractPublic);
+		logger.info("Deleting contracts : {}", contractId);
+		temporaryService.deleteContract(contractId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

@@ -191,16 +191,16 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
-	public void deleteContract(CapeUpdate contractPublic) throws CapeException {
-		logger.info("Deleting a CAPE {}", contractPublic.getContractId());
-		Cape cape = capeVerifier(contractPublic);
+	public void deleteContract(UUID contractId) throws CapeException {
+		logger.info("Deleting a CAPE {}", contractId);
+		Cape cape = capeVerifier(contractId);
 		cape.setStatus(false);
 		capeRepo.save(cape);
 	}
 
-	private Cape capeVerifier(CapeUpdate contractPublic) throws CapeException {
-		logger.info("Deleting a CAPE {}", contractPublic.getContractId());
-		Optional<Cape> contractOpt = capeRepo.findById(contractPublic.getContractId());
+	private Cape capeVerifier(UUID contractId) throws CapeException {
+		logger.info("Deleting a CAPE {}", contractId);
+		Optional<Cape> contractOpt = capeRepo.findById(contractId);
 		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
 			return contractOpt.get();
 		} else {

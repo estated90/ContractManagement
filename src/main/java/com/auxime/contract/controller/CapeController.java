@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -170,10 +171,10 @@ public class CapeController {
 	 * @throws CapeException An exception is raised if any problem is encountered
 	 *                       when getting or reading the id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Cape> deleteContract(@Valid @RequestBody CapeUpdate contractPublic) throws CapeException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		capeService.deleteContract(contractPublic);
+	@DeleteMapping(value = "/delete/{capeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Cape> deleteContract(@Valid @PathVariable UUID capeId) throws CapeException {
+		logger.info("Deleting contracts : {}", capeId);
+		capeService.deleteContract(capeId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

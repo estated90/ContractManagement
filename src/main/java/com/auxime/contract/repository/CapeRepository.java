@@ -1,6 +1,5 @@
 package com.auxime.contract.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import com.auxime.contract.model.Cape;

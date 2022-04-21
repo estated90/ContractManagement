@@ -71,7 +71,7 @@ public interface TemporaryContractService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws TemporaryContractException When an error is raised if not found
 	 */
-	void deleteContract(TemporaryUpdate contractPublic) throws TemporaryContractException;
+	void deleteContract(UUID contractId) throws TemporaryContractException;
 
 	/**
 	 * Create an addendum to a temporary contract

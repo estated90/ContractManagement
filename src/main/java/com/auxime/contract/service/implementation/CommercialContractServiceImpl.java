@@ -169,9 +169,9 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
-	public void deleteCommercial(CommercialUpdate contractPublic) throws CommercialContractException {
-		logger.info("Deleting Commercial Contract {}", contractPublic.getContractId());
-		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractPublic.getContractId());
+	public void deleteCommercial(UUID contractId) throws CommercialContractException {
+		logger.info("Deleting Commercial Contract {}", contractId);
+		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);

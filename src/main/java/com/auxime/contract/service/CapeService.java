@@ -81,7 +81,7 @@ public interface CapeService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws CapeException When an error is raised if not found
 	 */
-	void deleteContract(CapeUpdate contractPublic) throws CapeException;
+	void deleteContract(UUID contractId) throws CapeException;
 
 	/**
 	 * Create an addendum to a CAPE contract

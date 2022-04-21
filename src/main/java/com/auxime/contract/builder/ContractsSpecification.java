@@ -42,6 +42,7 @@ public class ContractsSpecification {
                         if (rate != null) {
                                 predicates.add(criteriaBuilder.equal(joinRates.get("rate"), rate));
                         }
+                        predicates.add(criteriaBuilder.equal(root.get("status"), true));
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
                         query.distinct(true);
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

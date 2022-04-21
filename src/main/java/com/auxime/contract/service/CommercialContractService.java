@@ -89,7 +89,7 @@ public interface CommercialContractService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws CommercialContractException When an error is raised if not found
 	 */
-	void deleteCommercial(CommercialUpdate contractPublic) throws CommercialContractException;
+	void deleteCommercial(UUID contractId) throws CommercialContractException;
 
 	/**
 	 * Ask for modification for a contract in DB.

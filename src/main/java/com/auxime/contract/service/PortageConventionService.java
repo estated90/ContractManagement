@@ -68,7 +68,7 @@ public interface PortageConventionService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws PortageConventionException When an error is raised if not found
 	 */
-	void deleteContract(PortageUpdate contractPublic) throws PortageConventionException;
+	void deleteContract(UUID contractId) throws PortageConventionException;
 
 	/**
 	 * Create an addendum to a Portage Convention

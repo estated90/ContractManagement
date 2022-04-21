@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -171,11 +172,11 @@ public class CommercialContractController {
 	 *                                     encountered when getting or reading the
 	 *                                     id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommercialContract> deleteContract(@Valid @RequestBody CommercialUpdate contractPublic)
+	@DeleteMapping(value = "/delete/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommercialContract> deleteContract(@Valid @PathVariable UUID contractId)
 			throws CommercialContractException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		commercialService.deleteCommercial(contractPublic);
+		logger.info("Deleting contracts : {}", contractId);
+		commercialService.deleteCommercial(contractId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

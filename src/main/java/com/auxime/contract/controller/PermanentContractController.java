@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -168,11 +169,11 @@ public class PermanentContractController {
 	 * @throws PermanentContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PermanentContractException> deleteContract(@Valid @RequestBody PermanentUpdate contractPublic)
+	@DeleteMapping(value = "/delete/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PermanentContractException> deleteContract(@Valid @PathVariable UUID contractId)
 			throws PermanentContractException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		permanentService.deleteContract(contractPublic);
+		logger.info("Deleting contracts : {}", contractId);
+		permanentService.deleteContract(contractId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

@@ -163,9 +163,9 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
-	public void deleteContract(PortageUpdate contractPublic) throws PortageConventionException {
-		logger.info("Deleting a Portage Convention {}", contractPublic.getContractId());
-		Optional<PortageConvention> contractOpt = portageRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws PortageConventionException {
+		logger.info("Deleting a Portage Convention {}", contractId);
+		Optional<PortageConvention> contractOpt = portageRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);

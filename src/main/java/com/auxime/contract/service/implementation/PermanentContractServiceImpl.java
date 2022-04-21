@@ -163,9 +163,9 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
-	public void deleteContract(PermanentUpdate contractPublic) throws PermanentContractException {
-		logger.info("Deleting a Permanent Contract {}", contractPublic.getContractId());
-		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws PermanentContractException {
+		logger.info("Deleting a Permanent Contract {}", contractId);
+		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);

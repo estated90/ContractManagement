@@ -159,14 +159,14 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 * This service will be used to delete a contract object in the DB using the ID
 	 * of the contract object.
 	 * 
-	 * @param contractPublic The object activityPublic with the fields mandatory
+	 * @param contractId The object activityPublic with the fields mandatory
 	 * @throws TemporaryContractException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { TemporaryContractException.class })
-	public void deleteContract(TemporaryUpdate contractPublic) throws TemporaryContractException {
-		logger.info("Deleting a Temporary Contract {}", contractPublic.getContractId());
-		Optional<TemporaryContract> contractOpt = temporaryRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws TemporaryContractException {
+		logger.info("Deleting a Temporary Contract {}", contractId);
+		Optional<TemporaryContract> contractOpt = temporaryRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 			throw new TemporaryContractException(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
