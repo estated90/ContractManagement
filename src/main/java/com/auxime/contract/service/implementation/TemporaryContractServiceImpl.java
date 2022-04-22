@@ -1,9 +1,25 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
+import com.auxime.contract.dto.temporary.TemporaryCreate;
+import com.auxime.contract.dto.temporary.TemporaryPublic;
+import com.auxime.contract.dto.temporary.TemporaryUpdate;
+import com.auxime.contract.exception.TemporaryContractException;
+import com.auxime.contract.model.TemporaryContract;
+import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.repository.TemporaryContractRepository;
+import com.auxime.contract.service.TemporaryContractService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,17 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
-import com.auxime.contract.dto.temporary.TemporaryCreate;
-import com.auxime.contract.dto.temporary.TemporaryPublic;
-import com.auxime.contract.dto.temporary.TemporaryUpdate;
-import com.auxime.contract.exception.TemporaryContractException;
-import com.auxime.contract.model.TemporaryContract;
-import com.auxime.contract.model.enums.ContractType;
-import com.auxime.contract.repository.TemporaryContractRepository;
-import com.auxime.contract.service.TemporaryContractService;
 
 /**
  * @author Nicolas
@@ -38,6 +43,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 
 	@Autowired
 	private TemporaryContractRepository temporaryRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -46,10 +53,17 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllContract(int page, int size) {
+	public Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(paging);
-		return pagedResult.toList();
+		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(
+				builder.filterSqlTemporary(filter, startDate, endDate, contractState, structureContract), paging);
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -60,12 +74,17 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<TemporaryContract> pagedResult = temporaryRepo.FindAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
-	
+
 	/**
 	 * Method to return all contract in DB from account
 	 * 
@@ -74,10 +93,15 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<TemporaryContract> getAllContractFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<TemporaryContract> pagedResult = temporaryRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -143,14 +167,14 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 * This service will be used to delete a contract object in the DB using the ID
 	 * of the contract object.
 	 * 
-	 * @param contractPublic The object activityPublic with the fields mandatory
+	 * @param contractId The object activityPublic with the fields mandatory
 	 * @throws TemporaryContractException When an error is raised if not found
 	 */
 	@Override
 	@Transactional(rollbackFor = { TemporaryContractException.class })
-	public void deleteContract(TemporaryUpdate contractPublic) throws TemporaryContractException {
-		logger.info("Deleting a Temporary Contract {}", contractPublic.getContractId());
-		Optional<TemporaryContract> contractOpt = temporaryRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws TemporaryContractException {
+		logger.info("Deleting a Temporary Contract {}", contractId);
+		Optional<TemporaryContract> contractOpt = temporaryRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 			throw new TemporaryContractException(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);

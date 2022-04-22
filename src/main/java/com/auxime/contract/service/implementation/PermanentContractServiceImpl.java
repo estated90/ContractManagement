@@ -1,9 +1,25 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
+import com.auxime.contract.dto.permanent.PermanentCreate;
+import com.auxime.contract.dto.permanent.PermanentPublic;
+import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PermanentContractException;
+import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.repository.PermanentContractRepository;
+import com.auxime.contract.service.PermanentContractService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,17 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
-import com.auxime.contract.dto.permanent.PermanentCreate;
-import com.auxime.contract.dto.permanent.PermanentPublic;
-import com.auxime.contract.dto.permanent.PermanentUpdate;
-import com.auxime.contract.exception.PermanentContractException;
-import com.auxime.contract.model.PermanentContract;
-import com.auxime.contract.model.enums.ContractType;
-import com.auxime.contract.repository.PermanentContractRepository;
-import com.auxime.contract.service.PermanentContractService;
 
 /**
  * @author Nicolas
@@ -37,6 +42,8 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	private static final Logger logger = LogManager.getLogger(PermanentContractServiceImpl.class);
 	@Autowired
 	private PermanentContractRepository permanentRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -45,10 +52,18 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContract(int page, int size) {
+	public Map<String, Object> getAllPermanentContract(int page, int size, String filter, LocalDate startDate,
+			LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<PermanentContract> pagedResult = permanentRepo.findAll(paging);
-		return pagedResult.toList();
+		Page<PermanentContract> pagedResult = permanentRepo.findAll(
+				builder.filterSqlPermanent(filter, startDate, endDate, contractState, structureContract), paging);
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -59,12 +74,17 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PermanentContract> pagedResult = permanentRepo.FindAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
-	
+
 	/**
 	 * Method to return all amendment on a contract in DB
 	 * 
@@ -73,10 +93,15 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PermanentContract> getAllPermanentContractFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllPermanentContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PermanentContract> pagedResult = permanentRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -147,9 +172,9 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
-	public void deleteContract(PermanentUpdate contractPublic) throws PermanentContractException {
-		logger.info("Deleting a Permanent Contract {}", contractPublic.getContractId());
-		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws PermanentContractException {
+		logger.info("Deleting a Permanent Contract {}", contractId);
+		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);

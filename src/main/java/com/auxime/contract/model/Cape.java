@@ -1,8 +1,8 @@
 package com.auxime.contract.model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
@@ -36,7 +36,7 @@ public class Cape extends Contract {
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
 	private CommentExit comment;
 	@OneToMany(orphanRemoval = true, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-	private List<Rates> rates = new ArrayList<>();
+	private Set<Rates> rates = new HashSet<>();
 
 	/**
 	 * Calculate the State of a contract and apply it

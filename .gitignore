@@ -37,3 +37,4 @@ doc/
 .project
 target/
 .classpath
+pom.xml.versionsBackup

@@ -1,9 +1,25 @@
 package com.auxime.contract.service.implementation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.auxime.contract.builder.ContractsSpecification;
+import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.portage.CreatePortageAmendment;
+import com.auxime.contract.dto.portage.PortageCreate;
+import com.auxime.contract.dto.portage.PortagePublic;
+import com.auxime.contract.dto.portage.PortageUpdate;
+import com.auxime.contract.exception.PortageConventionException;
+import com.auxime.contract.model.PortageConvention;
+import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.repository.PortageConventionRepository;
+import com.auxime.contract.service.PortageConventionService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,17 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.dto.portage.CreatePortageAmendment;
-import com.auxime.contract.dto.portage.PortageCreate;
-import com.auxime.contract.dto.portage.PortagePublic;
-import com.auxime.contract.dto.portage.PortageUpdate;
-import com.auxime.contract.exception.PortageConventionException;
-import com.auxime.contract.model.PortageConvention;
-import com.auxime.contract.model.enums.ContractType;
-import com.auxime.contract.repository.PortageConventionRepository;
-import com.auxime.contract.service.PortageConventionService;
 
 /**
  * @author Nicolas
@@ -37,6 +42,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	private static final Logger logger = LogManager.getLogger(PortageConventionServiceImpl.class);
 	@Autowired
 	private PortageConventionRepository portageRepo;
+	@Autowired
+	private ContractsSpecification builder;
 
 	/**
 	 * Method to return all contract in DB
@@ -45,10 +52,17 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllContract(int page, int size) {
+	public Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+			ContractState contractState, PortageCompanies structureContract) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<PortageConvention> pagedResult = portageRepo.findAll(paging);
-		return pagedResult.toList();
+		Page<PortageConvention> pagedResult = portageRepo.findAll(
+				builder.filterSqlPortage(filter, startDate, endDate, contractState, structureContract), paging);
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -59,10 +73,15 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllAmendmentContract(int page, int size, UUID contractId) {
+	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PortageConvention> pagedResult = portageRepo.findAllAmendment(contractId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -72,10 +91,15 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<PortageConvention> getAllContractFromAccount(int page, int size, UUID accountId) {
+	public Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PortageConvention> pagedResult = portageRepo.findByAccountId(accountId, paging);
-		return pagedResult.toList();
+		Map<String, Object> response = new HashMap<>();
+		response.put("contracts", pagedResult.toList());
+		response.put("currentPage", pagedResult.getNumber() + 1);
+		response.put("totalItems", pagedResult.getTotalElements());
+		response.put("totalPages", pagedResult.getTotalPages());
+		return response;
 	}
 
 	/**
@@ -147,9 +171,9 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
-	public void deleteContract(PortageUpdate contractPublic) throws PortageConventionException {
-		logger.info("Deleting a Portage Convention {}", contractPublic.getContractId());
-		Optional<PortageConvention> contractOpt = portageRepo.findById(contractPublic.getContractId());
+	public void deleteContract(UUID contractId) throws PortageConventionException {
+		logger.info("Deleting a Portage Convention {}", contractId);
+		Optional<PortageConvention> contractOpt = portageRepo.findById(contractId);
 		if (contractOpt.isEmpty()) {
 			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);

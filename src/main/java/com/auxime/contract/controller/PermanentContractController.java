@@ -1,6 +1,7 @@
 package com.auxime.contract.controller;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,16 +9,19 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.service.PermanentContractService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,10 +60,15 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
-			@RequestParam(defaultValue = "10") @Min(1) int size) {
+	public ResponseEntity<Map<String, Object>> getAllPermanentContract(@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "10") @Min(1) int size,
+			@RequestParam(required = false) String filter, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, 
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) ContractState contractState, 
+			@RequestParam(required = false) PortageCompanies structureContract) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size), HttpStatus.OK);
+		return new ResponseEntity<>(permanentService.getAllPermanentContract(page, size, filter, startDate, endDate, contractState, structureContract), HttpStatus.OK);
 	}
 
 	/**
@@ -70,7 +80,7 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> getListCommercialContractAmendment(
+	public ResponseEntity<Map<String, Object>> getListCommercialContractAmendment(
 			@RequestParam @NotNull UUID contractId, @RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with linked to {}", contractId);
@@ -86,7 +96,7 @@ public class PermanentContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PermanentContract>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
+	public ResponseEntity<Map<String, Object>> extractAllCapeAccount(@RequestParam @NotNull UUID accountId,
 			@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "10") @Min(1) int size) {
 		logger.info("Getting contracts with id : {}", accountId);
 		return new ResponseEntity<>(permanentService.getAllPermanentContractFromAccount(page, size, accountId),
@@ -168,11 +178,11 @@ public class PermanentContractController {
 	 * @throws PermanentContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
 	 */
-	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PermanentContractException> deleteContract(@Valid @RequestBody PermanentUpdate contractPublic)
+	@DeleteMapping(value = "/delete/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PermanentContractException> deleteContract(@Valid @PathVariable UUID contractId)
 			throws PermanentContractException {
-		logger.info("Deleting contracts : {}", contractPublic.getContractId());
-		permanentService.deleteContract(contractPublic);
+		logger.info("Deleting contracts : {}", contractId);
+		permanentService.deleteContract(contractId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

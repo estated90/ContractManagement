@@ -1,14 +1,17 @@
 package com.auxime.contract.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
+import com.auxime.contract.model.enums.PortageCompanies;
 
 /**
  * @author Nicolas
@@ -21,7 +24,8 @@ public interface PortageConventionService {
 	 * 
 	 * @return The list of PortageConvention
 	 */
-	List<PortageConvention> getAllContract(int page, int size);
+	Map<String, Object> getAllContract(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	ContractState contractState, PortageCompanies structureContract);
 
 	/**
 	 * Method to return all amendment on a contract in DB
@@ -29,7 +33,7 @@ public interface PortageConventionService {
 	 * @param accountId The the contract ID to look the amendment linked to.
 	 * @return The list of Commercial Contract amendment
 	 */
-	List<PortageConvention> getAllContractFromAccount(int page, int size, UUID accountId);
+	Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId);
 
 	/**
 	 * This function is using the ID of a cape to return its informations
@@ -68,7 +72,7 @@ public interface PortageConventionService {
 	 * @param contractPublic The object activityPublic with the fields mandatory
 	 * @throws PortageConventionException When an error is raised if not found
 	 */
-	void deleteContract(PortageUpdate contractPublic) throws PortageConventionException;
+	void deleteContract(UUID contractId) throws PortageConventionException;
 
 	/**
 	 * Create an addendum to a Portage Convention
@@ -86,6 +90,6 @@ public interface PortageConventionService {
 	 * @param contractId the ID of the contract to extract the details from.
 	 * @return The list of Portage Convention amendment
 	 */
-	List<PortageConvention> getAllAmendmentContract(int page, int size, UUID contractId);
+	Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId);
 
 }
