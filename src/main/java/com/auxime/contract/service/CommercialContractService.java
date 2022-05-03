@@ -150,5 +150,7 @@ public interface CommercialContractService {
 	 */
 	CommercialContract commentingContract(UUID contractId, CommentCommercialPublic commentCreate)
 			throws CommercialContractException;
+		
+	Integer numberContracByStatus(UUID userId, boolean status, ContractStatus contractStatus);
 
 }

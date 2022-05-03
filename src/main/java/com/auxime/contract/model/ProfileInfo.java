@@ -1,6 +1,7 @@
 package com.auxime.contract.model;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +28,7 @@ public class ProfileInfo {
 	private String city;
 	private String country;
 	private String activity;
+	private UUID managerId;
+	private UUID businessManagerId;
 
 }

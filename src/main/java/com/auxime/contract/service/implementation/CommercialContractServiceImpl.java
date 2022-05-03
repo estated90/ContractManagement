@@ -19,8 +19,10 @@ import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
 import com.auxime.contract.model.CommentCommercialContract;
 import com.auxime.contract.model.CommercialContract;
+import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
 
@@ -47,6 +49,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	private CommercialRepository commercialeRepo;
 	@Autowired
 	private ContractsSpecification builder;
+	@Autowired
+	private AccountFeign proxy;
 
 	/**
 	 * Method to return all contract in DB
@@ -300,6 +304,18 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
 		CommercialContract contract = contractOpt.get();
+		ProfileInfo profileInfo = proxy.getProfilesFromAccountId(contract.getAccountId());
+		if(profileInfo==null){
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
+		} else if(profileInfo.getManagerId()!=null){
+			contract.setValidatorId(profileInfo.getManagerId());
+		} else if(profileInfo.getBusinessManagerId()==null) {
+			contract.setValidatorId(profileInfo.getBusinessManagerId());
+		} else {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
+		}
 		contract.setContractStatus(ContractStatus.PENDING_VALIDATION);
 		return commercialeRepo.save(contract);
 	}
@@ -359,5 +375,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		comment.setFirstName(commentCreate.getFirstName());
 		comment.setLastName(commentCreate.getLastName());
 		return comment;
+	}
+
+	@Override
+	public Integer numberContracByStatus(UUID validatorId, boolean status, ContractStatus contractStatus){
+		return commercialeRepo.count(validatorId, status, contractStatus);
 	}
 }

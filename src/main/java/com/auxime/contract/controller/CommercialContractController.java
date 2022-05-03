@@ -279,4 +279,11 @@ public class CommercialContractController {
 		logger.info("Adding comment on contract id : {}", contractId);
 		return new ResponseEntity<>(commercialService.commentingContract(contractId, commentCreate), HttpStatus.OK);
 	}
+
+
+	@GetMapping(value = "/myContractCount", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Integer> getNumberContractToModify(@RequestParam @NotNull UUID userId, @RequestParam @NotNull boolean status, @RequestParam @NotNull ContractStatus contractStatus) {
+		logger.info("Getting the number of contract to modify from an account");
+		return new ResponseEntity<>(commercialService.numberContracByStatus(userId, status, contractStatus), HttpStatus.OK);
+	}
 }
