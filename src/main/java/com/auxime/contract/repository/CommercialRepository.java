@@ -2,6 +2,7 @@ package com.auxime.contract.repository;
 
 import java.util.UUID;
 
+import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.model.CommercialContract;
 
 import org.springframework.data.domain.Page;
@@ -34,4 +35,7 @@ public interface CommercialRepository extends JpaRepository<CommercialContract, 
 	 */
 	@Query("SELECT i FROM CommercialContract i WHERE contractAmendment= :contractId AND status=true")
 	Page<CommercialContract> findAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
+
+	@Query(value = "SELECT count(a) FROM CommercialContract a  where validatorId = :validatorId AND a.status=:status AND a.contractStatus=:contractStatus")
+	public Integer count(@Param("validatorId") UUID validatorId, @Param("status") boolean status, @Param("contractStatus") ContractStatus contractStatus);
 }

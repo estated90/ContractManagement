@@ -50,6 +50,8 @@ public class CommercialContract extends Contract {
 	@Column(name = "contract_status")
 	@Enumerated(EnumType.STRING)
 	private ContractStatus contractStatus;
+	@Column(name = "validator_id")
+	private UUID validatorId;
 	@OneToMany(targetEntity = CommentCommercialContract.class, cascade = CascadeType.ALL)
 	private Set<CommentCommercialContract> comments = new HashSet<>();
 
