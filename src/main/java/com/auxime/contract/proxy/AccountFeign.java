@@ -15,7 +15,7 @@ import com.auxime.contract.model.ProfileInfo;
  * @since 1.0.0
  *
  */
-@FeignClient(value = "microservice-profiles", url = "http://localhost:8500")
+@FeignClient(value = "microserviceprofiles", url = "http://localhost:8500")
 public interface AccountFeign {
 
 	@GetMapping(value = "/api/accountManagement/accounts/doExist", produces = MediaType.APPLICATION_JSON_VALUE)

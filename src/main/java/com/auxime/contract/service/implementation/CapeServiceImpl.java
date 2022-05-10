@@ -11,15 +11,12 @@ import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.cape.CapeCreate;
-import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
 import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.ProfileInfo;
-import com.auxime.contract.model.Rates;
-import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.CapeRepository;
@@ -141,19 +138,7 @@ public class CapeServiceImpl implements CapeService {
 	@Transactional(rollbackFor = { CapeException.class })
 	public Cape createNewContract(CapeCreate contractPublic) throws Exception {
 		logger.info("Creating a new CAPE");
-		Cape contract = settingCommonFields(new Cape(), contractPublic);
-		contractPublic.getRates().forEach(rateDto -> {
-			Rates rate = new Rates();
-			rate.setCreatedAt(LocalDateTime.now());
-			rate.setRate(rateDto.getRate());
-			rate.setTypeRate(rateDto.getTypeRate());
-			contract.addRate(rate);
-		});
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setContractType(ContractType.CONTRACT);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setStatus(true);
-		contract.setAccountId(contractPublic.getAccountId());
+		Cape contract = new Cape().buildCape(contractPublic);
 		pdfGenerator(contract, "CAPE VIERGE 2022.docx");
 		return capeRepo.save(contract);
 	}
@@ -170,16 +155,10 @@ public class CapeServiceImpl implements CapeService {
 	@Transactional(rollbackFor = { CapeException.class })
 	public Cape updateContractFromId(CapeUpdate contractPublic) throws CapeException {
 		logger.info("Updating CAPE with id : {}", contractPublic.getContractId());
-		Optional<Cape> contractOpt = capeRepo.findById(contractPublic.getContractId());
-		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
-			logger.info(ExceptionMessageConstant.CAPE_FOUND);
-			Cape contract = settingCommonFields(contractOpt.get(), contractPublic);
-			contract.setUpdatedAt(LocalDateTime.now());
-			return capeRepo.save(contract);
-		} else {
-			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);
-			throw new CapeException(ExceptionMessageConstant.CAPE_NOT_FOUND);
-		}
+		Cape contract = capeVerifier(contractPublic.getContractId());
+		logger.info(ExceptionMessageConstant.CAPE_FOUND);
+		contract = contract.buildCape(contractPublic);
+		return capeRepo.save(contract);
 	}
 
 	/**
@@ -210,28 +189,6 @@ public class CapeServiceImpl implements CapeService {
 	}
 
 	/**
-	 * 
-	 * Function to update the object for the common fields between creation and
-	 * update
-	 * 
-	 * @param contract       The contract found in the DB
-	 * @param contractPublic The object with the new information to use for the
-	 *                       update
-	 * @return The contract updated
-	 */
-	private Cape settingCommonFields(Cape contract, CapePublic contractPublic) {
-		logger.info("Updating the fields");
-		contract.setContractDate(contractPublic.getContractDate());
-		contract.setStartingDate(contractPublic.getStartingDate());
-		contract.setContractTitle(contractPublic.getContractTitle());
-		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
-		contract.setFse(contractPublic.getFse());
-		contract.createStateContract();
-		return contract;
-	}
-
-	/**
 	 * Create an addendum to a CAPE contract
 	 * 
 	 * @param contract The object contract with the fields mandatory
@@ -242,13 +199,7 @@ public class CapeServiceImpl implements CapeService {
 	public Cape createAmendmentCape(CreateCapeAmendment contract) throws CapeException {
 		logger.info("Creat an amendment to CAPE {}", contract.getContractAmendment());
 		if (capeRepo.existsById(contract.getContractAmendment())) {
-			Cape cape = settingCommonFields(new Cape(), contract);
-			cape.createStateContract();
-			cape.setAccountId(contract.getAccountId());
-			cape.setStatus(true);
-			cape.setContractType(ContractType.AMENDMENT);
-			cape.setContractAmendment(contract.getContractAmendment());
-			cape.setCreatedAt(LocalDateTime.now());
+			Cape cape = new Cape().buildAmendment(contract);
 			return capeRepo.save(cape);
 		} else {
 			logger.error(ExceptionMessageConstant.CAPE_NOT_FOUND);

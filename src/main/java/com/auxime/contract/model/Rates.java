@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.auxime.contract.dto.RateDto;
 import com.auxime.contract.model.enums.TypeRate;
 
 import lombok.Getter;
@@ -37,4 +38,15 @@ public class Rates {
 	private LocalDateTime createdAt;
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+
+	public Rates build(RateDto rate) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setRate(rate.getRate());
+		this.setTypeRate(rate.getTypeRate());
+		return this;
+	}
 }

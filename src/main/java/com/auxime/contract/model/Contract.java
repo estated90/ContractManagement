@@ -13,11 +13,12 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.dto.cape.CapePublic;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,13 +65,13 @@ public abstract class Contract {
 	private LocalDateTime createdAt;
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
-	
+
 	/**
 	 * Return if the date is between a starting date and an ending date
 	 * 
 	 * @param dateToVerify Date to use to calculate if true or false
-	 * @param startDate Starting date to evaluate
-	 * @param endDate Ending date to evaluate
+	 * @param startDate    Starting date to evaluate
+	 * @param endDate      Ending date to evaluate
 	 * @return Boolean value that validate if the date is between the two bornes
 	 */
 	protected boolean dateCheckerBetween(LocalDate dateToVerify, LocalDate startDate, LocalDate endDate) {
@@ -82,5 +83,20 @@ public abstract class Contract {
 			return dateToVerify.isAfter(startDate) && dateToVerify.isBefore(endDate) || dateToVerify.isEqual(startDate)
 					|| dateToVerify.isEqual(endDate);
 		}
+	}
+
+	protected Contract build(CapePublic contractPublic, ContractType contractType, boolean status) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setContractType(contractType);
+		this.setStatus(status);
+		this.setContractDate(contractPublic.getContractDate());
+		this.setStartingDate(contractPublic.getStartingDate());
+		this.setContractTitle(contractPublic.getContractTitle());
+		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
 	}
 }

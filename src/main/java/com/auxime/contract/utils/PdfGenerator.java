@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.exception.PdfGeneratorException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -15,9 +18,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.exception.PdfGeneratorException;
 
 @Service
 public class PdfGenerator {
@@ -53,10 +53,13 @@ public class PdfGenerator {
 				}
 			}
 		}
-		FileOutputStream out = null;
-		// Saving and closing the document
+		saveFilePdf(fileName, doc);
+	}
+
+	public void saveFilePdf(String fileName, XWPFDocument doc) throws PdfGeneratorException{
+	FileOutputStream out = null;
 		try {
-			out = new FileOutputStream("C:/contractGeneration/" + fileName + ".docx");
+			out = new FileOutputStream("C:/auxime.docs/contractGeneration/" + fileName + ".docx");
 		} catch (FileNotFoundException e) {
 			logger.error(ExceptionMessageConstant.PATH_NOT_FOUND);
 			throw new PdfGeneratorException(ExceptionMessageConstant.PATH_NOT_FOUND);

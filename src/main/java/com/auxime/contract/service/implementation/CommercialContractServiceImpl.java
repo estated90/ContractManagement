@@ -381,4 +381,9 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	public Integer numberContracByStatus(UUID validatorId, boolean status, ContractStatus contractStatus){
 		return commercialeRepo.count(validatorId, status, contractStatus);
 	}
+
+	@Autowired
+	private AccountFeign accountFeign;
+
+
 }

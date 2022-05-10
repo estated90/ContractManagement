@@ -13,6 +13,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.dto.cape.CapeCreate;
+import com.auxime.contract.dto.cape.CapeUpdate;
+import com.auxime.contract.dto.cape.CreateCapeAmendment;
+import com.auxime.contract.model.enums.ContractType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,11 +60,44 @@ public class Cape extends Contract {
 		}
 		return this;
 	}
-	
+
+	public Cape buildCape(CapeCreate contractPublic) {
+		this.build(contractPublic, ContractType.CONTRACT, true);
+		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setFse(contractPublic.getFse());
+		this.setAccountId(contractPublic.getAccountId());
+		this.createStateContract();
+		contractPublic.getRates().forEach(rateDto -> {
+			this.addRate(new Rates().build(rateDto));
+		});
+		return this;
+	}
+
+	public Cape buildAmendment(CreateCapeAmendment contractPublic) {
+		this.build(contractPublic, ContractType.AMENDMENT, true);
+		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setFse(contractPublic.getFse());
+		this.setAccountId(contractPublic.getAccountId());
+		this.createStateContract();
+		contractPublic.getRates().forEach(rateDto -> {
+			this.addRate(new Rates().build(rateDto));
+		});
+		this.setContractAmendment(contractPublic.getContractAmendment());
+		return this;
+	}
+
+	public Cape buildCape(CapeUpdate contractPublic) {
+		this.build(contractPublic, ContractType.CONTRACT, true);
+		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setFse(contractPublic.getFse());
+		this.createStateContract();
+		return this;
+	}
+
 	public void addRate(Rates rate) {
 		this.rates.add(rate);
 	}
-	
+
 	public void removeActivity(Rates rate) {
 		this.rates.remove(rate);
 	}
