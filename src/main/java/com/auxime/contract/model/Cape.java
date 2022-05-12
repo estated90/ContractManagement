@@ -49,6 +49,7 @@ public class Cape extends Contract {
 	 */
 	public Cape createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
+			this.setContractState(ContractState.CANCELED);
 		} else {
 			if (this.getStartingDate().isAfter(LocalDate.now())) {
 				this.setContractState(ContractState.NOT_STARTED);

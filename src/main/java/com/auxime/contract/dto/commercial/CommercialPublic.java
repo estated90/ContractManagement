@@ -6,7 +6,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
 import com.auxime.contract.constants.DurationUnit;
-import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.dto.ContractDto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,16 +20,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CommercialPublic {
+public class CommercialPublic extends ContractDto {
 	
-	@NotNull
-	private LocalDate contractDate;
-	@NotNull
-	private LocalDate startingDate;
-	@NotNull
-	private String contractTitle;
-	@NotNull
-	private PortageCompanies structureContract;
 	@NotNull
 	private LocalDate endDate;
 	@NotNull

@@ -93,7 +93,8 @@ public class PdfGenerator {
 		try {
 			convertToPDF(savingPath, contractPath, fileName);
 		} catch (InterruptedException | ExecutionException | IOException e) {
-			throw new PdfGeneratorException(ExceptionMessageConstant.READING_ERROR);
+			Thread.currentThread().interrupt();
+			throw new PdfGeneratorException(ExceptionMessageConstant.CONVERTION_ERROR);
 		}
 	}
 
@@ -121,7 +122,7 @@ public class PdfGenerator {
 		try (OutputStream outputStream = new FileOutputStream(pdfPath + fileName + ".pdf")) {
 			bo.writeTo(outputStream);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(ExceptionMessageConstant.CONVERTION_ERROR);
 		}
 		in.close();
 		bo.close();
