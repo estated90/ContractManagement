@@ -1,14 +1,25 @@
 package com.auxime.contract.utils;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.exception.PdfGeneratorException;
+import com.documents4j.api.DocumentType;
+import com.documents4j.api.IConverter;
+import com.documents4j.job.LocalConverter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +27,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +35,10 @@ import org.springframework.stereotype.Service;
 public class PdfGenerator {
 
 	private static final Logger logger = LogManager.getLogger(PdfGenerator.class);
+	@Value("#{systemEnvironment['AUXIME_CONTRACT_PATH']}")
+	private String contractPath;
+	@Value("#{systemEnvironment['AUXIME_CONTRACT_MODELS']}")
+	private String modelsPath;
 
 	@Async
 	public void replaceTextModel(Map<String, String> listWords, String fileName, String file)
@@ -32,7 +48,7 @@ public class PdfGenerator {
 		XWPFDocument doc;
 		try {
 			// Open the Model
-			doc = new XWPFDocument(new FileInputStream("asset/" + file));
+			doc = new XWPFDocument(new FileInputStream(modelsPath + file));
 		} catch (IOException e) {
 			logger.error(ExceptionMessageConstant.MODEL_NOT_FOUND);
 			throw new PdfGeneratorException(ExceptionMessageConstant.MODEL_NOT_FOUND);
@@ -56,10 +72,11 @@ public class PdfGenerator {
 		saveFilePdf(fileName, doc);
 	}
 
-	public void saveFilePdf(String fileName, XWPFDocument doc) throws PdfGeneratorException{
-	FileOutputStream out = null;
+	public void saveFilePdf(String fileName, XWPFDocument doc) throws PdfGeneratorException {
+		FileOutputStream out = null;
+		String savingPath = contractPath + fileName + ".docx";
 		try {
-			out = new FileOutputStream("C:/auxime.docs/contractGeneration/" + fileName + ".docx");
+			out = new FileOutputStream(savingPath);
 		} catch (FileNotFoundException e) {
 			logger.error(ExceptionMessageConstant.PATH_NOT_FOUND);
 			throw new PdfGeneratorException(ExceptionMessageConstant.PATH_NOT_FOUND);
@@ -73,6 +90,40 @@ public class PdfGenerator {
 				throw new PdfGeneratorException(ExceptionMessageConstant.CLOSE_DOC_ERROR);
 			}
 		}
+		try {
+			convertToPDF(savingPath, contractPath, fileName);
+		} catch (InterruptedException | ExecutionException | IOException e) {
+			throw new PdfGeneratorException(ExceptionMessageConstant.READING_ERROR);
+		}
 	}
 
+	public void convertToPDF(String savingPath, String pdfPath, String fileName)
+			throws PdfGeneratorException, InterruptedException, ExecutionException, IOException {
+		ByteArrayOutputStream bo = new ByteArrayOutputStream();
+		InputStream in = null;
+		try {
+			in = new BufferedInputStream(new FileInputStream(savingPath));
+		} catch (IOException e) {
+
+		}
+		IConverter converter = LocalConverter.builder()
+				.baseFolder(new File(pdfPath))
+				.workerPool(20, 25, 2, TimeUnit.SECONDS)
+				.processTimeout(5, TimeUnit.SECONDS)
+				.build();
+
+		Future<Boolean> conversion = converter
+				.convert(in).as(DocumentType.MS_WORD)
+				.to(bo).as(DocumentType.PDF)
+				.prioritizeWith(1000) // optional
+				.schedule();
+		conversion.get();
+		try (OutputStream outputStream = new FileOutputStream(pdfPath + fileName + ".pdf")) {
+			bo.writeTo(outputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		in.close();
+		bo.close();
+	}
 }

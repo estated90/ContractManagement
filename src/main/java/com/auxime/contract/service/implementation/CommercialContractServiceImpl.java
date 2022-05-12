@@ -304,14 +304,14 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
 		CommercialContract contract = contractOpt.get();
-		ProfileInfo profileInfo = proxy.getProfilesFromAccountId(contract.getAccountId());
-		if(profileInfo==null){
+		Optional<ProfileInfo> profileInfo = proxy.getProfilesFromAccountId(contract.getAccountId());
+		if(profileInfo.isEmpty()){
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
-		} else if(profileInfo.getManagerId()!=null){
-			contract.setValidatorId(profileInfo.getManagerId());
-		} else if(profileInfo.getBusinessManagerId()==null) {
-			contract.setValidatorId(profileInfo.getBusinessManagerId());
+		} else if(profileInfo.get().getManagerId()!=null){
+			contract.setValidatorId(profileInfo.get().getManagerId());
+		} else if(profileInfo.get().getBusinessManagerId()==null) {
+			contract.setValidatorId(profileInfo.get().getBusinessManagerId());
 		} else {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);

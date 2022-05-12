@@ -212,14 +212,14 @@ public class CapeServiceImpl implements CapeService {
 
 	private void pdfGenerator(Cape cape, String file) throws PdfGeneratorException {
 		// Getting the info linked to the profile of contract account
-		ProfileInfo profileInfo = accountFeign.getProfilesFromAccountId(cape.getAccountId());
-		if (profileInfo == null) {
+		Optional<ProfileInfo> profileInfo = accountFeign.getProfilesFromAccountId(cape.getAccountId());
+		if (profileInfo.isEmpty()) {
 			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
 			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
 		}
-		Map<String, String> listWords = GenerateListVariable.setListVariable(cape, profileInfo);
-		String fileName = cape.getContractType().toString() + " CAPE " + profileInfo.getLastName() + " "
-				+ profileInfo.getFistName() + " " + LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		Map<String, String> listWords = GenerateListVariable.setListVariable(cape, profileInfo.get());
+		String fileName = cape.getContractType().toString() + " CAPE " + profileInfo.get().getLastName() + " "
+				+ profileInfo.get().getFistName() + " " + LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
 		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }

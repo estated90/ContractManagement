@@ -27,5 +27,7 @@ public class ExceptionMessageConstant {
 	public static final String MODEL_NOT_FOUND = "The model of the document was not found";
 	public static final String PATH_NOT_FOUND = "The saving path of the document was not found";
 	public static final String CLOSE_DOC_ERROR = "The closing of the workbooks failed";
+	public static final String CONVERTION_ERROR = "Error while converting the Document to PDF";
+	public static final String READING_ERROR = "Error while reading the Document";
 
 }

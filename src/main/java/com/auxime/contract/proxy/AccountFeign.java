@@ -1,5 +1,6 @@
 package com.auxime.contract.proxy;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -22,6 +23,6 @@ public interface AccountFeign {
 	boolean getAccountsyExist(@RequestParam("accountId") UUID id);
 
 	@GetMapping(value = "/api/accountManagement/accounts/detailsFromAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	ProfileInfo getProfilesFromAccountId(@RequestParam("accountId") UUID id);
+	Optional<ProfileInfo> getProfilesFromAccountId(@RequestParam("accountId") UUID id);
 
 }
