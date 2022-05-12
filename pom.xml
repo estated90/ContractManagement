@@ -17,7 +17,6 @@
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<sonar.organization>estated90</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.login>${env.AUXIME_SONAR_CONTRACT}</sonar.login>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -82,7 +81,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.7</version>
+			<version>1.6.8</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -103,37 +102,28 @@
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
-			<artifactId>documents4j-api</artifactId>
-			<version>1.0.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-util-conversion</artifactId>
-			<version>1.0.3</version>
+			<version>1.1.7</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-transformer</artifactId>
-			<version>1.0.3</version>
+			<version>1.1.7</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-util-all</artifactId>
-			<version>1.0.3</version>
+			<version>1.1.7</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-local</artifactId>
-			<version>1.0.3</version>
+			<version>1.1.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-transformer-msoffice-word</artifactId>
-			<version>1.0.3</version>
+			<version>1.1.7</version>
 		</dependency>
 
 
