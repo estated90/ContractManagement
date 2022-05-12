@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.Contract;
 import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.Rates;
 import com.auxime.contract.model.enums.TypeRate;
@@ -14,7 +15,17 @@ import com.auxime.contract.model.enums.TypeRate;
 public class GenerateListVariable {
 
 	public static Map<String, String> setListVariable(Cape cape, ProfileInfo profileInfo) {
-		Map<String, String> list = new HashMap<>();
+		Map<String, String> list = setCommonFieldsContract(cape, new HashMap<>(), profileInfo);
+		list.put("${END_DATE}", cape.getEndDate().toString());
+		Comparator<Rates> comparator = Comparator.comparing(Rates::getCreatedAt);
+		List<Rates> ratesActivity = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
+		list.put("${ACTIVITY_RATE}", Integer.toString(ratesActivity.stream().max(comparator).get().getRate()));
+		List<Rates> ratesQualiopy = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
+		list.put("${QUALIOPY_RATE}", Integer.toString(ratesQualiopy.stream().max(comparator).get().getRate()));
+		return list;
+	}
+
+	private static Map<String, String> setCommonFieldsContract(Contract contract, Map<String, String> list, ProfileInfo profileInfo){
 		list.put("${ACTIVITY}", profileInfo.getActivity());
 		if(profileInfo.getAddressComplement()==null) {
 			list.put("${ADDRESS_COMPL}", "");
@@ -39,13 +50,7 @@ public class GenerateListVariable {
 		list.put("${BIRTHDATE}", profileInfo.getBirthdate().toString());
 		list.put("${STREET_NUMBER}", Integer.toString(profileInfo.getNumber()));
 		list.put("${TITLE}", profileInfo.getTitle());
-		list.put("${END_DATE}", cape.getEndDate().toString());
-		list.put("${STARTING_DATE}", cape.getStartingDate().toString());
-		Comparator<Rates> comparator = Comparator.comparing(Rates::getCreatedAt);
-		List<Rates> ratesActivity = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
-		list.put("${ACTIVITY_RATE}", Integer.toString(ratesActivity.stream().max(comparator).get().getRate()));
-		List<Rates> ratesQualiopy = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
-		list.put("${QUALIOPY_RATE}", Integer.toString(ratesQualiopy.stream().max(comparator).get().getRate()));
+		list.put("${STARTING_DATE}", contract.getStartingDate().toString());
 		return list;
 	}
 }

@@ -1,5 +1,6 @@
 package com.auxime.contract.proxy;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -15,13 +16,13 @@ import com.auxime.contract.model.ProfileInfo;
  * @since 1.0.0
  *
  */
-@FeignClient(value = "microservice-profiles", url = "http://localhost:8500")
+@FeignClient(value = "microserviceprofiles", url = "http://localhost:8500")
 public interface AccountFeign {
 
 	@GetMapping(value = "/api/accountManagement/accounts/doExist", produces = MediaType.APPLICATION_JSON_VALUE)
 	boolean getAccountsyExist(@RequestParam("accountId") UUID id);
 
 	@GetMapping(value = "/api/accountManagement/accounts/detailsFromAccount", produces = MediaType.APPLICATION_JSON_VALUE)
-	ProfileInfo getProfilesFromAccountId(@RequestParam("accountId") UUID id);
+	Optional<ProfileInfo> getProfilesFromAccountId(@RequestParam("accountId") UUID id);
 
 }

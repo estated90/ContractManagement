@@ -1,4 +1,4 @@
-package com.auxime.contract.exceptionHandler;
+package com.auxime.contract.exceptionhandler;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

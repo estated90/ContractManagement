@@ -2,7 +2,9 @@ package com.auxime.contract.builder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,12 +32,16 @@ public class ContractsSpecification {
         private static final String RATE = "rates";
         private static final String CONTRACT_TITLE = "contractTitle";
         private static final String STARTING_DATE = "startingDate";
+        private static final String CONTRACT_DATE = "contractDate";
 
         public Specification<Cape> getAllCape(String filter, LocalDate startDate, LocalDate endDate,
                         ContractState contractState, PortageCompanies structureContract, Integer rate) {
                 return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = commonfields(new ArrayList<>(), root, query, criteriaBuilder,
-                                        filter, startDate, endDate, contractState, structureContract);
+                        Map<String, LocalDate> dates = new HashMap<>();
+                        dates.put("startDate", startDate);
+                        dates.put("endDate", endDate);
+                        List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
+                                        filter, dates, contractState, structureContract);
                         Join<Cape, Rates> joinRates = root.join(RATE, JoinType.INNER);
                         if (rate != null) {
                                 predicates.add(criteriaBuilder.equal(joinRates.get("rate"), rate));
@@ -48,10 +54,14 @@ public class ContractsSpecification {
 
         public Specification<CommercialContract> filterSqlCommercial(String filter, LocalDate startDate,
                         LocalDate endDate,
-                        ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
+                        ContractState contractState, PortageCompanies structureContract,
+                        ContractStatus contractStatus) {
                 return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = commonfields(new ArrayList<>(), root, query, criteriaBuilder,
-                                        filter, startDate, endDate, contractState, structureContract);
+                        Map<String, LocalDate> dates = new HashMap<>();
+                        dates.put("startDate", startDate);
+                        dates.put("endDate", endDate);
+                        List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
+                                        filter, dates, contractState, structureContract);
                         if (contractStatus != null) {
                                 predicates.add(criteriaBuilder.equal(root.get("contractStatus"), contractStatus));
                         }
@@ -65,8 +75,11 @@ public class ContractsSpecification {
                         LocalDate endDate,
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = commonfields(new ArrayList<>(), root, query, criteriaBuilder,
-                                        filter, startDate, endDate, contractState, structureContract);
+                        Map<String, LocalDate> dates = new HashMap<>();
+                        dates.put("startDate", startDate);
+                        dates.put("endDate", endDate);
+                        List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
+                                        filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
                         query.distinct(true);
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -77,8 +90,11 @@ public class ContractsSpecification {
                         LocalDate endDate,
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = commonfields(new ArrayList<>(), root, query, criteriaBuilder,
-                                        filter, startDate, endDate, contractState, structureContract);
+                        Map<String, LocalDate> dates = new HashMap<>();
+                        dates.put("startDate", startDate);
+                        dates.put("endDate", endDate);
+                        List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
+                                        filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
                         query.distinct(true);
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -89,36 +105,42 @@ public class ContractsSpecification {
                         LocalDate endDate,
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
-                        List<Predicate> predicates = commonfields(new ArrayList<>(), root, query, criteriaBuilder,
-                                        filter, startDate, endDate, contractState, structureContract);
+                        Map<String, LocalDate> dates = new HashMap<>();
+                        dates.put("startDate", startDate);
+                        dates.put("endDate", endDate);
+                        List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
+                                        filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
                         query.distinct(true);
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
                 };
         }
 
-        public List<Predicate> commonfields(List<Predicate> predicates, Root<?> root, CriteriaQuery<?> query,
-                        CriteriaBuilder criteriaBuilder, String filter, LocalDate startDate, LocalDate endDate,
+        public List<Predicate> commonfields(Root<?> root, CriteriaQuery<?> query,
+                        CriteriaBuilder criteriaBuilder, String filter, Map<String, LocalDate> dates,
                         ContractState contractState, PortageCompanies structureContract) {
+                List<Predicate> predicates = new ArrayList<>();
+                LocalDate endDate = dates.get("endDate");
+                LocalDate startDate = dates.get("startDate");
                 if (filter != null && !filter.isEmpty()) {
                         predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(CONTRACT_TITLE)),
                                         "%" + filter.toLowerCase() + "%"));
                 }
                 if (contractState != null) {
-                        predicates.add(criteriaBuilder.equal(root.get("contractState"), contractState));
+                        predicates.add(criteriaBuilder.equal(root.get(CONTRACT_DATE), contractState));
                 }
                 if (structureContract != null) {
                         predicates.add(criteriaBuilder.equal(root.get("structureContract"), structureContract));
                 }
                 if (startDate != null && endDate != null) {
-                        predicates.add(criteriaBuilder.between(root.get("contractDate"), startDate, endDate));
-                    }
-                    if (startDate != null) {
-                        predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("contractDate"), startDate));
-                    }
-                    if (endDate != null) {
-                        predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("contractDate"), endDate));
-                    }
+                        predicates.add(criteriaBuilder.between(root.get(CONTRACT_DATE), startDate, endDate));
+                }
+                if (startDate != null) {
+                        predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(CONTRACT_DATE), startDate));
+                }
+                if (endDate != null) {
+                        predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get(CONTRACT_DATE), endDate));
+                }
                 predicates.add(criteriaBuilder.equal(root.get("status"), true));
                 return predicates;
         }

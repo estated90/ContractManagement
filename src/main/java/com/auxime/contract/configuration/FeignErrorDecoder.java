@@ -4,6 +4,8 @@ package com.auxime.contract.configuration;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.auxime.contract.exception.ProxyException;
+
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +40,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
         try {
             responseBody = IOUtils.toByteArray(response.body().asInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to process response body.", e);
+            return null;
         }
 
         if (response.status() >= 400 && response.status() <= 499) {

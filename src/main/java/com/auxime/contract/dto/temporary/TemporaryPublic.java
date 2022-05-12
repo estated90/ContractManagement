@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.NotNull;
 
-import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.model.Contract;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,16 +17,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TemporaryPublic {
-	
-	@NotNull
-	private LocalDate contractDate;
-	@NotNull
-	private LocalDate startingDate;
-	@NotNull
-	private String contractTitle;
-	@NotNull
-	private PortageCompanies structureContract;
+public class TemporaryPublic extends Contract {
+
 	@NotNull
 	private boolean status;
 	private LocalDate ruptureDate;

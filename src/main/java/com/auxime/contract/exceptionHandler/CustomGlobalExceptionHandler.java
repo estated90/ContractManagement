@@ -1,4 +1,4 @@
-package com.auxime.contract.exceptionHandler;
+package com.auxime.contract.exceptionhandler;
 
 import java.util.ArrayList;
 import java.util.List;
