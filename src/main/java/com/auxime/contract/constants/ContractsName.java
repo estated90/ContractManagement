@@ -26,6 +26,7 @@ public enum ContractsName {
     // enum constructor - cannot be public or protected
     private ContractsName(String fileName, String friendlyFrName) {
         this.fileName = fileName;
+        this.friendlyFrName = friendlyFrName;
     }
 
 }
