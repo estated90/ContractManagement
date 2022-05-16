@@ -9,6 +9,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -52,8 +53,9 @@ public interface PortageConventionService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws PortageConventionException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
-	PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException;
+	PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException, PdfGeneratorException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID
@@ -80,9 +82,10 @@ public interface PortageConventionService {
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Portage Convention the created object
 	 * @throws PortageConventionException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic)
-			throws PortageConventionException;
+			throws PortageConventionException, PdfGeneratorException;
 
 	/**
 	 * Method to return all amendment on a contract in DB

@@ -99,13 +99,13 @@ public class PdfGenerator {
 	}
 
 	public void convertToPDF(String savingPath, String pdfPath, String fileName)
-			throws PdfGeneratorException, InterruptedException, ExecutionException, IOException {
+			throws InterruptedException, ExecutionException, IOException {
 		ByteArrayOutputStream bo = new ByteArrayOutputStream();
 		InputStream in = null;
 		try {
 			in = new BufferedInputStream(new FileInputStream(savingPath));
 		} catch (IOException e) {
-
+			logger.error(ExceptionMessageConstant.READING_ERROR);
 		}
 		IConverter converter = LocalConverter.builder()
 				.baseFolder(new File(pdfPath))

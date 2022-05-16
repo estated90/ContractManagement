@@ -7,7 +7,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.dto.portage.CreatePortageAmendment;
+import com.auxime.contract.dto.portage.PortageCreate;
+import com.auxime.contract.dto.portage.PortagePublic;
+import com.auxime.contract.model.enums.ContractType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,22 +33,22 @@ public class PortageConvention extends Contract{
 	@Column(name="commission")
 	private int commission;
 	
-	/**
-	 * Calculate the State of a contract and apply it
-	 * 
-	 * @return the Updated object
-	 */
-	public PortageConvention createStateContract() {
-		if (this.getContractState() == ContractState.CANCELED) {
-		} else {
-			if (this.getStartingDate().isAfter(LocalDate.now())) {
-				this.setContractState(ContractState.NOT_STARTED);
-			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
-				this.setContractState(ContractState.ACTIVE);
-			} else if (LocalDate.now().isAfter(this.getEndDate())) {
-				this.setContractState(ContractState.INACTIVE);
-			}
-		}
+	public PortageConvention buildConventionCommon(PortagePublic contractPublic){
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.setEndDate(contractPublic.getEndDate());
+		return this;
+	}
+
+	public PortageConvention buildConvention(PortageCreate contractPublic){
+		this.buildConventionCommon(contractPublic);
+		this.setAccountId(contractPublic.getAccountId());
+		return this;
+	}
+
+	public PortageConvention buildConvention(CreatePortageAmendment contractPublic){
+		this.buildConventionCommon(contractPublic);
+		this.setAccountId(contractPublic.getAccountId());
+		this.setContractAmendment(contractPublic.getContractAmendment());
 		return this;
 	}
 }

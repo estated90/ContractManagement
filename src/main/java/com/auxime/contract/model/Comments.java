@@ -11,6 +11,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 
+import com.auxime.contract.dto.CommentCommercialPublic;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Getter;
@@ -39,4 +41,14 @@ public abstract class Comments {
 	private LocalDateTime createdAt;
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+
+	protected Comments buildComment(CommentCommercialPublic commentCreate) {
+		this.setComment(commentCreate.getComment());
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		return this;
+	}
 }

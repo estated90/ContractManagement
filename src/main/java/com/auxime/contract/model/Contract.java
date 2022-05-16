@@ -15,6 +15,10 @@ import javax.persistence.MappedSuperclass;
 
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.cape.CapePublic;
+import com.auxime.contract.dto.commercial.CommercialPublic;
+import com.auxime.contract.dto.permanent.PermanentPublic;
+import com.auxime.contract.dto.portage.PortagePublic;
+import com.auxime.contract.dto.temporary.TemporaryPublic;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
 
@@ -55,7 +59,7 @@ public abstract class Contract {
 	@Column(name = "account_id")
 	private UUID accountId;
 	@Column(name = "status")
-	private boolean status;
+	private boolean status = true;
 	@Column(name = "contract_type")
 	@Enumerated(EnumType.STRING)
 	private ContractType contractType;
@@ -85,7 +89,7 @@ public abstract class Contract {
 		}
 	}
 
-	protected Contract build(CapePublic contractPublic, ContractType contractType, boolean status) {
+	protected Contract build(CapePublic contractPublic, ContractType contractType) {
 		if (createdAt == null) {
 			this.setCreatedAt(LocalDateTime.now());
 		} else {
@@ -97,6 +101,86 @@ public abstract class Contract {
 		this.setStartingDate(contractPublic.getStartingDate());
 		this.setContractTitle(contractPublic.getContractTitle());
 		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
+	}
+
+	protected Contract build(CommercialPublic contractPublic, ContractType contractType) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setContractType(contractType);
+		this.setStatus(status);
+		this.setContractDate(contractPublic.getContractDate());
+		this.setStartingDate(contractPublic.getStartingDate());
+		this.setContractTitle(contractPublic.getContractTitle());
+		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
+	}
+
+	protected Contract build(PermanentPublic contractPublic, ContractType contractType) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setContractType(contractType);
+		this.setStatus(status);
+		this.setContractDate(contractPublic.getContractDate());
+		this.setStartingDate(contractPublic.getStartingDate());
+		this.setContractTitle(contractPublic.getContractTitle());
+		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
+	}
+
+	protected Contract build(PortagePublic contractPublic, ContractType contractType) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setContractType(contractType);
+		this.setStatus(status);
+		this.setContractDate(contractPublic.getContractDate());
+		this.setStartingDate(contractPublic.getStartingDate());
+		this.setContractTitle(contractPublic.getContractTitle());
+		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
+	}
+
+	protected Contract build(TemporaryPublic contractPublic, ContractType contractType) {
+		if (createdAt == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		} else {
+			this.setUpdatedAt(LocalDateTime.now());
+		}
+		this.setContractType(contractType);
+		this.setStatus(status);
+		this.setContractDate(contractPublic.getContractDate());
+		this.setStartingDate(contractPublic.getStartingDate());
+		this.setContractTitle(contractPublic.getContractTitle());
+		this.setStructureContract(contractPublic.getStructureContract());
+		return this;
+	}
+
+	/**
+	 * Calculate the State of a contract and apply it
+	 * 
+	 * @return the Updated object
+	 */
+	public Contract createStateContract(LocalDate endDate) {
+		if (this.getContractState() == ContractState.CANCELED) {
+			this.setContractState(ContractState.CANCELED);
+		} else {
+			if (this.getStartingDate().isAfter(LocalDate.now())) {
+				this.setContractState(ContractState.NOT_STARTED);
+			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), endDate)) {
+				this.setContractState(ContractState.ACTIVE);
+			} else if (LocalDate.now().isAfter(endDate)) {
+				this.setContractState(ContractState.INACTIVE);
+			}
+		}
 		return this;
 	}
 }

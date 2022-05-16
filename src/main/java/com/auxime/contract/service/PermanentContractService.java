@@ -9,6 +9,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -52,8 +53,9 @@ public interface PermanentContractService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws PermanentContractException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
-	PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException;
+	PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException, PdfGeneratorException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID
@@ -80,9 +82,10 @@ public interface PermanentContractService {
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Portage Convention the created object
 	 * @throws PermanentContractException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	PermanentContract createPermanentContractAmendment(CreatePermanentAmendment contractPublic)
-			throws PermanentContractException;
+			throws PermanentContractException, PdfGeneratorException;
 
 	/**
 	 * Method to return all amendment on a contract in DB

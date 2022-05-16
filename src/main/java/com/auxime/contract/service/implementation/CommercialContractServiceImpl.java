@@ -10,21 +10,23 @@ import java.util.UUID;
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
+import com.auxime.contract.constants.ContractsName;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
-import com.auxime.contract.dto.commercial.CommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.CommentCommercialContract;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.ProfileInfo;
-import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
+import com.auxime.contract.utils.GenerateListVariable;
+import com.auxime.contract.utils.PdfGenerator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,7 +66,9 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAll(
-				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract, contractStatus), paging);
+				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract,
+						contractStatus),
+				paging);
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -134,19 +138,15 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
 	 * @throws CommercialContractException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	@Transactional(rollbackFor = { CommercialContractException.class })
-	public CommercialContract createNewCommercial(CommercialCreate contractPublic) throws CommercialContractException {
+	public CommercialContract createNewCommercial(CommercialCreate contractPublic)
+			throws CommercialContractException, PdfGeneratorException {
 		logger.info("Creating a new Commercial Contract");
-		CommercialContract contract = settingCommonFields(new CommercialContract(), contractPublic);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setContractType(ContractType.CONTRACT);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setStatus(true);
-		contract.setAccountId(contractPublic.getAccountId());
-		contract.createStateContract();
-		contract.setContractStatus(ContractStatus.DRAFT);
+		CommercialContract contract = new CommercialContract().buildCommercial(contractPublic);
+		writtingFileAsPdf(contract, ContractsName.COMMERCIAL_CONTRACT_AUXIME.getFileName());
 		return commercialeRepo.save(contract);
 	}
 
@@ -168,8 +168,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
-		CommercialContract contract = settingCommonFields(contractOpt.get(), contractPublic);
-		contract.setUpdatedAt(LocalDateTime.now());
+		CommercialContract contract = contractOpt.get().buildCommercialCommon(contractPublic);
 		return commercialeRepo.save(contract);
 	}
 
@@ -195,50 +194,21 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	}
 
 	/**
-	 * 
-	 * Function to update the object for the common fields between creation and
-	 * update
-	 * 
-	 * @param contract       The contract found in the DB
-	 * @param contractPublic The object with the new information to use for the
-	 *                       update
-	 * @return The contract updated
-	 */
-	private CommercialContract settingCommonFields(CommercialContract contract, CommercialPublic contractPublic) {
-		logger.info("Updating the fields");
-		contract.setContractDate(contractPublic.getContractDate());
-		contract.setStartingDate(contractPublic.getStartingDate());
-		contract.setContractTitle(contractPublic.getContractTitle());
-		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setEndDate(contractPublic.getEndDate());
-		contract.setClientId(contractPublic.getClientId());
-		contract.setGlobalAmount(Math.round(contractPublic.getGlobalAmount() * 100.0) / 100.0);
-		contract.setMonthlyAmount(Math.round(contractPublic.getMonthlyAmount() * 100.0) / 100.0);
-		contract.setMissionDuration(contractPublic.getMissionDuration());
-		contract.setDurationUnit(contractPublic.getDurationUnit());
-		return contract;
-	}
-
-	/**
 	 * Create an addendum to a CAPE contract
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return CommercialContract Contract the created object
 	 * @throws CommercialContractException When an error is thrown during the
 	 *                                     process
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	public CommercialContract createAmendmentCommercial(CreateCommercialAmendment contractPublic)
-			throws CommercialContractException {
+			throws CommercialContractException, PdfGeneratorException {
 		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
 		if (commercialeRepo.existsById(contractPublic.getContractAmendment())) {
-			CommercialContract contract = settingCommonFields(new CommercialContract(), contractPublic);
-			contract.createStateContract();
-			contract.setAccountId(contractPublic.getAccountId());
-			contract.setStatus(true);
-			contract.setContractType(ContractType.AMENDMENT);
-			contract.setContractAmendment(contractPublic.getContractAmendment());
-			contract.setCreatedAt(LocalDateTime.now());
+			CommercialContract contract = new CommercialContract().buildCommercialAmend(contractPublic);
+			writtingFileAsPdf(contract, ContractsName.COMMERCIAL_CONTRACT_AUXIME.getFileName());
 			return commercialeRepo.save(contract);
 		} else {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
@@ -305,12 +275,12 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		}
 		CommercialContract contract = contractOpt.get();
 		Optional<ProfileInfo> profileInfo = proxy.getProfilesFromAccountId(contract.getAccountId());
-		if(profileInfo.isEmpty()){
+		if (profileInfo.isEmpty()) {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
-		} else if(profileInfo.get().getManagerId()!=null){
+		} else if (profileInfo.get().getManagerId() != null) {
 			contract.setValidatorId(profileInfo.get().getManagerId());
-		} else if(profileInfo.get().getBusinessManagerId()==null) {
+		} else if (profileInfo.get().getBusinessManagerId() == null) {
 			contract.setValidatorId(profileInfo.get().getBusinessManagerId());
 		} else {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
@@ -339,7 +309,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		}
 		CommercialContract contract = contractOpt.get();
 		contract.setContractStatus(ContractStatus.MODIFICATION_REQUIRED);
-		CommentCommercialContract comment = setCommonFieldsComments(new CommentCommercialContract(), commentCreate);
+		CommentCommercialContract comment = new CommentCommercialContract()
+				.buildCommentCommercialContract(commentCreate);
 		contract.addComment(comment);
 		return commercialeRepo.save(contract);
 	}
@@ -363,27 +334,34 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
 		CommercialContract contract = contractOpt.get();
-		CommentCommercialContract comment = setCommonFieldsComments(new CommentCommercialContract(), commentCreate);
+		CommentCommercialContract comment = new CommentCommercialContract()
+				.buildCommentCommercialContract(commentCreate);
 		contract.addComment(comment);
 		return commercialeRepo.save(contract);
 	}
 
-	private CommentCommercialContract setCommonFieldsComments(CommentCommercialContract comment,
-			CommentCommercialPublic commentCreate) {
-		comment.setComment(commentCreate.getComment());
-		comment.setCreatedAt(LocalDateTime.now());
-		comment.setFirstName(commentCreate.getFirstName());
-		comment.setLastName(commentCreate.getLastName());
-		return comment;
-	}
-
 	@Override
-	public Integer numberContracByStatus(UUID validatorId, boolean status, ContractStatus contractStatus){
+	public Integer numberContracByStatus(UUID validatorId, boolean status, ContractStatus contractStatus) {
 		return commercialeRepo.count(validatorId, status, contractStatus);
 	}
 
 	@Autowired
 	private AccountFeign accountFeign;
+	@Autowired
+	private PdfGenerator pdfGenerator;
 
+	private void writtingFileAsPdf(CommercialContract contract, String file) throws PdfGeneratorException {
+		// Getting the info linked to the profile of contract account
+		Optional<ProfileInfo> profileInfo = accountFeign.getProfilesFromAccountId(contract.getAccountId());
+		if (profileInfo.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+		}
+		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+				+ profileInfo.get().getFistName() + " "
+				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		pdfGenerator.replaceTextModel(listWords, fileName, file);
+	}
 
 }

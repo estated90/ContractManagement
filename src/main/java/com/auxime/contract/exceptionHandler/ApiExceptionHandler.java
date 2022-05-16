@@ -28,6 +28,8 @@ import com.auxime.contract.exception.TemporaryContractException;
 @ControllerAdvice
 public class ApiExceptionHandler {
 
+	private final static String REQUEST_FAIL = "Bad request, unable to perform request";
+
 	/**
 	 * Method to manage all Accessdenied exceptions
 	 * 
@@ -52,7 +54,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		CapeException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 	/**
@@ -65,7 +67,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		CommercialContractException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
 	/**
@@ -78,7 +80,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		PermanentContractException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
 	/**
@@ -91,7 +93,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		PortageConventionException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
 	/**
@@ -104,7 +106,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		TemporaryContractException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
 	
@@ -118,7 +120,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleApiException(
     		PdfGeneratorException ex) {
-    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), "Bad request, unable to perform request");
+    	final var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), REQUEST_FAIL);
     	return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     } 
 

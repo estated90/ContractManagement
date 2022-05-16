@@ -9,7 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
+import com.auxime.contract.dto.permanent.PermanentCreate;
+import com.auxime.contract.dto.permanent.PermanentPublic;
+import com.auxime.contract.model.enums.ContractType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,12 +23,12 @@ import lombok.Setter;
  *
  */
 @Entity
-@Table(name="permanent_contract")
+@Table(name = "permanent_contract")
 @AttributeOverride(name = "id", column = @Column(name = "permanent_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
-public class PermanentContract extends Contract{
+public class PermanentContract extends Contract {
 
 	private LocalDate ruptureDate;
 	private LocalDate endDate;
@@ -34,23 +37,29 @@ public class PermanentContract extends Contract{
 	private double workTime;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
 	private CommentExit comment;
-	
-	/**
-	 * Calculate the State of a contract and apply it
-	 * 
-	 * @return the Updated object
-	 */
-	public PermanentContract createStateContract() {
-		if (this.getContractState() == ContractState.CANCELED) {
-		} else {
-			if (this.getStartingDate().isAfter(LocalDate.now())) {
-				this.setContractState(ContractState.NOT_STARTED);
-			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
-				this.setContractState(ContractState.ACTIVE);
-			} else if (LocalDate.now().isAfter(this.getEndDate())) {
-				this.setContractState(ContractState.INACTIVE);
-			}
-		}
+
+	public PermanentContract buildPermanentContract(PermanentCreate contractPublic) {
+		this.buildPermanentCommon(contractPublic);
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.setAccountId(contractPublic.getAccountId());
+		return this;
+	}
+
+	public PermanentContract buildPermanentContractAmend(CreatePermanentAmendment contractPublic) {
+		this.buildPermanentCommon(contractPublic);
+		this.build(contractPublic, ContractType.AMENDMENT);
+		this.setAccountId(contractPublic.getAccountId());
+		this.setContractAmendment(contractPublic.getContractAmendment());
+		return this;
+	}
+
+	public PermanentContract buildPermanentCommon(PermanentPublic contractPublic) {
+		this.createStateContract(contractPublic.getEndDate());
+		this.setRuptureDate((contractPublic.getRuptureDate()));
+		this.setEndDate(contractPublic.getEndDate());
+		this.setFse(contractPublic.getFse());
+		this.setHourlyRate(contractPublic.getHourlyRate());
+		this.setWorkTime(contractPublic.getWorkTime());
 		return this;
 	}
 }

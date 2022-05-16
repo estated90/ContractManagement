@@ -7,9 +7,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.auxime.contract.model.Cape;
+import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.Contract;
+import com.auxime.contract.model.PermanentContract;
+import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.Rates;
+import com.auxime.contract.model.TemporaryContract;
 import com.auxime.contract.model.enums.TypeRate;
 
 public class GenerateListVariable {
@@ -22,6 +26,40 @@ public class GenerateListVariable {
 		list.put("${ACTIVITY_RATE}", Integer.toString(ratesActivity.stream().max(comparator).get().getRate()));
 		List<Rates> ratesQualiopy = cape.getRates().stream().filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
 		list.put("${QUALIOPY_RATE}", Integer.toString(ratesQualiopy.stream().max(comparator).get().getRate()));
+		return list;
+	}
+
+	public static Map<String, String> setListVariable(CommercialContract contract, ProfileInfo profileInfo) {
+		Map<String, String> list = setCommonFieldsContract(contract, new HashMap<>(), profileInfo);
+		list.put("${END_DATE}", contract.getEndDate().toString());
+		list.put("${CLIENT_ID}", contract.getClientId().toString());
+		list.put("${GLOBAL_AMOUNT}", String.valueOf(contract.getGlobalAmount()));
+		list.put("${MONTHLY_AMOUNT}", String.valueOf(contract.getMonthlyAmount()));
+		list.put("${MISSION_DURATION}", String.valueOf(contract.getMissionDuration()));
+		list.put("${DURATION_UNITS}", String.valueOf(contract.getDurationUnit()));
+		return list;
+	}
+
+	public static Map<String, String> setListVariable(PermanentContract contract, ProfileInfo profileInfo) {
+		Map<String, String> list = setCommonFieldsContract(contract, new HashMap<>(), profileInfo);
+		list.put("${RUPTURE_DATE}", contract.getRuptureDate().toString());
+		list.put("${HOURLY_RATE}", String.valueOf(contract.getHourlyRate()));
+		list.put("${WORK_TIME}", String.valueOf(contract.getWorkTime()));
+		return list;
+	}
+
+	public static Map<String, String> setListVariable(PortageConvention cape, ProfileInfo profileInfo) {
+		Map<String, String> list = setCommonFieldsContract(cape, new HashMap<>(), profileInfo);
+		list.put("${END_DATE}", cape.getEndDate().toString());
+		return list;
+	}
+
+	public static Map<String, String> setListVariable(TemporaryContract contract, ProfileInfo profileInfo) {
+		Map<String, String> list = setCommonFieldsContract(contract, new HashMap<>(), profileInfo);
+		list.put("${END_DATE}", contract.getEndDate().toString());
+		list.put("${RUPTURE_DATE}", contract.getRuptureDate().toString());
+		list.put("${HOURLY_RATE}", String.valueOf(contract.getHourlyRate()));
+		list.put("${WORK_TIME}", String.valueOf(contract.getWorkTime()));
 		return list;
 	}
 
