@@ -9,6 +9,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
 import com.auxime.contract.dto.temporary.TemporaryUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.TemporaryContractException;
 import com.auxime.contract.model.TemporaryContract;
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -55,8 +56,9 @@ public interface TemporaryContractService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws TemporaryContractException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
-	TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException;
+	TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException, PdfGeneratorException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID
@@ -83,9 +85,10 @@ public interface TemporaryContractService {
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Temporary Contract the created object
 	 * @throws TemporaryContractException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	TemporaryContract createTemporaryContractAmendment(CreateTemporaryAmendment contractPublic)
-			throws TemporaryContractException;
+			throws TemporaryContractException, PdfGeneratorException;
 
 	/**
 	 * Method to return all amendment on a contract in DB

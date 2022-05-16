@@ -14,9 +14,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.DurationUnit;
+import com.auxime.contract.dto.commercial.CommercialCreate;
+import com.auxime.contract.dto.commercial.CommercialPublic;
+import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
+import com.auxime.contract.model.enums.ContractType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,27 +57,35 @@ public class CommercialContract extends Contract {
 	private UUID validatorId;
 	@OneToMany(targetEntity = CommentCommercialContract.class, cascade = CascadeType.ALL)
 	private Set<CommentCommercialContract> comments = new HashSet<>();
-
-	/**
-	 * Calculate the State of a contract and apply it
-	 * 
-	 * @return the Updated object
-	 */
-	public CommercialContract createStateContract() {
-		if (this.getContractState() == ContractState.CANCELED) {
-		} else {
-			if (this.getStartingDate().isAfter(LocalDate.now())) {
-				this.setContractState(ContractState.NOT_STARTED);
-			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
-				this.setContractState(ContractState.ACTIVE);
-			} else if (LocalDate.now().isAfter(this.getEndDate())) {
-				this.setContractState(ContractState.INACTIVE);
-			}
-		}
-		return this;
-	}
 	
 	public void addComment(CommentCommercialContract comment) {
 		this.comments.add(comment);
+	}
+
+	public CommercialContract buildCommercial(CommercialCreate contractPublic) {
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.buildCommercialCommon(contractPublic);
+		this.setAccountId(contractPublic.getAccountId());
+		return this;
+	}
+
+	public CommercialContract buildCommercialAmend(CreateCommercialAmendment contractPublic) {
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.buildCommercial(contractPublic);
+		this.setContractAmendment(contractPublic.getContractAmendment());
+		return this;
+	}
+
+	public CommercialContract buildCommercialCommon(CommercialPublic contractPublic){
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setClientId(contractPublic.getClientId());
+		this.setGlobalAmount(contractPublic.getGlobalAmount());
+		this.setMonthlyAmount(contractPublic.getMonthlyAmount());
+		this.setMissionDuration(contractPublic.getMissionDuration());
+		this.setDurationUnit(contractPublic.getDurationUnit());
+		this.setClientId(contractPublic.getClientId());
+		this.createStateContract(endDate);
+		return this;
 	}
 }

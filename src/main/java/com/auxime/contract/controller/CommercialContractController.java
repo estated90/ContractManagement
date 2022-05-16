@@ -16,6 +16,7 @@ import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.service.CommercialContractService;
@@ -152,7 +153,7 @@ public class CommercialContractController {
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CommercialContract> createContract(@RequestBody @Valid CommercialCreate contractPublic)
-			throws CommercialContractException {
+			throws CommercialContractException, PdfGeneratorException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(commercialService.createNewCommercial(contractPublic), HttpStatus.CREATED);
 	}
@@ -167,10 +168,11 @@ public class CommercialContractController {
 	 * @throws CommercialContractException An exception is raised if any problem is
 	 *                                     encountered when getting or reading the
 	 *                                     id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CommercialContract> createAmendmentContract(
-			@RequestBody @Valid CreateCommercialAmendment contractPublic) throws CommercialContractException {
+			@RequestBody @Valid CreateCommercialAmendment contractPublic) throws CommercialContractException, PdfGeneratorException {
 		logger.info("Creating amendment contract");
 		return new ResponseEntity<>(commercialService.createAmendmentCommercial(contractPublic), HttpStatus.CREATED);
 	}

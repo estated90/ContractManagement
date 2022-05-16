@@ -9,17 +9,21 @@ import java.util.UUID;
 
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractsName;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
-import com.auxime.contract.dto.temporary.TemporaryPublic;
 import com.auxime.contract.dto.temporary.TemporaryUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.TemporaryContractException;
+import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.TemporaryContract;
-import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.TemporaryContractRepository;
 import com.auxime.contract.service.TemporaryContractService;
+import com.auxime.contract.utils.GenerateListVariable;
+import com.auxime.contract.utils.PdfGenerator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -126,18 +130,14 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws TemporaryContractException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	@Transactional(rollbackFor = { TemporaryContractException.class })
-	public TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException {
+	public TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creating a new Temporary Contract");
-		TemporaryContract contract = settingCommonFields(new TemporaryContract(), contractPublic);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setContractType(ContractType.CONTRACT);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setStatus(true);
-		contract.setAccountId(contractPublic.getAccountId());
-		contract.createStateContract();
+		TemporaryContract contract = new TemporaryContract().buildTemporary(contractPublic);
+		writtingFileAsPdf(contract, ContractsName.TEMPORARY_CONTRACT_COELIS.getFileName());
 		return temporaryRepo.save(contract);
 	}
 
@@ -158,7 +158,7 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 			logger.error(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 			throw new TemporaryContractException(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 		}
-		TemporaryContract contract = settingCommonFields(contractOpt.get(), contractPublic);
+		TemporaryContract contract = contractOpt.get().buildTemporaryCommon(contractPublic);
 		contract.setUpdatedAt(LocalDateTime.now());
 		return temporaryRepo.save(contract);
 	}
@@ -185,51 +185,43 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	}
 
 	/**
-	 *
-	 * Function to update the object for the common fields between creation and
-	 * update
-	 *
-	 * @param contract       The contract found in the DB
-	 * @param contractPublic The object with the new information to use for the
-	 *                       update
-	 * @return The contract updated
-	 */
-	private TemporaryContract settingCommonFields(TemporaryContract contract, TemporaryPublic contractPublic) {
-		logger.info("Updating the fields");
-		contract.setContractDate(contractPublic.getContractDate());
-		contract.setStartingDate(contractPublic.getStartingDate());
-		contract.setContractTitle(contractPublic.getContractTitle());
-		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
-		contract.setHourlyRate(contractPublic.getHourlyRate());
-		contract.setRuptureDate(contractPublic.getRuptureDate());
-		contract.setWorkTime(contractPublic.getWorkTime());
-		return contract;
-	}
-
-	/**
 	 * Create an addendum to a temporary contract
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Temporary Contract the created object
 	 * @throws TemporaryContractException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	public TemporaryContract createTemporaryContractAmendment(CreateTemporaryAmendment contractPublic)
-			throws TemporaryContractException {
+			throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
 		if (temporaryRepo.existsById(contractPublic.getContractAmendment())) {
-			TemporaryContract contract = settingCommonFields(new TemporaryContract(), contractPublic);
-			contract.createStateContract();
-			contract.setAccountId(contractPublic.getAccountId());
-			contract.setStatus(true);
-			contract.setContractType(ContractType.AMENDMENT);
-			contract.setContractAmendment(contractPublic.getContractAmendment());
-			contract.setCreatedAt(LocalDateTime.now());
+			TemporaryContract contract = new TemporaryContract().buildTemporary(contractPublic);
+			writtingFileAsPdf(contract, ContractsName.TEMPORARY_CONTRACT_COELIS.getFileName());
 			return temporaryRepo.save(contract);
 		} else {
 			logger.error(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 			throw new TemporaryContractException(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 		}
+	}
+
+	@Autowired
+	private AccountFeign accountFeign;
+	@Autowired
+	private PdfGenerator pdfGenerator;
+
+	private void writtingFileAsPdf(TemporaryContract contract, String file) throws PdfGeneratorException {
+		// Getting the info linked to the profile of contract account
+		Optional<ProfileInfo> profileInfo = accountFeign.getProfilesFromAccountId(contract.getAccountId());
+		if (profileInfo.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+		}
+		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+				+ profileInfo.get().getFistName() + " "
+				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }

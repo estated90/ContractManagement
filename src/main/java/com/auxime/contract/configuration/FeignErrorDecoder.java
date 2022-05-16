@@ -4,8 +4,6 @@ package com.auxime.contract.configuration;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.auxime.contract.exception.ProxyException;
-
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

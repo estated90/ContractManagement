@@ -13,6 +13,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -143,10 +144,11 @@ public class PermanentContractController {
 	 * @return A contract object with the ID and infos
 	 * @throws PermanentContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PermanentContract> createContract(@RequestBody @Valid PermanentCreate contractPublic)
-			throws PermanentContractException {
+			throws PermanentContractException, PdfGeneratorException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(permanentService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}
@@ -160,10 +162,11 @@ public class PermanentContractController {
 	 * @return A Permanent Contract object with the ID and infos
 	 * @throws PermanentContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PermanentContract> createAmendmentContract(
-			@RequestBody @Valid CreatePermanentAmendment contractPublic) throws PermanentContractException {
+			@RequestBody @Valid CreatePermanentAmendment contractPublic) throws PermanentContractException, PdfGeneratorException {
 		logger.info("Creating amendment contract");
 		return new ResponseEntity<>(permanentService.createPermanentContractAmendment(contractPublic),
 				HttpStatus.CREATED);

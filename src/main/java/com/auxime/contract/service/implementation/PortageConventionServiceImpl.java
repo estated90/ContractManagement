@@ -9,17 +9,21 @@ import java.util.UUID;
 
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractsName;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
-import com.auxime.contract.dto.portage.PortagePublic;
 import com.auxime.contract.dto.portage.PortageUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
-import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.PortageConventionRepository;
 import com.auxime.contract.service.PortageConventionService;
+import com.auxime.contract.utils.GenerateListVariable;
+import com.auxime.contract.utils.PdfGenerator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -124,18 +128,14 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws PortageConventionException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
-	public PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException {
+	public PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creating a new Portage Convention");
-		PortageConvention portage = settingCommonFields(new PortageConvention(), contractPublic);
-		portage.setCreatedAt(LocalDateTime.now());
-		portage.setContractType(ContractType.CONTRACT);
-		portage.setStatus(true);
-		portage.setAccountId(contractPublic.getAccountId());
-		portage.setEndDate(contractPublic.getEndDate());
-		portage.createStateContract();
+		PortageConvention portage = new PortageConvention().buildConvention(contractPublic);
+		writtingFileAsPdf(portage, ContractsName.PORTAGE_CONVENTION_COELIS.getFileName());
 		return portageRepo.save(portage);
 	}
 
@@ -157,7 +157,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 		}
 		logger.info(ExceptionMessageConstant.CAPE_FOUND);
-		PortageConvention portage = settingCommonFields(contractOpt.get(), contractPublic);
+		PortageConvention portage = contractOpt.get().buildConventionCommon(contractPublic);
 		portage.setUpdatedAt(LocalDateTime.now());
 		return portageRepo.save(portage);
 	}
@@ -184,47 +184,43 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	}
 
 	/**
-	 * 
-	 * Function to update the object for the common fields between creation and
-	 * update
-	 * 
-	 * @param contract       The contract found in the DB
-	 * @param contractPublic The object with the new information to use for the
-	 *                       update
-	 * @return The contract updated
-	 */
-	private PortageConvention settingCommonFields(PortageConvention contract, PortagePublic contractPublic) {
-		logger.info("Updating the fields");
-		contract.setContractDate(contractPublic.getContractDate());
-		contract.setStartingDate(contractPublic.getStartingDate());
-		contract.setContractTitle(contractPublic.getContractTitle());
-		contract.setStructureContract(contractPublic.getStructureContract());
-		return contract;
-	}
-
-	/**
 	 * Create an addendum to a temporary contract
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Portage Convention the created object
 	 * @throws PortageConventionException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	public PortageConvention createPortageConventionContract(CreatePortageAmendment contractPublic)
-			throws PortageConventionException {
+			throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
 		if (portageRepo.existsById(contractPublic.getContractAmendment())) {
-			PortageConvention contract = settingCommonFields(new PortageConvention(), contractPublic);
-			contract.createStateContract();
-			contract.setAccountId(contractPublic.getAccountId());
-			contract.setStatus(true);
-			contract.setContractType(ContractType.AMENDMENT);
-			contract.setContractAmendment(contractPublic.getContractAmendment());
-			contract.setCreatedAt(LocalDateTime.now());
+			PortageConvention contract = new PortageConvention().buildConvention(contractPublic);
+			writtingFileAsPdf(contract, ContractsName.PORTAGE_CONVENTION_COELIS.getFileName());
 			return portageRepo.save(contract);
 		} else {
 			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 		}
+	}
+
+	@Autowired
+	private AccountFeign accountFeign;
+	@Autowired
+	private PdfGenerator pdfGenerator;
+
+	private void writtingFileAsPdf(PortageConvention contract, String file) throws PdfGeneratorException {
+		// Getting the info linked to the profile of contract account
+		Optional<ProfileInfo> profileInfo = accountFeign.getProfilesFromAccountId(contract.getAccountId());
+		if (profileInfo.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+		}
+		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+				+ profileInfo.get().getFistName() + " "
+				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }

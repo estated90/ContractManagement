@@ -33,13 +33,15 @@ public class ContractsSpecification {
         private static final String CONTRACT_TITLE = "contractTitle";
         private static final String STARTING_DATE = "startingDate";
         private static final String CONTRACT_DATE = "contractDate";
+        private static final String START_DATE = "startDate";
+        private static final String END_DATE = "endDate";
 
         public Specification<Cape> getAllCape(String filter, LocalDate startDate, LocalDate endDate,
                         ContractState contractState, PortageCompanies structureContract, Integer rate) {
                 return (root, query, criteriaBuilder) -> {
                         Map<String, LocalDate> dates = new HashMap<>();
-                        dates.put("startDate", startDate);
-                        dates.put("endDate", endDate);
+                        dates.put(START_DATE, startDate);
+                        dates.put(END_DATE, endDate);
                         List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
                                         filter, dates, contractState, structureContract);
                         Join<Cape, Rates> joinRates = root.join(RATE, JoinType.INNER);
@@ -58,8 +60,8 @@ public class ContractsSpecification {
                         ContractStatus contractStatus) {
                 return (root, query, criteriaBuilder) -> {
                         Map<String, LocalDate> dates = new HashMap<>();
-                        dates.put("startDate", startDate);
-                        dates.put("endDate", endDate);
+                        dates.put(START_DATE, startDate);
+                        dates.put(END_DATE, endDate);
                         List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
                                         filter, dates, contractState, structureContract);
                         if (contractStatus != null) {
@@ -76,8 +78,8 @@ public class ContractsSpecification {
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
                         Map<String, LocalDate> dates = new HashMap<>();
-                        dates.put("startDate", startDate);
-                        dates.put("endDate", endDate);
+                        dates.put(START_DATE, startDate);
+                        dates.put(END_DATE, endDate);
                         List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
                                         filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
@@ -91,8 +93,8 @@ public class ContractsSpecification {
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
                         Map<String, LocalDate> dates = new HashMap<>();
-                        dates.put("startDate", startDate);
-                        dates.put("endDate", endDate);
+                        dates.put(START_DATE, startDate);
+                        dates.put(END_DATE, endDate);
                         List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
                                         filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
@@ -106,8 +108,8 @@ public class ContractsSpecification {
                         ContractState contractState, PortageCompanies structureContract) {
                 return (root, query, criteriaBuilder) -> {
                         Map<String, LocalDate> dates = new HashMap<>();
-                        dates.put("startDate", startDate);
-                        dates.put("endDate", endDate);
+                        dates.put(START_DATE, startDate);
+                        dates.put(END_DATE, endDate);
                         List<Predicate> predicates = commonfields(root, query, criteriaBuilder,
                                         filter, dates, contractState, structureContract);
                         query.orderBy(criteriaBuilder.asc(root.get(STARTING_DATE)));
@@ -120,8 +122,8 @@ public class ContractsSpecification {
                         CriteriaBuilder criteriaBuilder, String filter, Map<String, LocalDate> dates,
                         ContractState contractState, PortageCompanies structureContract) {
                 List<Predicate> predicates = new ArrayList<>();
-                LocalDate endDate = dates.get("endDate");
-                LocalDate startDate = dates.get("startDate");
+                LocalDate endDate = dates.get(END_DATE);
+                LocalDate startDate = dates.get(START_DATE);
                 if (filter != null && !filter.isEmpty()) {
                         predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(CONTRACT_TITLE)),
                                         "%" + filter.toLowerCase() + "%"));

@@ -13,6 +13,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
 import com.auxime.contract.dto.temporary.TemporaryUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.TemporaryContractException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.TemporaryContract;
@@ -145,10 +146,11 @@ public class TemporaryContractController {
 	 * @return A contract object with the ID and infos
 	 * @throws TemporaryContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<TemporaryContract> createContract(@RequestBody @Valid TemporaryCreate contractPublic)
-			throws TemporaryContractException {
+			throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(temporaryService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}
@@ -162,10 +164,11 @@ public class TemporaryContractController {
 	 * @return A Temporary Contract object with the ID and infos
 	 * @throws TemporaryContractException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<TemporaryContract> createAmendmentContract(
-			@RequestBody @Valid CreateTemporaryAmendment contractPublic) throws TemporaryContractException {
+			@RequestBody @Valid CreateTemporaryAmendment contractPublic) throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creating amendment contract");
 		return new ResponseEntity<>(temporaryService.createTemporaryContractAmendment(contractPublic),
 				HttpStatus.CREATED);

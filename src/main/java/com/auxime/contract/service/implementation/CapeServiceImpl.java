@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractsName;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
@@ -139,7 +140,7 @@ public class CapeServiceImpl implements CapeService {
 	public Cape createNewContract(CapeCreate contractPublic) throws Exception {
 		logger.info("Creating a new CAPE");
 		Cape contract = new Cape().buildCape(contractPublic);
-		pdfGenerator(contract, "CAPE VIERGE 2022.docx");
+		pdfGenerator(contract, ContractsName.CAPE_AUXIME.getFileName());
 		return capeRepo.save(contract);
 	}
 

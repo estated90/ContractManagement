@@ -9,17 +9,21 @@ import java.util.UUID;
 
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.constants.ContractsName;
 import com.auxime.contract.constants.ExceptionMessageConstant;
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
-import com.auxime.contract.dto.permanent.PermanentPublic;
 import com.auxime.contract.dto.permanent.PermanentUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PermanentContractException;
 import com.auxime.contract.model.PermanentContract;
-import com.auxime.contract.model.enums.ContractType;
+import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.enums.PortageCompanies;
+import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.repository.PermanentContractRepository;
 import com.auxime.contract.service.PermanentContractService;
+import com.auxime.contract.utils.GenerateListVariable;
+import com.auxime.contract.utils.PdfGenerator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -126,18 +130,14 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	 *                       except for the contract id.
 	 * @return The new created contract object will be returned
 	 * @throws PermanentContractException When an error is detected
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	@Transactional(rollbackFor = { PermanentContractException.class })
-	public PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException {
+	public PermanentContract createNewContract(PermanentCreate contractPublic) throws PermanentContractException, PdfGeneratorException {
 		logger.info("Creating a new Permanent Contract");
-		PermanentContract contract = settingCommonFields(new PermanentContract(), contractPublic);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setContractType(ContractType.CONTRACT);
-		contract.setCreatedAt(LocalDateTime.now());
-		contract.setStatus(true);
-		contract.setAccountId(contractPublic.getAccountId());
-		contract.createStateContract();
+		PermanentContract contract = new PermanentContract().buildPermanentContract(contractPublic);
+		writtingFileAsPdf(contract, ContractsName.PERMANENT_CONTRACT_COELIS.getFileName());
 		return permanentRepo.save(contract);
 	}
 
@@ -158,8 +158,7 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 		}
-		PermanentContract contract = settingCommonFields(contractOpt.get(), contractPublic);
-		contract.setUpdatedAt(LocalDateTime.now());
+		PermanentContract contract = contractOpt.get().buildPermanentCommon(contractPublic);
 		return permanentRepo.save(contract);
 	}
 
@@ -185,51 +184,43 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	}
 
 	/**
-	 * 
-	 * Function to update the object for the common fields between creation and
-	 * update
-	 * 
-	 * @param contract       The contract found in the DB
-	 * @param contractPublic The object with the new information to use for the
-	 *                       update
-	 * @return The contract updated
-	 */
-	private PermanentContract settingCommonFields(PermanentContract contract, PermanentPublic contractPublic) {
-		logger.info("Updating the fields");
-		contract.setContractDate(contractPublic.getContractDate());
-		contract.setStartingDate(contractPublic.getStartingDate());
-		contract.setContractTitle(contractPublic.getContractTitle());
-		contract.setStructureContract(contractPublic.getStructureContract());
-		contract.setEndDate(contractPublic.getStartingDate().plusYears(1));
-		contract.setHourlyRate(contractPublic.getHourlyRate());
-		contract.setRuptureDate(contractPublic.getRuptureDate());
-		contract.setWorkTime(contractPublic.getWorkTime());
-		return contract;
-	}
-
-	/**
 	 * Create an addendum to a temporary contract
 	 * 
 	 * @param contractPublic The object contract with the fields mandatory
 	 * @return Portage Convention the created object
 	 * @throws PermanentContractException When an error is thrown during the process
+	 * @throws PdfGeneratorException
 	 */
 	@Override
 	public PermanentContract createPermanentContractAmendment(CreatePermanentAmendment contractPublic)
-			throws PermanentContractException {
+			throws PermanentContractException, PdfGeneratorException {
 		logger.info("Creat an amendment to CAPE {}", contractPublic.getContractAmendment());
 		if (permanentRepo.existsById(contractPublic.getContractAmendment())) {
-			PermanentContract contract = settingCommonFields(new PermanentContract(), contractPublic);
-			contract.createStateContract();
-			contract.setAccountId(contractPublic.getAccountId());
-			contract.setStatus(true);
-			contract.setContractType(ContractType.AMENDMENT);
-			contract.setContractAmendment(contractPublic.getContractAmendment());
-			contract.setCreatedAt(LocalDateTime.now());
+			PermanentContract contract = new PermanentContract().buildPermanentContractAmend(contractPublic);
+			writtingFileAsPdf(contract, ContractsName.PERMANENT_CONTRACT_COELIS.getFileName());
 			return permanentRepo.save(contract);
 		} else {
 			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
 		}
+	}
+
+	@Autowired
+	private AccountFeign accountFeign;
+	@Autowired
+	private PdfGenerator pdfGenerator;
+
+	private void writtingFileAsPdf(PermanentContract contract, String file) throws PdfGeneratorException {
+		// Getting the info linked to the profile of contract account
+		Optional<ProfileInfo> profileInfo = accountFeign.getProfilesFromAccountId(contract.getAccountId());
+		if (profileInfo.isEmpty()) {
+			logger.error(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
+		}
+		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+				+ profileInfo.get().getFistName() + " "
+				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }

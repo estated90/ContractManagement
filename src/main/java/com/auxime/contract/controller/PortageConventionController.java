@@ -13,6 +13,7 @@ import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
 import com.auxime.contract.dto.portage.PortageUpdate;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.exception.PortageConventionException;
 import com.auxime.contract.model.PortageConvention;
 import com.auxime.contract.model.enums.PortageCompanies;
@@ -143,10 +144,11 @@ public class PortageConventionController {
 	 * @return A contract object with the ID and infos
 	 * @throws PortageConventionException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PortageConvention> createContract(@RequestBody @Valid PortageCreate contractPublic)
-			throws PortageConventionException {
+			throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(portageService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}
@@ -160,10 +162,11 @@ public class PortageConventionController {
 	 * @return A Permanent Contract object with the ID and infos
 	 * @throws PortageConventionException An exception is raised if any problem is
 	 *                                    encountered when getting or reading the id
+	 * @throws PdfGeneratorException
 	 */
 	@PostMapping(value = "/createAmendment", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PortageConvention> createAmendmentContract(
-			@RequestBody @Valid CreatePortageAmendment contractPublic) throws PortageConventionException {
+			@RequestBody @Valid CreatePortageAmendment contractPublic) throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creating amendment contract");
 		return new ResponseEntity<>(portageService.createPortageConventionContract(contractPublic), HttpStatus.CREATED);
 	}

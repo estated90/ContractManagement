@@ -12,6 +12,7 @@ import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.exception.CommercialContractException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.CommercialContract;
 import com.auxime.contract.model.enums.PortageCompanies;
 
@@ -66,7 +67,7 @@ public interface CommercialContractService {
 	 * @return The new updated contract object will be returned
 	 * @throws CommercialContractException When an error is detected
 	 */
-	CommercialContract createNewCommercial(CommercialCreate contractPublic) throws CommercialContractException;
+	CommercialContract createNewCommercial(CommercialCreate contractPublic) throws CommercialContractException, PdfGeneratorException;
 
 	/**
 	 * Create an addendum to a CAPE contract
@@ -75,8 +76,9 @@ public interface CommercialContractService {
 	 * @return CommercialContract Contract the created object
 	 * @throws CommercialContractException When an error is thrown during the
 	 *                                     process
+	 * @throws PdfGeneratorException
 	 */
-	CommercialContract createAmendmentCommercial(CreateCommercialAmendment contract) throws CommercialContractException;
+	CommercialContract createAmendmentCommercial(CreateCommercialAmendment contract) throws CommercialContractException, PdfGeneratorException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID

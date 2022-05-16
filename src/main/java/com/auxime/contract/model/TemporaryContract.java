@@ -9,7 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
+import com.auxime.contract.dto.temporary.TemporaryCreate;
+import com.auxime.contract.dto.temporary.TemporaryPublic;
+import com.auxime.contract.model.enums.ContractType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,22 +37,25 @@ public class TemporaryContract extends Contract{
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
 	private CommentExit comment;
 	
-	/**
-	 * Calculate the State of a contract and apply it
-	 * 
-	 * @return the Updated object
-	 */
-	public TemporaryContract createStateContract() {
-		if (this.getContractState() == ContractState.CANCELED) {
-		} else {
-			if (this.getStartingDate().isAfter(LocalDate.now())) {
-				this.setContractState(ContractState.NOT_STARTED);
-			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.getEndDate())) {
-				this.setContractState(ContractState.ACTIVE);
-			} else if (LocalDate.now().isAfter(this.getEndDate())) {
-				this.setContractState(ContractState.INACTIVE);
-			}
-		}
+	public TemporaryContract buildTemporary(TemporaryCreate contractPublic){
+		this.setAccountId(contractPublic.getAccountId());
+		this.buildTemporaryCommon(contractPublic);
+		return this;
+	}
+
+	public TemporaryContract buildTemporary(CreateTemporaryAmendment contractPublic){
+		this.setAccountId(contractPublic.getAccountId());
+		this.setContractAmendment(contractPublic.getContractAmendment());
+		this.buildTemporary(contractPublic);
+		return this;
+	}
+
+	public TemporaryContract buildTemporaryCommon(TemporaryPublic contractPublic){
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.setRuptureDate(contractPublic.getRuptureDate());
+		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setHourlyRate(contractPublic.getHourlyRate());
+		this.setWorkTime(contractPublic.getWorkTime());
 		return this;
 	}
 }
