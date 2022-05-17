@@ -33,5 +33,5 @@ public interface PermanentContractRepository extends JpaRepository<PermanentCont
 	 * @return An optional list of Permanent Contract
 	 */
 	@Query("SELECT i FROM PermanentContract i WHERE contractAmendment= :contractId AND status=true")
-	Page<PermanentContract> FindAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
+	Page<PermanentContract> findAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
 }

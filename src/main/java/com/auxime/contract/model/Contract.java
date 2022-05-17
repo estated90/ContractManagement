@@ -14,11 +14,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 
 import com.auxime.contract.constants.ContractState;
-import com.auxime.contract.dto.cape.CapePublic;
-import com.auxime.contract.dto.commercial.CommercialPublic;
-import com.auxime.contract.dto.permanent.PermanentPublic;
-import com.auxime.contract.dto.portage.PortagePublic;
-import com.auxime.contract.dto.temporary.TemporaryPublic;
+import com.auxime.contract.dto.ContractDto;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
 
@@ -89,74 +85,13 @@ public abstract class Contract {
 		}
 	}
 
-	protected Contract build(CapePublic contractPublic, ContractType contractType) {
+	protected Contract build(ContractDto contractPublic, ContractType contractType) {
 		if (createdAt == null) {
 			this.setCreatedAt(LocalDateTime.now());
 		} else {
 			this.setUpdatedAt(LocalDateTime.now());
 		}
 		this.setContractType(contractType);
-		this.setStatus(status);
-		this.setContractDate(contractPublic.getContractDate());
-		this.setStartingDate(contractPublic.getStartingDate());
-		this.setContractTitle(contractPublic.getContractTitle());
-		this.setStructureContract(contractPublic.getStructureContract());
-		return this;
-	}
-
-	protected Contract build(CommercialPublic contractPublic, ContractType contractType) {
-		if (createdAt == null) {
-			this.setCreatedAt(LocalDateTime.now());
-		} else {
-			this.setUpdatedAt(LocalDateTime.now());
-		}
-		this.setContractType(contractType);
-		this.setStatus(status);
-		this.setContractDate(contractPublic.getContractDate());
-		this.setStartingDate(contractPublic.getStartingDate());
-		this.setContractTitle(contractPublic.getContractTitle());
-		this.setStructureContract(contractPublic.getStructureContract());
-		return this;
-	}
-
-	protected Contract build(PermanentPublic contractPublic, ContractType contractType) {
-		if (createdAt == null) {
-			this.setCreatedAt(LocalDateTime.now());
-		} else {
-			this.setUpdatedAt(LocalDateTime.now());
-		}
-		this.setContractType(contractType);
-		this.setStatus(status);
-		this.setContractDate(contractPublic.getContractDate());
-		this.setStartingDate(contractPublic.getStartingDate());
-		this.setContractTitle(contractPublic.getContractTitle());
-		this.setStructureContract(contractPublic.getStructureContract());
-		return this;
-	}
-
-	protected Contract build(PortagePublic contractPublic, ContractType contractType) {
-		if (createdAt == null) {
-			this.setCreatedAt(LocalDateTime.now());
-		} else {
-			this.setUpdatedAt(LocalDateTime.now());
-		}
-		this.setContractType(contractType);
-		this.setStatus(status);
-		this.setContractDate(contractPublic.getContractDate());
-		this.setStartingDate(contractPublic.getStartingDate());
-		this.setContractTitle(contractPublic.getContractTitle());
-		this.setStructureContract(contractPublic.getStructureContract());
-		return this;
-	}
-
-	protected Contract build(TemporaryPublic contractPublic, ContractType contractType) {
-		if (createdAt == null) {
-			this.setCreatedAt(LocalDateTime.now());
-		} else {
-			this.setUpdatedAt(LocalDateTime.now());
-		}
-		this.setContractType(contractType);
-		this.setStatus(status);
 		this.setContractDate(contractPublic.getContractDate());
 		this.setStartingDate(contractPublic.getStartingDate());
 		this.setContractTitle(contractPublic.getContractTitle());

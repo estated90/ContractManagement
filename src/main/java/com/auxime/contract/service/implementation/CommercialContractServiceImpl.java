@@ -69,12 +69,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract,
 						contractStatus),
 				paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -88,12 +83,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAllAmendment(contractId, paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -107,6 +97,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	public Map<String, Object> getAllCommercialFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findByAccountId(accountId, paging);
+		return createPagination(pagedResult);
+	}
+
+	private Map<String, Object> createPagination(Page<CommercialContract> pagedResult) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -358,7 +352,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
 		}
 		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
-		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT "
+				+ profileInfo.get().getLastName() + " "
 				+ profileInfo.get().getFistName() + " "
 				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
 		pdfGenerator.replaceTextModel(listWords, fileName, file);

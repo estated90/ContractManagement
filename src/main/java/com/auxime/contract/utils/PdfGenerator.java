@@ -54,6 +54,11 @@ public class PdfGenerator {
 			throw new PdfGeneratorException(ExceptionMessageConstant.MODEL_NOT_FOUND);
 		}
 		// Setting a Map to read for text replacement
+		replaceTextInDoc(listWords, doc);
+		saveFilePdf(fileName, doc);
+	}
+
+	private XWPFDocument replaceTextInDoc(Map<String, String> listWords, XWPFDocument doc){
 		for (Map.Entry<String, String> entry : listWords.entrySet()) {
 			// POI function to read the paragraphs and find text
 			for (XWPFParagraph p : doc.getParagraphs()) {
@@ -69,7 +74,7 @@ public class PdfGenerator {
 				}
 			}
 		}
-		saveFilePdf(fileName, doc);
+		return doc;
 	}
 
 	public void saveFilePdf(String fileName, XWPFDocument doc) throws PdfGeneratorException {
@@ -87,7 +92,6 @@ public class PdfGenerator {
 				doc.close();
 			} catch (IOException e) {
 				logger.error(ExceptionMessageConstant.CLOSE_DOC_ERROR);
-				throw new PdfGeneratorException(ExceptionMessageConstant.CLOSE_DOC_ERROR);
 			}
 		}
 		try {

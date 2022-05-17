@@ -62,12 +62,7 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<TemporaryContract> pagedResult = temporaryRepo.findAll(
 				builder.filterSqlTemporary(filter, startDate, endDate, contractState, structureContract), paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -80,13 +75,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
-		Page<TemporaryContract> pagedResult = temporaryRepo.FindAllAmendment(contractId, paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		Page<TemporaryContract> pagedResult = temporaryRepo.findAllAmendment(contractId, paging);
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -100,6 +90,10 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	public Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<TemporaryContract> pagedResult = temporaryRepo.findByAccountId(accountId, paging);
+		return createPagination(pagedResult);
+	}
+
+	private Map<String, Object> createPagination(Page<TemporaryContract> pagedResult) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -134,7 +128,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { TemporaryContractException.class })
-	public TemporaryContract createNewContract(TemporaryCreate contractPublic) throws TemporaryContractException, PdfGeneratorException {
+	public TemporaryContract createNewContract(TemporaryCreate contractPublic)
+			throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creating a new Temporary Contract");
 		TemporaryContract contract = new TemporaryContract().buildTemporary(contractPublic);
 		writtingFileAsPdf(contract, ContractsName.TEMPORARY_CONTRACT_COELIS.getFileName());
@@ -219,7 +214,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
 		}
 		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
-		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT "
+				+ profileInfo.get().getLastName() + " "
 				+ profileInfo.get().getFistName() + " "
 				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
 		pdfGenerator.replaceTextModel(listWords, fileName, file);
