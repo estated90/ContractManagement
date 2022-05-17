@@ -61,12 +61,11 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate,
-			LocalDate endDate,
+	public Map<String, Object> getAllCommercial(int page, int size, String filter, Map<String, LocalDate> dates,
 			ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAll(
-				builder.filterSqlCommercial(filter, startDate, endDate, contractState, structureContract,
+				builder.filterSqlCommercial(filter, dates.get("startDate"), dates.get("endDate"), contractState, structureContract,
 						contractStatus),
 				paging);
 		return createPagination(pagedResult);
@@ -277,8 +276,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 		} else if (profileInfo.get().getBusinessManagerId() == null) {
 			contract.setValidatorId(profileInfo.get().getBusinessManagerId());
 		} else {
-			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
-			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_INTERNAL_ERROR);
+			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_INTERNAL_ERROR);
 		}
 		contract.setContractStatus(ContractStatus.PENDING_VALIDATION);
 		return commercialeRepo.save(contract);

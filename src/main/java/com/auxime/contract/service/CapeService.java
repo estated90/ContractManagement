@@ -26,13 +26,12 @@ public interface CapeService {
 	 * @param rate
 	 * @param structureContract
 	 * @param contractState
-	 * @param endDate
-	 * @param startDate
+	 * @param dates
 	 * @param filter
 	 * 
 	 * @return The list of Cape
 	 */
-	Map<String, Object> getAllCape(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	Map<String, Object> getAllCape(int page, int size, String filter, Map<String, LocalDate> dates,
 			ContractState contractState, PortageCompanies structureContract, Integer rate);
 
 	/**

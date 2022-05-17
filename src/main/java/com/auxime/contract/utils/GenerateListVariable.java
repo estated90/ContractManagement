@@ -18,6 +18,10 @@ import com.auxime.contract.model.enums.TypeRate;
 
 public class GenerateListVariable {
 
+	private GenerateListVariable() {
+		throw new IllegalStateException("Utility class");
+	  }
+
 	private static final String END_DATE = "${END_DATE}"; 
 
 	public static Map<String, String> setListVariable(Cape cape, ProfileInfo profileInfo) {

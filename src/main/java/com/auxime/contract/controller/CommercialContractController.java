@@ -1,6 +1,7 @@
 package com.auxime.contract.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +73,10 @@ public class CommercialContractController {
 			@RequestParam(required = false) PortageCompanies structureContract,
 			@RequestParam(required = false) ContractStatus contractStatus) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(commercialService.getAllCommercial(page, size, filter, startDate, endDate,
+		Map<String, LocalDate> dates = new HashMap<>();
+		dates.put("startDate", startDate);
+		dates.put("endDate", endDate);
+		return new ResponseEntity<>(commercialService.getAllCommercial(page, size, filter, dates,
 				contractState, structureContract, contractStatus), HttpStatus.OK);
 	}
 
