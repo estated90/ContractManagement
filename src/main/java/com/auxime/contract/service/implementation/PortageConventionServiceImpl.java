@@ -61,12 +61,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PortageConvention> pagedResult = portageRepo.findAll(
 				builder.filterSqlPortage(filter, startDate, endDate, contractState, structureContract), paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -80,12 +75,7 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PortageConvention> pagedResult = portageRepo.findAllAmendment(contractId, paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -98,6 +88,10 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	public Map<String, Object> getAllContractFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<PortageConvention> pagedResult = portageRepo.findByAccountId(accountId, paging);
+		return createPagination(pagedResult);
+	}
+
+	private Map<String, Object> createPagination(Page<PortageConvention> pagedResult) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -132,7 +126,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	 */
 	@Override
 	@Transactional(rollbackFor = { PortageConventionException.class })
-	public PortageConvention createNewContract(PortageCreate contractPublic) throws PortageConventionException, PdfGeneratorException {
+	public PortageConvention createNewContract(PortageCreate contractPublic)
+			throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creating a new Portage Convention");
 		PortageConvention portage = new PortageConvention().buildConvention(contractPublic);
 		writtingFileAsPdf(portage, ContractsName.PORTAGE_CONVENTION_COELIS.getFileName());
@@ -218,7 +213,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 			throw new PdfGeneratorException(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED);
 		}
 		Map<String, String> listWords = GenerateListVariable.setListVariable(contract, profileInfo.get());
-		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT " + profileInfo.get().getLastName() + " "
+		String fileName = contract.getContractType().toString() + " COMMERCIAL CONTRACT "
+				+ profileInfo.get().getLastName() + " "
 				+ profileInfo.get().getFistName() + " "
 				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
 		pdfGenerator.replaceTextModel(listWords, fileName, file);

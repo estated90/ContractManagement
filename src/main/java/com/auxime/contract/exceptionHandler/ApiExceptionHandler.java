@@ -28,7 +28,7 @@ import com.auxime.contract.exception.TemporaryContractException;
 @ControllerAdvice
 public class ApiExceptionHandler {
 
-	private final static String REQUEST_FAIL = "Bad request, unable to perform request";
+	private static final String REQUEST_FAIL = "Bad request, unable to perform request";
 
 	/**
 	 * Method to manage all Accessdenied exceptions

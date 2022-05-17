@@ -10,6 +10,7 @@ import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.enums.PortageCompanies;
 
@@ -62,7 +63,7 @@ public interface CapeService {
 	 * @throws CapeException When an error is detected
 	 * @throws Exception
 	 */
-	Cape createNewContract(CapeCreate contractPublic) throws CapeException, Exception;
+	Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID

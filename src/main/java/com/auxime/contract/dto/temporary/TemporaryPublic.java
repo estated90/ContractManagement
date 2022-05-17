@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.NotNull;
 
-import com.auxime.contract.model.Contract;
+import com.auxime.contract.dto.ContractDto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,10 +17,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TemporaryPublic extends Contract {
+public class TemporaryPublic extends ContractDto {
 
-	@NotNull
-	private boolean status;
 	private LocalDate ruptureDate;
 	@NotNull
 	private LocalDate endDate;

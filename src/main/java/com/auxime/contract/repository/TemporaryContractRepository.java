@@ -32,6 +32,6 @@ public interface TemporaryContractRepository extends JpaRepository<TemporaryCont
 	 * @return An optional list of Temporary Contract
 	 */
 	@Query("SELECT i FROM TemporaryContract i WHERE contractAmendment= :contractId AND status=true")
-	Page<TemporaryContract> FindAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
+	Page<TemporaryContract> findAllAmendment(@Param("contractId") UUID contractId, Pageable paging);
 	
 }

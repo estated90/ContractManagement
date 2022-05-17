@@ -64,12 +64,7 @@ public class CapeServiceImpl implements CapeService {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAll(
 				builder.getAllCape(filter, startDate, endDate, contractState, structureContract, rate), paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -83,12 +78,7 @@ public class CapeServiceImpl implements CapeService {
 	public Map<String, Object> getAllAmendmentContract(int page, int size, UUID contractId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAllAmendment(contractId, paging);
-		Map<String, Object> response = new HashMap<>();
-		response.put("contracts", pagedResult.toList());
-		response.put("currentPage", pagedResult.getNumber() + 1);
-		response.put("totalItems", pagedResult.getTotalElements());
-		response.put("totalPages", pagedResult.getTotalPages());
-		return response;
+		return createPagination(pagedResult);
 	}
 
 	/**
@@ -103,6 +93,10 @@ public class CapeServiceImpl implements CapeService {
 	public Map<String, Object> getAllCapeFromAccount(int page, int size, UUID accountId) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findByAccountId(accountId, paging);
+		return createPagination(pagedResult);
+	}
+
+	private Map<String, Object> createPagination(Page<Cape> pagedResult) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("contracts", pagedResult.toList());
 		response.put("currentPage", pagedResult.getNumber() + 1);
@@ -133,11 +127,12 @@ public class CapeServiceImpl implements CapeService {
 	 * @param contractPublic The object contractPublic with the fields mandatory
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
+	 * @throws PdfGeneratorException
 	 * @throws Exception
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
-	public Cape createNewContract(CapeCreate contractPublic) throws Exception {
+	public Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException {
 		logger.info("Creating a new CAPE");
 		Cape contract = new Cape().buildCape(contractPublic);
 		pdfGenerator(contract, ContractsName.CAPE_AUXIME.getFileName());
@@ -220,7 +215,8 @@ public class CapeServiceImpl implements CapeService {
 		}
 		Map<String, String> listWords = GenerateListVariable.setListVariable(cape, profileInfo.get());
 		String fileName = cape.getContractType().toString() + " CAPE " + profileInfo.get().getLastName() + " "
-				+ profileInfo.get().getFistName() + " " + LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
+				+ profileInfo.get().getFistName() + " "
+				+ LocalDateTime.now().toString().replace("-", "_").replace(":", "_");
 		pdfGenerator.replaceTextModel(listWords, fileName, file);
 	}
 }
