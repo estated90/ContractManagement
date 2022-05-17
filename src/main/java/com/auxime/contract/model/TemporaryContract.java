@@ -6,6 +6,7 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -34,7 +35,7 @@ public class TemporaryContract extends Contract{
 	private LocalDate endDate;
 	private double hourlyRate;
 	private double workTime;
-	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
+	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private CommentExit comment;
 	
 	public TemporaryContract buildTemporary(TemporaryCreate contractPublic){

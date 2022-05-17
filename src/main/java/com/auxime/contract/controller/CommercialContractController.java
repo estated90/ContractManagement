@@ -72,7 +72,7 @@ public class CommercialContractController {
 			@RequestParam(required = false) ContractState contractState,
 			@RequestParam(required = false) PortageCompanies structureContract,
 			@RequestParam(required = false) ContractStatus contractStatus) {
-		logger.info("Getting contracts with id");
+		logger.info("Getting all commercial contracts");
 		Map<String, LocalDate> dates = new HashMap<>();
 		dates.put("startDate", startDate);
 		dates.put("endDate", endDate);

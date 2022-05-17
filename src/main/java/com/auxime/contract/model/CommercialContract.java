@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -55,7 +56,7 @@ public class CommercialContract extends Contract {
 	private ContractStatus contractStatus;
 	@Column(name = "validator_id")
 	private UUID validatorId;
-	@OneToMany(targetEntity = CommentCommercialContract.class, cascade = CascadeType.ALL)
+	@OneToMany(targetEntity = CommentCommercialContract.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<CommentCommercialContract> comments = new HashSet<>();
 	
 	public void addComment(CommentCommercialContract comment) {
