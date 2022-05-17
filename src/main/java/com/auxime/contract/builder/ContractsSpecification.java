@@ -129,7 +129,7 @@ public class ContractsSpecification {
                                         "%" + filter.toLowerCase() + "%"));
                 }
                 if (contractState != null) {
-                        predicates.add(criteriaBuilder.equal(root.get(CONTRACT_DATE), contractState));
+                        predicates.add(criteriaBuilder.equal(root.get("contractState"), contractState));
                 }
                 if (structureContract != null) {
                         predicates.add(criteriaBuilder.equal(root.get("structureContract"), structureContract));
