@@ -59,11 +59,11 @@ public class CapeServiceImpl implements CapeService {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Map<String, Object> getAllCape(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	public Map<String, Object> getAllCape(int page, int size, String filter, Map<String, LocalDate> dates,
 			ContractState contractState, PortageCompanies structureContract, Integer rate) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAll(
-				builder.getAllCape(filter, startDate, endDate, contractState, structureContract, rate), paging);
+				builder.getAllCape(filter, dates.get("startDate"), dates.get("endDate"), contractState, structureContract, rate), paging);
 		return createPagination(pagedResult);
 	}
 
@@ -116,8 +116,7 @@ public class CapeServiceImpl implements CapeService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Optional<Cape> getContractById(UUID contractId) {
 		logger.info("Returning CAPE with id {}", contractId);
-		Optional<Cape> capeOpt = capeRepo.findById(contractId);
-		return capeOpt;
+		return capeRepo.findById(contractId);
 	}
 
 	/**

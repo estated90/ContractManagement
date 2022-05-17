@@ -58,20 +58,25 @@ public class PdfGenerator {
 		saveFilePdf(fileName, doc);
 	}
 
-	private XWPFDocument replaceTextInDoc(Map<String, String> listWords, XWPFDocument doc){
+	private XWPFDocument replaceTextInDoc(Map<String, String> listWords, XWPFDocument doc) {
 		for (Map.Entry<String, String> entry : listWords.entrySet()) {
 			// POI function to read the paragraphs and find text
 			for (XWPFParagraph p : doc.getParagraphs()) {
 				List<XWPFRun> runs = p.getRuns();
 				if (runs != null) {
-					for (XWPFRun r : runs) {
-						String text = r.getText(0);
-						if (text != null && text.contains(entry.getKey())) {
-							text = text.replace(entry.getKey(), entry.getValue());
-							r.setText(text, 0);
-						}
-					}
+					findReplaceText(runs, doc, entry);
 				}
+			}
+		}
+		return doc;
+	}
+
+	private XWPFDocument findReplaceText(List<XWPFRun> runs, XWPFDocument doc, Map.Entry<String, String> entry) {
+		for (XWPFRun r : runs) {
+			String text = r.getText(0);
+			if (text != null && text.contains(entry.getKey())) {
+				text = text.replace(entry.getKey(), entry.getValue());
+				r.setText(text, 0);
 			}
 		}
 		return doc;

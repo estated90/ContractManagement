@@ -28,7 +28,7 @@ public interface CommercialContractService {
 	 * 
 	 * @return The list of Commercial Contract
 	 */
-	Map<String, Object> getAllCommercial(int page, int size, String filter, LocalDate startDate, LocalDate endDate,
+	Map<String, Object> getAllCommercial(int page, int size, String filter, Map<String, LocalDate> dates,
 	ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus);
 
 	/**

@@ -1,6 +1,7 @@
 package com.auxime.contract.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
 import com.auxime.contract.dto.cape.CreateCapeAmendment;
 import com.auxime.contract.exception.CapeException;
+import com.auxime.contract.exception.PdfGeneratorException;
 import com.auxime.contract.model.Cape;
 import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.service.CapeService;
@@ -62,14 +64,19 @@ public class CapeController {
 	@GetMapping(value = "/listCape", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size,
-			@RequestParam(required = false) String filter, 
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, 
+			@RequestParam(required = false) String filter,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) ContractState contractState, 
-			@RequestParam(required = false) PortageCompanies structureContract, 
+			@RequestParam(required = false) ContractState contractState,
+			@RequestParam(required = false) PortageCompanies structureContract,
 			@RequestParam(required = false) Integer rate) {
 		logger.info("Getting contracts list");
-		return new ResponseEntity<>(capeService.getAllCape(page, size, filter, startDate, endDate, contractState, structureContract, rate), HttpStatus.OK);
+		Map<String, LocalDate> dates = new HashMap<>();
+		dates.put("startDate", startDate);
+		dates.put("endDate", endDate);
+		return new ResponseEntity<>(
+				capeService.getAllCape(page, size, filter, dates, contractState, structureContract, rate),
+				HttpStatus.OK);
 	}
 
 	/**
@@ -137,10 +144,12 @@ public class CapeController {
 	 * 
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
+	 * @throws PdfGeneratorException
 	 * @throws Exception
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic) throws Exception {
+	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic)
+			throws PdfGeneratorException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(capeService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}

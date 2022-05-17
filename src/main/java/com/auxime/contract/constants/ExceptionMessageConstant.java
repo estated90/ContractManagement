@@ -17,6 +17,7 @@ public class ExceptionMessageConstant {
 	public static final String COMMERCIAL_CONTRACT_FOUND = "This commercial contract is already in DB";
 	public static final String COMMERCIAL_CONTRACT_NOT_FOUND = "This commercial contract is not in DB";
 	public static final String COMMERCIAL_CONTRACT_NO_VALIDATOR = "No Validator has been found. Please contact the admin";
+	public static final String COMMERCIAL_CONTRACT_INTERNAL_ERROR = "Internal error detected";
 	public static final String PORTAGE_CONVENTION_FOUND = "This portage convention is already in DB";
 	public static final String PORTAGE_CONVENTION_NOT_FOUND = "This portage convention is not in DB";
 	public static final String PERMANENT_CONTRACT_FOUND = "This permanent contract is already in DB";
