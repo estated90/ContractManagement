@@ -65,7 +65,8 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			ContractState contractState, PortageCompanies structureContract, ContractStatus contractStatus) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<CommercialContract> pagedResult = commercialeRepo.findAll(
-				builder.filterSqlCommercial(filter, dates.get("startDate"), dates.get("endDate"), contractState, structureContract,
+				builder.filterSqlCommercial(filter, dates.get("startDate"), dates.get("endDate"), contractState,
+						structureContract,
 						contractStatus),
 				paging);
 		return createPagination(pagedResult);
