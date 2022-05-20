@@ -65,7 +65,9 @@ public class CapeServiceImpl implements CapeService {
 			ContractState contractState, PortageCompanies structureContract, Integer rate) {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<Cape> pagedResult = capeRepo.findAll(
-				builder.getAllCape(filter, dates.get("startDate"), dates.get("endDate"), contractState, structureContract, rate), paging);
+				builder.getAllCape(filter, dates.get("startDate"), dates.get("endDate"), contractState,
+						structureContract, rate),
+				paging);
 		return createPagination(pagedResult);
 	}
 

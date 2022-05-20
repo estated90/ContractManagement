@@ -67,6 +67,7 @@ public class CommercialContract extends Contract {
 		this.build(contractPublic, ContractType.CONTRACT);
 		this.buildCommercialCommon(contractPublic);
 		this.setAccountId(contractPublic.getAccountId());
+		this.setContractStatus(ContractStatus.DRAFT);
 		return this;
 	}
 
