@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Validated
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/permanentContract")
 public class PermanentContractController {
 
