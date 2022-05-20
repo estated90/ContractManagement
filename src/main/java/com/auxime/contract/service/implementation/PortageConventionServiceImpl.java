@@ -48,6 +48,8 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	private PortageConventionRepository portageRepo;
 	@Autowired
 	private ContractsSpecification builder;
+	@Autowired
+	private AccountFeign proxy;
 
 	/**
 	 * Method to return all contract in DB
@@ -129,6 +131,10 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	public PortageConvention createNewContract(PortageCreate contractPublic)
 			throws PortageConventionException, PdfGeneratorException {
 		logger.info("Creating a new Portage Convention");
+		if (!proxy.getAccountsyExist(contractPublic.getAccountId())) {
+			logger.error(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+			throw new PortageConventionException(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+		}
 		PortageConvention portage = new PortageConvention().buildConvention(contractPublic);
 		writtingFileAsPdf(portage, ContractsName.PORTAGE_CONVENTION_COELIS.getFileName());
 		return portageRepo.save(portage);
