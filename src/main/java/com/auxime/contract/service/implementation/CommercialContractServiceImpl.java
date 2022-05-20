@@ -138,6 +138,10 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	public CommercialContract createNewCommercial(CommercialCreate contractPublic)
 			throws CommercialContractException, PdfGeneratorException {
 		logger.info("Creating a new Commercial Contract");
+		if (!proxy.getAccountsyExist(contractPublic.getAccountId())) {
+			logger.error(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+			throw new CommercialContractException(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+		}
 		CommercialContract contract = new CommercialContract().buildCommercial(contractPublic);
 		writtingFileAsPdf(contract, ContractsName.COMMERCIAL_CONTRACT_AUXIME.getFileName());
 		return commercialeRepo.save(contract);

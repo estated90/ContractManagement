@@ -49,6 +49,8 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	private TemporaryContractRepository temporaryRepo;
 	@Autowired
 	private ContractsSpecification builder;
+	@Autowired
+	private AccountFeign proxy;
 
 	/**
 	 * Method to return all contract in DB
@@ -131,6 +133,10 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	public TemporaryContract createNewContract(TemporaryCreate contractPublic)
 			throws TemporaryContractException, PdfGeneratorException {
 		logger.info("Creating a new Temporary Contract");
+		if (!proxy.getAccountsyExist(contractPublic.getAccountId())) {
+			logger.error(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+			throw new TemporaryContractException(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+		}
 		TemporaryContract contract = new TemporaryContract().buildTemporary(contractPublic);
 		writtingFileAsPdf(contract, ContractsName.TEMPORARY_CONTRACT_COELIS.getFileName());
 		return temporaryRepo.save(contract);

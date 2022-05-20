@@ -48,6 +48,8 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	private PermanentContractRepository permanentRepo;
 	@Autowired
 	private ContractsSpecification builder;
+	@Autowired
+	private AccountFeign proxy;
 
 	/**
 	 * Method to return all contract in DB
@@ -131,6 +133,10 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	public PermanentContract createNewContract(PermanentCreate contractPublic)
 			throws PermanentContractException, PdfGeneratorException {
 		logger.info("Creating a new Permanent Contract");
+		if (!proxy.getAccountsyExist(contractPublic.getAccountId())) {
+			logger.error(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+			throw new PermanentContractException(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+		}
 		PermanentContract contract = new PermanentContract().buildPermanentContract(contractPublic);
 		writtingFileAsPdf(contract, ContractsName.PERMANENT_CONTRACT_COELIS.getFileName());
 		return permanentRepo.save(contract);

@@ -12,6 +12,7 @@ public class ExceptionMessageConstant {
 	}
 
 	// CAPE Exception
+	public static final String ACCOUNT_NOT_FOUND = "This account is not in DB";
 	public static final String CAPE_NOT_FOUND = "This CAPE is not in DB";
 	public static final String CAPE_FOUND = "This CAPE is already in DB";
 	public static final String COMMERCIAL_CONTRACT_FOUND = "This commercial contract is already in DB";

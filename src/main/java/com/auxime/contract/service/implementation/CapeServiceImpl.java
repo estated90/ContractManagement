@@ -51,6 +51,8 @@ public class CapeServiceImpl implements CapeService {
 	private PdfGenerator pdfGenerator;
 	@Autowired
 	private ContractsSpecification builder;
+	@Autowired
+	private AccountFeign proxy;
 
 	/**
 	 * Method to return all contract in DB
@@ -127,12 +129,17 @@ public class CapeServiceImpl implements CapeService {
 	 *                       except for the contract id.
 	 * @return The new updated contract object will be returned
 	 * @throws PdfGeneratorException
+	 * @throws CapeException
 	 * @throws Exception
 	 */
 	@Override
 	@Transactional(rollbackFor = { CapeException.class })
-	public Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException {
+	public Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException, CapeException {
 		logger.info("Creating a new CAPE");
+		if (!proxy.getAccountsyExist(contractPublic.getAccountId())) {
+			logger.error(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+			throw new CapeException(ExceptionMessageConstant.ACCOUNT_NOT_FOUND);
+		}
 		Cape contract = new Cape().buildCape(contractPublic);
 		pdfGenerator(contract, ContractsName.CAPE_AUXIME.getFileName());
 		return capeRepo.save(contract);

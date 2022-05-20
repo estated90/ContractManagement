@@ -28,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -144,11 +143,12 @@ public class CapeController {
 	 * @param contractPublic Object with all the field of the contract for update
 	 * @return A contract object with the ID and infos
 	 * @throws PdfGeneratorException
+	 * @throws CapeException
 	 * @throws Exception
 	 */
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Cape> createContract(@RequestBody @Valid CapeCreate contractPublic)
-			throws PdfGeneratorException {
+			throws PdfGeneratorException, CapeException {
 		logger.info("Creating contracts");
 		return new ResponseEntity<>(capeService.createNewContract(contractPublic), HttpStatus.CREATED);
 	}

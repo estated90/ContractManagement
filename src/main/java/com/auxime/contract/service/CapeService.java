@@ -62,7 +62,7 @@ public interface CapeService {
 	 * @throws CapeException When an error is detected
 	 * @throws Exception
 	 */
-	Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException;
+	Cape createNewContract(CapeCreate contractPublic) throws PdfGeneratorException, CapeException;
 
 	/**
 	 * This service will be used to update a contract object in the DB using the ID

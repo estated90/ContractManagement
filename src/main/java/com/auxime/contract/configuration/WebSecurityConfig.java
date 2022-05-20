@@ -19,7 +19,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.auxime.contract.constants.RoleName;
-import com.auxime.contract.exceptionhandler.ApiError;
+import com.auxime.contract.exception.exceptionhandler.ApiError;
 import com.auxime.contract.jwt.JwtAuthEntryPoint;
 import com.auxime.contract.jwt.JwtAuthTokenFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
