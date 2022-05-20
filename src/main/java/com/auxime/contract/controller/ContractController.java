@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/enums")
 public class ContractController {
 

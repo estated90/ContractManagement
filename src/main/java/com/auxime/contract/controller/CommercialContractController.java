@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Validated
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/commercialContract")
 public class CommercialContractController {
 

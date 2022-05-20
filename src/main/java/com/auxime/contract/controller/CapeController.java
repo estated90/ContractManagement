@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Validated
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/cape")
 public class CapeController {
 

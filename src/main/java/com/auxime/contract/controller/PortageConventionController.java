@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Validated
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/portageConvention")
 public class PortageConventionController {
 
