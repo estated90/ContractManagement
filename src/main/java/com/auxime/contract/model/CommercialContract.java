@@ -1,19 +1,19 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import com.auxime.contract.constants.ContractStatus;
 import com.auxime.contract.constants.DurationUnit;
@@ -30,16 +30,14 @@ import lombok.Setter;
  * @author Nicolas
  * @version 1.0.0
  */
-@Entity
-@Table(name = "commercial_contract")
-@AttributeOverride(name = "id", column = @Column(name = "commercial_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue("commercial_contract")
 public class CommercialContract extends Contract {
 
-	@Column(name = "end_date")
-	private LocalDate endDate;
 	@Column(name = "client_id")
 	private UUID clientId;
 	@Column(name = "global_amount")
@@ -87,7 +85,7 @@ public class CommercialContract extends Contract {
 		this.setMissionDuration(contractPublic.getMissionDuration());
 		this.setDurationUnit(contractPublic.getDurationUnit());
 		this.setClientId(contractPublic.getClientId());
-		this.createStateContract(endDate);
+		this.createStateContract(this.getEndDate());
 		return this;
 	}
 }

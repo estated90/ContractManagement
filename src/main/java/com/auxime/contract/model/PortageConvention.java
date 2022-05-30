@@ -1,11 +1,10 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDate;
-
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 import com.auxime.contract.dto.portage.CreatePortageAmendment;
 import com.auxime.contract.dto.portage.PortageCreate;
@@ -20,16 +19,14 @@ import lombok.Setter;
  * @author Nicolas
  *
  */
-@Entity
-@Table(name="commercial_contract")
-@AttributeOverride(name = "id", column = @Column(name = "commercial_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue("portage_convention")
 public class PortageConvention extends Contract{
 
-	@Column(name = "end_date")
-	private LocalDate endDate;
 	@Column(name="commission")
 	private int commission;
 	

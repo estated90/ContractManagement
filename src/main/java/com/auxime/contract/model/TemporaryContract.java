@@ -2,13 +2,13 @@ package com.auxime.contract.model;
 
 import java.time.LocalDate;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import com.auxime.contract.dto.temporary.CreateTemporaryAmendment;
 import com.auxime.contract.dto.temporary.TemporaryCreate;
@@ -23,16 +23,15 @@ import lombok.Setter;
  * @author Nicolas
  *
  */
-@Entity
-@Table(name="temporary_contract")
-@AttributeOverride(name = "id", column = @Column(name = "temporary_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue("temporary_contract")
 public class TemporaryContract extends Contract{
 
 	private LocalDate ruptureDate;
-	private LocalDate endDate;
 	private double hourlyRate;
 	private double workTime;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)

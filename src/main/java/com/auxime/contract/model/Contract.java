@@ -5,20 +5,22 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.MappedSuperclass;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.dto.ContractDto;
 import com.auxime.contract.model.enums.ContractType;
 import com.auxime.contract.model.enums.PortageCompanies;
-
-import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,17 +31,20 @@ import lombok.Setter;
  * @version 1.0.0
  *
  */
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@MappedSuperclass
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Setter
 @Getter
+@Entity
 @NoArgsConstructor
+@DiscriminatorColumn(name = "contract_typology", discriminatorType = DiscriminatorType.STRING)
 public abstract class Contract {
 
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	private UUID contractId;
+	@Column(name = "contract_typology", insertable = false, updatable = false)
+    private String contractTypology;
 	@Column(name = "contract_date")
 	private LocalDate contractDate;
 	@Column(name = "starting_date")
@@ -65,6 +70,8 @@ public abstract class Contract {
 	private LocalDateTime createdAt;
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+	@Column(name = "end_date")
+	private LocalDate endDate;
 
 	/**
 	 * Return if the date is between a starting date and an ending date
