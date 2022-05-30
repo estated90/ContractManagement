@@ -2,8 +2,11 @@ package com.auxime.contract.controller;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,8 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auxime.contract.constants.ContractState;
+import com.auxime.contract.model.Contract;
 import com.auxime.contract.model.enums.PortageCompanies;
-import com.auxime.contract.service.implementation.ContractService;
+import com.auxime.contract.service.ContractService;
 
 /**
  * @author Nicolas
@@ -44,16 +48,33 @@ public class ContractController {
 	 * 
 	 */
 	@GetMapping(value = "/listContracts", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, Object>> getAllContractsTypes(@RequestParam(defaultValue = "1") @Min(1) int page,
+	public ResponseEntity<Map<String, Object>> getAllContractsTypes(
+			@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size,
 			@RequestParam(required = false) String filter,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam(required = false) ContractState contractState,
 			@RequestParam(required = false) PortageCompanies structureContract) {
 		logger.info("Getting contracts list");
 		return new ResponseEntity<>(
-				contractService.getAllContracts(page, size, filter, startDate, contractState, structureContract),
+				contractService.getAllContracts(page, size, filter, startDate, endDate, contractState, structureContract),
 				HttpStatus.OK);
+	}
+
+	/**
+	 * 
+	 * This controller is designed to return all the information about a contract.
+	 * It will allow the display of all these information in a designed form.
+	 * 
+	 * @param capeId the contract ID from  the contract
+	 * @return A Contract, if found. The account will return all the linked
+	 *         objects
+	 */
+	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Optional<Contract>> getContractById(@RequestParam @NotNull UUID contractId) {
+		logger.info("Getting contracts with id");
+		return new ResponseEntity<>(contractService.getContractById(contractId), HttpStatus.OK);
 	}
 
 }

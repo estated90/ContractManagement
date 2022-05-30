@@ -46,7 +46,7 @@ public class TemporaryContract extends Contract{
 	public TemporaryContract buildTemporary(CreateTemporaryAmendment contractPublic){
 		this.setAccountId(contractPublic.getAccountId());
 		this.setContractAmendment(contractPublic.getContractAmendment());
-		this.buildTemporary(contractPublic);
+		this.buildTemporaryCommon(contractPublic);
 		return this;
 	}
 

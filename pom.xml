@@ -17,6 +17,7 @@
 		<spring-cloud.version>2021.0.1</spring-cloud.version>
 		<sonar.organization>estated90</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.login>${env.AUXIME_SONAR_PROFILE}</sonar.login>
 	</properties>
 	<dependencies>
 		<dependency>
