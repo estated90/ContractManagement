@@ -29,23 +29,26 @@ public class GenerateListVariable {
 		Map<String, String> list = setCommonFieldsContract(cape, new HashMap<>(), profileInfo);
 		list.put(END_DATE, cape.getEndDate().toString());
 		Comparator<Rates> comparator = Comparator.comparing(Rates::getCreatedAt);
-		List<Rates> ratesActivity = cape.getRates().stream()
-				.filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
-		Optional<Rates> rateOpt = ratesActivity.stream().max(comparator);
-		String activityRate = String.valueOf(Integer.MIN_VALUE);
-		if (rateOpt.isPresent()) {
-			activityRate = String.valueOf(rateOpt.get().getRate());
+		String qualiopyRate = "14";
+		String activityRate = "10";
+		if (cape.getRates() != null) {
+			List<Rates> ratesActivity = cape.getRates().stream()
+					.filter(rate -> rate.getTypeRate().equals(TypeRate.ACTIVITY)).collect(Collectors.toList());
+			Optional<Rates> rateOpt = ratesActivity.stream().max(comparator);
+			if (rateOpt.isPresent()) {
+				activityRate = String.valueOf(rateOpt.get().getRate());
+			}
+			List<Rates> ratesQualiopy = cape.getRates().stream()
+					.filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
+			rateOpt = ratesQualiopy.stream().max(comparator);
+			if (rateOpt.isPresent()) {
+				qualiopyRate = String.valueOf(rateOpt.get().getRate());
+			}
 		}
 		list.put("${ACTIVITY_RATE}", activityRate);
-		List<Rates> ratesQualiopy = cape.getRates().stream()
-				.filter(rate -> rate.getTypeRate().equals(TypeRate.QUALIOPI)).collect(Collectors.toList());
-		rateOpt = ratesQualiopy.stream().max(comparator);
-		String qualiopyRate = String.valueOf(Integer.MIN_VALUE);
-		if (rateOpt.isPresent()) {
-			qualiopyRate = String.valueOf(rateOpt.get().getRate());
-		}
 		list.put("${QUALIOPY_RATE}", qualiopyRate);
 		return list;
+
 	}
 
 	public static Map<String, String> setListVariable(CommercialContract contract, ProfileInfo profileInfo) {

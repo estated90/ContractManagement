@@ -33,7 +33,7 @@ import com.auxime.contract.service.ContractService;
  */
 @RestController
 @Validated
-@RequestMapping("/contract")
+@RequestMapping("/contracts")
 public class ContractController {
 
 	private static final Logger logger = LogManager.getLogger(ContractController.class);
@@ -47,7 +47,7 @@ public class ContractController {
 	 * @return A List of Cape in DB
 	 * 
 	 */
-	@GetMapping(value = "/listContracts", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Object>> getAllContractsTypes(
 			@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size,

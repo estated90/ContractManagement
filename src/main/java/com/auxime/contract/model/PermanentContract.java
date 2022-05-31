@@ -32,7 +32,6 @@ import lombok.Setter;
 public class PermanentContract extends Contract {
 
 	private LocalDate ruptureDate;
-	private boolean fse;
 	private double hourlyRate;
 	private double workTime;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -57,7 +56,6 @@ public class PermanentContract extends Contract {
 		this.createStateContract(contractPublic.getEndDate());
 		this.setRuptureDate((contractPublic.getRuptureDate()));
 		this.setEndDate(contractPublic.getEndDate());
-		this.setFse(contractPublic.getFse());
 		this.setHourlyRate(contractPublic.getHourlyRate());
 		this.setWorkTime(contractPublic.getWorkTime());
 		return this;
