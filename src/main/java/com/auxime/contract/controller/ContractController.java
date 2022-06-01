@@ -15,11 +15,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.model.Contract;
@@ -31,7 +32,7 @@ import com.auxime.contract.service.ContractService;
  * @version 1.0.0
  *
  */
-@RestController
+@Controller
 @Validated
 @RequestMapping("/contracts")
 public class ContractController {
@@ -71,8 +72,8 @@ public class ContractController {
 	 * @return A Contract, if found. The account will return all the linked
 	 *         objects
 	 */
-	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<Contract>> getContractById(@RequestParam @NotNull UUID contractId) {
+	@GetMapping(value = "/{contractId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Optional<Contract>> getContractById(@PathVariable @NotNull UUID contractId) {
 		logger.info("Getting contracts with id");
 		return new ResponseEntity<>(contractService.getContractById(contractId), HttpStatus.OK);
 	}
