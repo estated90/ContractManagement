@@ -53,15 +53,15 @@ class ContractControllerTest {
 	@DisplayName("When asked to return all contracts then Return the list of contracts and page details")
 	void givenApiAllContract_whenCalled_thenReturnAllContracts() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(get("/contracts")).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.currentPage", is(1))).andExpect(jsonPath("$.totalItems", is(6)))
+				.andExpect(jsonPath("$.currentPage", is(1))).andExpect(jsonPath("$.totalItems", is(8)))
 				.andExpect(jsonPath("$.totalPages", is(1))).andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(6))).andReturn();
+				.andExpect(jsonPath("$.contracts", hasSize(8))).andReturn();
 		String response = mvcResult.getResponse().getContentAsString();
 		DocumentContext context = JsonPath.parse(response);
 		Configuration pathConfiguration = Configuration.builder().options(Option.AS_PATH_LIST).build();
 		List<String> pathList = JsonPath.using(pathConfiguration).parse(response)
 				.read("$.contracts[?(@['contractId'] == 'dce6d0df-8d4f-4612-890a-79503dd67f8c')]");
-		Map<String, String> dataRecord = context.read(pathList.get(0));
+		Map<String, Object> dataRecord = context.read(pathList.get(0));
 		assertEquals("cape", dataRecord.get("contractTypology"));
 		assertEquals("f99337eb-ff45-487a-a20d-f186ba71e99c", dataRecord.get("accountId"));
 		assertEquals("NOT_STARTED", dataRecord.get("contractState"));
@@ -94,9 +94,21 @@ class ContractControllerTest {
 		assertEquals(LocalDate.now().plusDays(30).toString(), dataRecord.get("ruptureDate"));
 		assertEquals(20.0, dataRecord.get("hourlyRate"));
 		assertEquals(151.67, dataRecord.get("workTime"));
-		pathList = JsonPath.using(pathConfiguration).parse(response)
+	}
+	
+	@Test
+	@DisplayName("When asked to return all contracts then Return the list of contracts and page details")
+	void givenApiAllContract_whenCalled_thenReturnAllContractsAmendMent() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(get("/contracts")).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.currentPage", is(1))).andExpect(jsonPath("$.totalItems", is(8)))
+				.andExpect(jsonPath("$.totalPages", is(1))).andExpect(jsonPath("$.contracts").isArray())
+				.andExpect(jsonPath("$.contracts", hasSize(8))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		DocumentContext context = JsonPath.parse(response);
+		Configuration pathConfiguration = Configuration.builder().options(Option.AS_PATH_LIST).build();
+		List<String> pathList = JsonPath.using(pathConfiguration).parse(response)
 				.read("$.contracts[?(@['contractId'] == '3b2d1af5-faf5-4a0f-8e3d-4dcd70ab4ae1')]");
-		dataRecord = context.read(pathList.get(0));
+		Map<String, Object> dataRecord = context.read(pathList.get(0));
 		assertEquals("portage_convention", dataRecord.get("contractTypology"));
 		assertEquals(10, dataRecord.get("commission"));
 		pathList = JsonPath.using(pathConfiguration).parse(response)
@@ -134,40 +146,40 @@ class ContractControllerTest {
 	void givenFilteredRequest_whenCalled_thenReturnFilteredContracts() throws Exception {
 		mockMvc.perform(get("/contracts").param("page", "2")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(2)))
-				.andExpect(jsonPath("$.totalItems", is(6)))
+				.andExpect(jsonPath("$.totalItems", is(8)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(0)));
 		mockMvc.perform(get("/contracts").param("size", "1")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(6)))
-				.andExpect(jsonPath("$.totalPages", is(6)))
+				.andExpect(jsonPath("$.totalItems", is(8)))
+				.andExpect(jsonPath("$.totalPages", is(8)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(1)));
 		mockMvc.perform(get("/contracts").param("filter", "CDI")).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(1)))
-				.andExpect(jsonPath("$.totalPages", is(1)))
-				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(1)));
-		mockMvc.perform(get("/contracts").param("filter", "")).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(6)))
-				.andExpect(jsonPath("$.totalPages", is(1)))
-				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(6)));
-		mockMvc.perform(get("/contracts").param("contractState", "ACTIVE")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(2)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(2)));
-		mockMvc.perform(get("/contracts").param("structureContract", "COELIS")).andExpect(MockMvcResultMatchers.status().isOk())
+		mockMvc.perform(get("/contracts").param("filter", "")).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.currentPage", is(1)))
+				.andExpect(jsonPath("$.totalItems", is(8)))
+				.andExpect(jsonPath("$.totalPages", is(1)))
+				.andExpect(jsonPath("$.contracts").isArray())
+				.andExpect(jsonPath("$.contracts", hasSize(8)));
+		mockMvc.perform(get("/contracts").param("contractState", "ACTIVE")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(3)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(3)));
+		mockMvc.perform(get("/contracts").param("structureContract", "COELIS")).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.currentPage", is(1)))
+				.andExpect(jsonPath("$.totalItems", is(4)))
+				.andExpect(jsonPath("$.totalPages", is(1)))
+				.andExpect(jsonPath("$.contracts").isArray())
+				.andExpect(jsonPath("$.contracts", hasSize(4)));
 		mockMvc.perform(get("/contracts").param("startDate", LocalDate.now().minusMonths(4).toString())
 				.param("endDate", LocalDate.now().minusDays(45).toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
@@ -186,10 +198,10 @@ class ContractControllerTest {
 		mockMvc.perform(get("/contracts").param("endDate", LocalDate.now().plusDays(31).toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(4)))
+				.andExpect(jsonPath("$.totalItems", is(5)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(4)));
+				.andExpect(jsonPath("$.contracts", hasSize(5)));
 	}
 
 }

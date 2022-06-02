@@ -7,6 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractStatus;
@@ -27,16 +37,6 @@ import com.auxime.contract.repository.CommercialRepository;
 import com.auxime.contract.service.CommercialContractService;
 import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -181,14 +181,20 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 	@Transactional(rollbackFor = { CommercialContractException.class })
 	public void deleteCommercial(UUID contractId) throws CommercialContractException {
 		logger.info("Deleting Commercial Contract {}", contractId);
+		CommercialContract contract = contractVerifier(contractId);
+		contract.setStatus(false);
+		commercialeRepo.save(contract);
+	}
+	
+	private CommercialContract contractVerifier(UUID contractId) throws CommercialContractException {
+		logger.info("Deleting a CAPE {}", contractId);
 		Optional<CommercialContract> contractOpt = commercialeRepo.findById(contractId);
-		if (contractOpt.isEmpty()) {
+		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
+			return contractOpt.get();
+		} else {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
-		logger.info("Activity is in DB and is being deleted");
-		contractOpt.get().setStatus(false);
-		commercialeRepo.save(contractOpt.get());
 	}
 
 	/**

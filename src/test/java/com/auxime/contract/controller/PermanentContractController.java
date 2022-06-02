@@ -1,22 +1,21 @@
 package com.auxime.contract.controller;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,14 +40,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.auxime.contract.constants.DurationUnit;
 import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.dto.RateDto;
-import com.auxime.contract.dto.cape.CapeCreate;
-import com.auxime.contract.dto.cape.CapeUpdate;
-import com.auxime.contract.dto.cape.CreateCapeAmendment;
+import com.auxime.contract.dto.commercial.CommercialCreate;
+import com.auxime.contract.dto.commercial.CommercialUpdate;
+import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
 import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.enums.PortageCompanies;
-import com.auxime.contract.model.enums.TypeRate;
 import com.auxime.contract.proxy.AccountFeign;
 import com.auxime.contract.utils.PdfGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,20 +61,17 @@ import com.jayway.jsonpath.Option;
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @TestMethodOrder(OrderAnnotation.class)
-class CapeControllerTest {
+class PermanentContractController {
 
 	@Autowired
 	private MockMvc mockMvc;
-	@Autowired
-	private AccountFeign proxyCape;
 	@MockBean
-	private PdfGenerator pdfGenerator;
-	
-	private static final String PATH = "/cape";
-	private static final String IDTEST = "dce6d0df-8d4f-4612-890a-79503dd67f8c";
-	private static final String IDAMENDMENTTEST = "696271ec-19ca-416b-acb2-cbce1e1bfefc";
+	private AccountFeign proxy;
+
+	private static final String PATH = "/permanentContract";
+	private static final String IDTEST = "de72bff9-23aa-428d-91e9-c695c823ec7f";
 	private static final String IDACCOUNT = "f99337eb-ff45-487a-a20d-f186ba71e99c";
-	
+
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 	}
@@ -84,16 +79,16 @@ class CapeControllerTest {
 	@BeforeEach
 	void setUp() throws Exception {
 	}
-	
+
 	@AfterEach
 	void tearDown() throws Exception {
 	}
 
 	@Order(1)
 	@Test
-	@DisplayName("When asked to return all Cape then Return the list of cape and page details")
-	void givenApiAllCape_whenCalled_thenReturnAllCape() throws Exception {
-		MvcResult mvcResult = mockMvc.perform(get(PATH + "/listCape"))
+	@DisplayName("When asked to return all commercial Contract then Return the list of commercial Contract and page details")
+	void givenApiAllContract_whenCalled_thenReturnAllContracts() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(get(PATH + "/list"))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(2)))
@@ -106,40 +101,22 @@ class CapeControllerTest {
 		List<String> pathList = JsonPath.using(pathConfiguration).parse(response)
 				.read("$.contracts[?(@['contractId'] == '" + IDTEST + "')]");
 		Map<String, String> dataRecord = context.read(pathList.get(0));
-		assertEquals("cape", dataRecord.get("contractTypology"));
+		assertEquals("permanent_contract", dataRecord.get("contractTypology"));
 		assertNull(dataRecord.get("contractAmendment"));
-		pathList = JsonPath.using(pathConfiguration).parse(response)
-				.read("$.contracts[?(@['contractId'] == '" + IDAMENDMENTTEST + "')]");
-		dataRecord = context.read(pathList.get(0));
-		assertEquals("cape", dataRecord.get("contractTypology"));
-		assertEquals(IDTEST, dataRecord.get("contractAmendment"));
 	}
-	
-	@Order(2)
-	@Test
-	@DisplayName("When asked to return all Cape with filter on Rates then Return the list of cape filtered and page details")
-	void givenApiFilterRate_whenGettingAllContract_thenReturnAllFilteredContracts() throws Exception {
-		mockMvc.perform(get(PATH + "/listCape").param("rate", "12"))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(1)))
-				.andExpect(jsonPath("$.totalPages", is(1)))
-				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(1)));
-	}
-	
+
 	@Order(3)
 	@Test
 	@DisplayName("When asked to return all accounts from accounts then return the capes linked to it")
 	void givenFilterOnAccount_whenGettingAllContract_thenReturnAllFilteredContracts() throws Exception {
-		mockMvc.perform(get(PATH + "/listCapeAccount").param("accountId", IDACCOUNT))
+		mockMvc.perform(get(PATH + "/listAccount").param("accountId", IDACCOUNT))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(2)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(2)));
-		mockMvc.perform(get(PATH + "/listCapeAccount").param("accountId", UUID.randomUUID().toString()))
+		mockMvc.perform(get(PATH + "/listAccount").param("accountId", UUID.randomUUID().toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(0)))
@@ -147,19 +124,18 @@ class CapeControllerTest {
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(0)));
 	}
-	
+
 	@Order(4)
 	@Test
 	@DisplayName("When asked to return all contract amendment from accounts then return the amendment linked to it")
 	void givenAskingAmendment_whenGettingAmendments_thenReturnAllFilteredContracts() throws Exception {
-		mockMvc.perform(get(PATH + "/listCapeAmendment").param("contractId", IDTEST))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.currentPage", is(1)))
+		mockMvc.perform(get(PATH + "/listAmendment").param("contractId", IDTEST))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(1)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(1)));
-		mockMvc.perform(get(PATH + "/listCapeAmendment").param("contractId", UUID.randomUUID().toString()))
+		mockMvc.perform(get(PATH + "/listAmendment").param("contractId", UUID.randomUUID().toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
 				.andExpect(jsonPath("$.totalItems", is(0)))
@@ -167,191 +143,176 @@ class CapeControllerTest {
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(0)));
 	}
-	
+
 	@Order(5)
 	@Test
 	@DisplayName("When asked to return detail contract from then return the contract")
 	void givenContract_whenGettingDetails_thenReturnContracts() throws Exception {
-		mockMvc.perform(get(PATH + "/details").param("capeId", IDTEST))
+		mockMvc.perform(get(PATH + "/details").param("contractId", IDTEST))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.contractTypology", is("cape")))
-				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")));
-		mockMvc.perform(get(PATH + "/details").param("capeId", UUID.randomUUID().toString()))
+				.andExpect(jsonPath("$.contractTypology", is("permanent_contract")))
+				.andExpect(jsonPath("$.contractState", is("ACTIVE")));
+		mockMvc.perform(get(PATH + "/details").param("contractId", UUID.randomUUID().toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(result -> assertEquals("null", result.getResponse().getContentAsString()));
 	}
-	
+
+	@MockBean
+	private PdfGenerator pdfGenerator;
+
 	@Order(6)
 	@Test
 	@DisplayName("When creating a contract then return newly created object")
 	void givenCreatingCape_whenSendingInfos_thenReturnContracts() throws Exception {
-		when(proxyCape.getAccountsyExist(any(UUID.class))).thenReturn(true);
-		when(proxyCape.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
 		Mockito.doNothing().when(pdfGenerator).replaceTextModel(anyMap(), anyString(), anyString());
-		MvcResult mvcResult = mockMvc.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(createCapeModel())))
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
 				.andExpect(MockMvcResultMatchers.status().isCreated())
-				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
+				.andExpect(jsonPath("$.contractState", is("ACTIVE")))
 				.andExpect(jsonPath("$.accountId", is("f99337eb-ff45-487a-a20d-f186ba71e99c")))
 				.andExpect(jsonPath("$.contractDate", is(LocalDate.now().toString())))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title")))
-				.andExpect(jsonPath("$.fse", is(true)))
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(7).toString())))
 				.andExpect(jsonPath("$.structureContract", is("COELIS")))
-				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusDays(7).plusYears(1).toString())))
-				.andExpect(jsonPath("$.structureContract", is("COELIS"))).andReturn();
+				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
+				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
+				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
+				.andExpect(jsonPath("$.missionDuration", is(6)))
+				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
 		String response = mvcResult.getResponse().getContentAsString();
 		DocumentContext context = JsonPath.parse(response);
-		Configuration pathConfiguration = Configuration.builder().options(Option.AS_PATH_LIST).build();
-		List<String> pathList = JsonPath.using(pathConfiguration).parse(response)
-				.read("$.rates[?(@['rate'] == '50')]");
-		Map<String, Object> dataRecord = context.read(pathList.get(0));
-		assertEquals(50, dataRecord.get("rate"));
-		pathList = JsonPath.using(pathConfiguration).parse(response)
-				.read("$.rates[?(@['rate'] == '15')]");
-		dataRecord = context.read(pathList.get(0));
-		assertEquals(15, dataRecord.get("rate"));
 		UUID id = UUID.fromString(context.read("$.contractId"));
-		CapeUpdate capeUpdate =  updateCapeModel();
-		capeUpdate.setContractId(id);
-		mockMvc.perform(put(PATH + "/update").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(capeUpdate)))
+		CommercialUpdate contractUpdate = updateContractModel();
+		contractUpdate.setContractId(id);
+		mockMvc.perform(put(PATH + "/update").contentType(MediaType.APPLICATION_JSON).content(asJsonString(contractUpdate)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
 				.andExpect(jsonPath("$.accountId", is("f99337eb-ff45-487a-a20d-f186ba71e99c")))
 				.andExpect(jsonPath("$.contractDate", is(LocalDate.now().plusWeeks(6).toString())))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title updated")))
-				.andExpect(jsonPath("$.fse", is(false)))
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(8).toString())))
-				.andExpect(jsonPath("$.structureContract", is("AUXIME")))
-				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusDays(8).plusYears(1).toString()))).andReturn();
-		mockMvc.perform(get(PATH + "/details").param("capeId", id.toString()))
+				.andExpect(jsonPath("$.structureContract", is("COELIS")))
+				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
+				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
+				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
+				.andExpect(jsonPath("$.missionDuration", is(6)))
+				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
+		mockMvc.perform(get(PATH + "/details").param("contractId", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.contractTypology", is("cape")))
+				.andExpect(jsonPath("$.contractTypology", is("commercial_contract")))
 				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title updated")));
-		mockMvc.perform(delete(PATH + "/delete/{capeId}",id.toString()))
+		mockMvc.perform(delete(PATH + "/delete/{contractId}", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk());
-		mockMvc.perform(get(PATH + "/details").param("capeId", id.toString()))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.status", is(false)));
-		mockMvc.perform(delete(PATH + "/delete/{capeId}",id.toString()))
+		mockMvc.perform(get(PATH + "/details").param("contractId", id.toString()))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(jsonPath("$.status", is(false)));
+		mockMvc.perform(delete(PATH + "/delete/{contractId}", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.CAPE_NOT_FOUND)));
-		CreateCapeAmendment amendment = createCapeAmendmentModel();
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		CreateCommercialAmendment amendment = createContractAmendmentModel();
 		amendment.setContractAmendment(id);
-		mvcResult = mockMvc.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(amendment)))
+		mvcResult = mockMvc
+				.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(amendment)))
 				.andExpect(MockMvcResultMatchers.status().isCreated())
 				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
 				.andExpect(jsonPath("$.accountId", is("f99337eb-ff45-487a-a20d-f186ba71e99c")))
 				.andExpect(jsonPath("$.contractDate", is(LocalDate.now().toString())))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title")))
-				.andExpect(jsonPath("$.fse", is(true)))
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(7).toString())))
 				.andExpect(jsonPath("$.structureContract", is("COELIS")))
-				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusDays(7).plusYears(1).toString())))
-				.andExpect(jsonPath("$.structureContract", is("COELIS"))).andReturn();
+				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
+				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
+				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
+				.andExpect(jsonPath("$.missionDuration", is(6)))
+				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
 		response = mvcResult.getResponse().getContentAsString();
 		context = JsonPath.parse(response);
-		pathConfiguration = Configuration.builder().options(Option.AS_PATH_LIST).build();
-		pathList = JsonPath.using(pathConfiguration).parse(response)
-				.read("$.rates[?(@['rate'] == '50')]");
-		dataRecord = context.read(pathList.get(0));
-		assertEquals(50, dataRecord.get("rate"));
-		pathList = JsonPath.using(pathConfiguration).parse(response)
-				.read("$.rates[?(@['rate'] == '15')]");
-		dataRecord = context.read(pathList.get(0));
-		assertEquals(15, dataRecord.get("rate"));
 		id = UUID.randomUUID();
-		mockMvc.perform(delete(PATH + "/delete/{capeId}",id.toString()))
+		mockMvc.perform(delete(PATH + "/delete/{contractId}", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.CAPE_NOT_FOUND)));
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
 	}
 
 	@Order(7)
 	@Test
 	@DisplayName("When creating a contract with unknown accout or profile info then return error")
 	void givenCreatingCape_whenSendingUnexistingInfos_thenReturnErrors() throws Exception {
-		when(proxyCape.getAccountsyExist(any(UUID.class))).thenReturn(false);
-		when(proxyCape.getProfilesFromAccountId(any(UUID.class))).thenReturn(Optional.empty());
-		mockMvc.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(createCapeModel())))
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(false);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(Optional.empty());
+		mockMvc.perform(
+				post(PATH + "/create").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createContractModel())))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.ACCOUNT_NOT_FOUND)))
 				.andExpect(jsonPath("$.errors", hasItem("Bad request, unable to perform request")));
-		when(proxyCape.getAccountsyExist(any(UUID.class))).thenReturn(true);
-		mockMvc.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(createCapeModel())))
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		mockMvc.perform(
+				post(PATH + "/create").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createContractModel())))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED)))
 				.andExpect(jsonPath("$.errors", hasItem("Bad request, unable to perform request")));
-		mockMvc.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(createCapeModel())))
+		mockMvc.perform(
+				post(PATH + "/create").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createContractModel())))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED)))
 				.andExpect(jsonPath("$.errors", hasItem("Bad request, unable to perform request")));
-		CreateCapeAmendment amendment = createCapeAmendmentModel();
+		CreateCommercialAmendment amendment = createContractAmendmentModel();
 		amendment.setContractAmendment(UUID.randomUUID());
 		mockMvc.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(amendment)))
-				.andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.CAPE_NOT_FOUND)));
+				.content(asJsonString(amendment))).andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
 	}
-	
-	private CapeCreate createCapeModel() {
-		CapeCreate createCape = new CapeCreate();
-		createCape.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
-		createCape.setContractDate(LocalDate.now());
-		createCape.setContractTitle("It is a title");
-		createCape.setFse(true);
-		createCape.setStartingDate(LocalDate.now().plusDays(7));
-		createCape.setStructureContract(PortageCompanies.COELIS);
-		List<RateDto> rates = new ArrayList<>();
-		RateDto rate = new RateDto();
-		rate.setRate(15);
-		rate.setTypeRate(TypeRate.ACTIVITY);
-		rates.add(rate);
-		rate = new RateDto();
-		rate.setRate(50);
-		rate.setTypeRate(TypeRate.QUALIOPI);
-		rates.add(rate);
-		createCape.setRates(rates);
-		return createCape;
+
+	private CommercialCreate createContractModel() {
+		CommercialCreate contractCreate = new CommercialCreate();
+		contractCreate.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
+		contractCreate.setContractDate(LocalDate.now());
+		contractCreate.setContractTitle("It is a title");
+		contractCreate.setStartingDate(LocalDate.now().plusDays(7));
+		contractCreate.setStructureContract(PortageCompanies.COELIS);
+		contractCreate.setEndDate(LocalDate.now().plusMonths(6));
+		contractCreate.setClientId(UUID.randomUUID());
+		contractCreate.setGlobalAmount(60000.0);
+		contractCreate.setMonthlyAmount(10000.0);
+		contractCreate.setMissionDuration(6);
+		contractCreate.setDurationUnit(DurationUnit.MONTHS);
+		return contractCreate;
 	}
-	
-	
-	private CreateCapeAmendment createCapeAmendmentModel() {
-		CreateCapeAmendment createCapeAmendment = new CreateCapeAmendment();
-		createCapeAmendment.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
-		createCapeAmendment.setContractDate(LocalDate.now());
-		createCapeAmendment.setContractTitle("It is a title");
-		createCapeAmendment.setFse(true);
-		createCapeAmendment.setStartingDate(LocalDate.now().plusDays(7));
-		createCapeAmendment.setStructureContract(PortageCompanies.COELIS);
-		List<RateDto> rates = new ArrayList<>();
-		RateDto rate = new RateDto();
-		rate.setRate(15);
-		rate.setTypeRate(TypeRate.ACTIVITY);
-		rates.add(rate);
-		rate = new RateDto();
-		rate.setRate(50);
-		rate.setTypeRate(TypeRate.QUALIOPI);
-		rates.add(rate);
-		createCapeAmendment.setRates(rates);
-		return createCapeAmendment;
+
+	private CreateCommercialAmendment createContractAmendmentModel() {
+		CreateCommercialAmendment contractCreate = new CreateCommercialAmendment();
+		contractCreate.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
+		contractCreate.setContractDate(LocalDate.now());
+		contractCreate.setContractTitle("It is a title");
+		contractCreate.setStartingDate(LocalDate.now().plusDays(7));
+		contractCreate.setStructureContract(PortageCompanies.COELIS);
+		contractCreate.setEndDate(LocalDate.now().plusMonths(6));
+		contractCreate.setClientId(UUID.randomUUID());
+		contractCreate.setGlobalAmount(60000.0);
+		contractCreate.setMonthlyAmount(10000.0);
+		contractCreate.setMissionDuration(6);
+		contractCreate.setDurationUnit(DurationUnit.MONTHS);
+		return contractCreate;
 	}
-	
-	private CapeUpdate updateCapeModel() {
-		CapeUpdate capeUpdate = new CapeUpdate();
-		capeUpdate.setContractDate(LocalDate.now().plusWeeks(6));
-		capeUpdate.setContractTitle("It is a title updated");
-		capeUpdate.setFse(false);
-		capeUpdate.setStartingDate(LocalDate.now().plusDays(8));
-		capeUpdate.setStructureContract(PortageCompanies.AUXIME);
-		return capeUpdate;
+
+	private CommercialUpdate updateContractModel() {
+		CommercialUpdate contractUpdate = new CommercialUpdate();
+		contractUpdate.setContractDate(LocalDate.now().plusWeeks(6));
+		contractUpdate.setContractTitle("It is a title updated");
+		contractUpdate.setStartingDate(LocalDate.now().plusDays(8));
+		contractUpdate.setStructureContract(PortageCompanies.COELIS);
+		contractUpdate.setEndDate(LocalDate.now().plusMonths(6));
+		contractUpdate.setClientId(UUID.randomUUID());
+		contractUpdate.setGlobalAmount(60000.0);
+		contractUpdate.setMonthlyAmount(10000.0);
+		contractUpdate.setMissionDuration(6);
+		contractUpdate.setDurationUnit(DurationUnit.MONTHS);
+		return contractUpdate;
 	}
-	
+
 	private Optional<ProfileInfo> createProfileInfoModel() {
 		ProfileInfo profileInfo = new ProfileInfo();
 		profileInfo.setActivity("Builder");
@@ -372,7 +333,7 @@ class CapeControllerTest {
 		profileInfo.setZip("69001");
 		return Optional.of(profileInfo);
 	}
-	
+
 	private static String asJsonString(final Object obj) {
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();

@@ -62,7 +62,8 @@ public class CommercialContractController {
 	 * 
 	 */
 	@GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, Object>> getAllCape(@RequestParam(defaultValue = "1") @Min(1) int page,
+	public ResponseEntity<Map<String, Object>> getAllCape(
+			@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "10") @Min(1) int size,
 			@RequestParam(required = false) String filter,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -120,9 +121,9 @@ public class CommercialContractController {
 	 *         objects
 	 */
 	@GetMapping(value = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<CommercialContract>> getContractById(@RequestParam @NotNull UUID accountId) {
+	public ResponseEntity<Optional<CommercialContract>> getContractById(@RequestParam @NotNull UUID contractId) {
 		logger.info("Getting contracts with id");
-		return new ResponseEntity<>(commercialService.getCommercialById(accountId), HttpStatus.OK);
+		return new ResponseEntity<>(commercialService.getCommercialById(contractId), HttpStatus.OK);
 	}
 
 	/**

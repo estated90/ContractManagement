@@ -78,7 +78,7 @@ public class CommercialContract extends Contract {
 
 	public CommercialContract buildCommercialCommon(CommercialPublic contractPublic){
 		this.build(contractPublic, ContractType.CONTRACT);
-		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
+		this.setEndDate(contractPublic.getEndDate());
 		this.setClientId(contractPublic.getClientId());
 		this.setGlobalAmount(contractPublic.getGlobalAmount());
 		this.setMonthlyAmount(contractPublic.getMonthlyAmount());
