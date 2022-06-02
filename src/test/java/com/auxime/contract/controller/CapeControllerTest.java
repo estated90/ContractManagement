@@ -67,7 +67,7 @@ class CapeControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-	@Autowired
+	@MockBean
 	private AccountFeign proxyCape;
 	@MockBean
 	private PdfGenerator pdfGenerator;

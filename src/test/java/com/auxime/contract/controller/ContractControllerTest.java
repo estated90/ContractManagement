@@ -184,10 +184,10 @@ class ContractControllerTest {
 				.param("endDate", LocalDate.now().minusDays(45).toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(2)))
+				.andExpect(jsonPath("$.totalItems", is(3)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(2)));
+				.andExpect(jsonPath("$.contracts", hasSize(3)));
 		mockMvc.perform(get("/contracts").param("startDate", LocalDate.now().toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
@@ -198,10 +198,10 @@ class ContractControllerTest {
 		mockMvc.perform(get("/contracts").param("endDate", LocalDate.now().plusDays(31).toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(5)))
+				.andExpect(jsonPath("$.totalItems", is(6)))
 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
-				.andExpect(jsonPath("$.contracts", hasSize(5)));
+				.andExpect(jsonPath("$.contracts", hasSize(6)));
 	}
 
 }
