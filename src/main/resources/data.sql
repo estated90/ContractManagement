@@ -34,7 +34,7 @@ INSERT INTO contract (contract_typology,contract_id,account_id,contract_amendmen
 
 INSERT INTO contract (contract_typology,contract_id,account_id,contract_amendment,contract_date,contract_state,contract_title,contract_type,created_at,end_date,starting_date,status,structure_contract,
 					  updated_at,fse,client_id,contract_status,duration_unit,global_amount,mission_duration,monthly_amount,validator_id,rupture_date,hourly_rate,work_time,commission,comment) VALUES 
-					  ('permanent_contract','0448a987-2e1a-4375-a4ea-8edc9b14d795','f99337eb-ff45-487a-a20d-f186ba71e99c', null, NOW(), 'ACTIVE', 'CDI Monsieur IMBERT', 'AMENDMENT', NOW() - INTERVAL '30 days', NOW() + INTERVAL '2 years',NOW() - INTERVAL '45 days', true, 'COELIS',
+					  ('permanent_contract','0448a987-2e1a-4375-a4ea-8edc9b14d795','f99337eb-ff45-487a-a20d-f186ba71e99c', 'de72bff9-23aa-428d-91e9-c695c823ec7f', NOW(), 'ACTIVE', 'CDI Monsieur IMBERT', 'AMENDMENT', NOW() - INTERVAL '30 days', NOW() + INTERVAL '2 years',NOW() - INTERVAL '45 days', true, 'COELIS',
 					  NOW() - INTERVAL '20 days', false, null, null, null,null,null,null,null,NOW() + INTERVAL '30 days',20,151.67,10,null);
 
 INSERT INTO rates (rate_id,created_at,rate,type_rate,updated_at) VALUES ('4874684b-8f55-4f6b-8f38-e2398d129166', NOW()- INTERVAL '30 days', 9, 'ACTIVITY', null );

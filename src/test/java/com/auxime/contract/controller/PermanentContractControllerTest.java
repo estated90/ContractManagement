@@ -40,11 +40,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.auxime.contract.constants.DurationUnit;
 import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.dto.commercial.CommercialCreate;
-import com.auxime.contract.dto.commercial.CommercialUpdate;
-import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
+import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
+import com.auxime.contract.dto.permanent.PermanentCreate;
+import com.auxime.contract.dto.permanent.PermanentUpdate;
 import com.auxime.contract.model.ProfileInfo;
 import com.auxime.contract.model.enums.PortageCompanies;
 import com.auxime.contract.proxy.AccountFeign;
@@ -61,7 +60,7 @@ import com.jayway.jsonpath.Option;
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @TestMethodOrder(OrderAnnotation.class)
-class PermanentContractController {
+class PermanentContractControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -71,7 +70,7 @@ class PermanentContractController {
 	private static final String PATH = "/permanentContract";
 	private static final String IDTEST = "de72bff9-23aa-428d-91e9-c695c823ec7f";
 	private static final String IDACCOUNT = "f99337eb-ff45-487a-a20d-f186ba71e99c";
-
+	
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 	}
@@ -130,9 +129,9 @@ class PermanentContractController {
 	@DisplayName("When asked to return all contract amendment from accounts then return the amendment linked to it")
 	void givenAskingAmendment_whenGettingAmendments_thenReturnAllFilteredContracts() throws Exception {
 		mockMvc.perform(get(PATH + "/listAmendment").param("contractId", IDTEST))
-				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(jsonPath("$.currentPage", is(1)))
-				.andExpect(jsonPath("$.totalItems", is(1)))
-				.andExpect(jsonPath("$.totalPages", is(1)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.currentPage", is(1)))
+ 				.andExpect(jsonPath("$.totalPages", is(1)))
 				.andExpect(jsonPath("$.contracts").isArray())
 				.andExpect(jsonPath("$.contracts", hasSize(1)));
 		mockMvc.perform(get(PATH + "/listAmendment").param("contractId", UUID.randomUUID().toString()))
@@ -171,21 +170,20 @@ class PermanentContractController {
 				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
 						.content(asJsonString(createContractModel())))
 				.andExpect(MockMvcResultMatchers.status().isCreated())
-				.andExpect(jsonPath("$.contractState", is("ACTIVE")))
+				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
 				.andExpect(jsonPath("$.accountId", is("f99337eb-ff45-487a-a20d-f186ba71e99c")))
 				.andExpect(jsonPath("$.contractDate", is(LocalDate.now().toString())))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title")))
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(7).toString())))
 				.andExpect(jsonPath("$.structureContract", is("COELIS")))
 				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
-				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
-				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
-				.andExpect(jsonPath("$.missionDuration", is(6)))
-				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
+				.andExpect(jsonPath("$.ruptureDate", is(LocalDate.now().plusMonths(5).toString())))
+				.andExpect(jsonPath("$.hourlyRate", is(30.0)))
+				.andExpect(jsonPath("$.workTime", is(151.67))).andReturn();
 		String response = mvcResult.getResponse().getContentAsString();
 		DocumentContext context = JsonPath.parse(response);
 		UUID id = UUID.fromString(context.read("$.contractId"));
-		CommercialUpdate contractUpdate = updateContractModel();
+		PermanentUpdate contractUpdate = updateContractModel();
 		contractUpdate.setContractId(id);
 		mockMvc.perform(put(PATH + "/update").contentType(MediaType.APPLICATION_JSON).content(asJsonString(contractUpdate)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
@@ -196,13 +194,12 @@ class PermanentContractController {
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(8).toString())))
 				.andExpect(jsonPath("$.structureContract", is("COELIS")))
 				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
-				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
-				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
-				.andExpect(jsonPath("$.missionDuration", is(6)))
-				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
+				.andExpect(jsonPath("$.ruptureDate", is(LocalDate.now().plusMonths(5).toString())))
+				.andExpect(jsonPath("$.hourlyRate", is(30.0)))
+				.andExpect(jsonPath("$.workTime", is(151.67))).andReturn();
 		mockMvc.perform(get(PATH + "/details").param("contractId", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(jsonPath("$.contractTypology", is("commercial_contract")))
+				.andExpect(jsonPath("$.contractTypology", is("permanent_contract")))
 				.andExpect(jsonPath("$.contractState", is("NOT_STARTED")))
 				.andExpect(jsonPath("$.contractTitle", is("It is a title updated")));
 		mockMvc.perform(delete(PATH + "/delete/{contractId}", id.toString()))
@@ -212,7 +209,7 @@ class PermanentContractController {
 		mockMvc.perform(delete(PATH + "/delete/{contractId}", id.toString()))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
-		CreateCommercialAmendment amendment = createContractAmendmentModel();
+		CreatePermanentAmendment amendment = createContractAmendmentModel();
 		amendment.setContractAmendment(id);
 		mvcResult = mockMvc
 				.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
@@ -225,10 +222,9 @@ class PermanentContractController {
 				.andExpect(jsonPath("$.startingDate", is(LocalDate.now().plusDays(7).toString())))
 				.andExpect(jsonPath("$.structureContract", is("COELIS")))
 				.andExpect(jsonPath("$.endDate", is(LocalDate.now().plusMonths(6).toString())))
-				.andExpect(jsonPath("$.globalAmount", is(60000.0)))
-				.andExpect(jsonPath("$.monthlyAmount", is(10000.0)))
-				.andExpect(jsonPath("$.missionDuration", is(6)))
-				.andExpect(jsonPath("$.durationUnit", is("MONTHS"))).andReturn();
+				.andExpect(jsonPath("$.ruptureDate", is(LocalDate.now().plusMonths(5).toString())))
+				.andExpect(jsonPath("$.hourlyRate", is(30.0)))
+				.andExpect(jsonPath("$.workTime", is(151.67))).andReturn();
 		response = mvcResult.getResponse().getContentAsString();
 		context = JsonPath.parse(response);
 		id = UUID.randomUUID();
@@ -259,57 +255,62 @@ class PermanentContractController {
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.PROFILE_NOT_RETRIEVED)))
 				.andExpect(jsonPath("$.errors", hasItem("Bad request, unable to perform request")));
-		CreateCommercialAmendment amendment = createContractAmendmentModel();
+		CreatePermanentAmendment amendment = createContractAmendmentModel();
 		amendment.setContractAmendment(UUID.randomUUID());
 		mockMvc.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(amendment))).andExpect(MockMvcResultMatchers.status().isBadRequest())
-				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND)));
+		PermanentUpdate update = updateContractModel();
+		update.setContractId(UUID.randomUUID());
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		mockMvc.perform(
+				put(PATH + "/update").contentType(MediaType.APPLICATION_JSON).content(asJsonString(update)))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND)))
+				.andExpect(jsonPath("$.errors", hasItem("Bad request, unable to perform request")));
 	}
 
-	private CommercialCreate createContractModel() {
-		CommercialCreate contractCreate = new CommercialCreate();
+	private PermanentCreate createContractModel() {
+		PermanentCreate contractCreate = new PermanentCreate();
 		contractCreate.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
 		contractCreate.setContractDate(LocalDate.now());
 		contractCreate.setContractTitle("It is a title");
 		contractCreate.setStartingDate(LocalDate.now().plusDays(7));
 		contractCreate.setStructureContract(PortageCompanies.COELIS);
 		contractCreate.setEndDate(LocalDate.now().plusMonths(6));
-		contractCreate.setClientId(UUID.randomUUID());
-		contractCreate.setGlobalAmount(60000.0);
-		contractCreate.setMonthlyAmount(10000.0);
-		contractCreate.setMissionDuration(6);
-		contractCreate.setDurationUnit(DurationUnit.MONTHS);
+		contractCreate.setRuptureDate(LocalDate.now().plusMonths(5));
+		contractCreate.setFse(false);
+		contractCreate.setHourlyRate(30.0);
+		contractCreate.setWorkTime(151.67);
 		return contractCreate;
 	}
 
-	private CreateCommercialAmendment createContractAmendmentModel() {
-		CreateCommercialAmendment contractCreate = new CreateCommercialAmendment();
+	private CreatePermanentAmendment createContractAmendmentModel() {
+		CreatePermanentAmendment contractCreate = new CreatePermanentAmendment();
 		contractCreate.setAccountId(UUID.fromString("f99337eb-ff45-487a-a20d-f186ba71e99c"));
 		contractCreate.setContractDate(LocalDate.now());
 		contractCreate.setContractTitle("It is a title");
 		contractCreate.setStartingDate(LocalDate.now().plusDays(7));
 		contractCreate.setStructureContract(PortageCompanies.COELIS);
 		contractCreate.setEndDate(LocalDate.now().plusMonths(6));
-		contractCreate.setClientId(UUID.randomUUID());
-		contractCreate.setGlobalAmount(60000.0);
-		contractCreate.setMonthlyAmount(10000.0);
-		contractCreate.setMissionDuration(6);
-		contractCreate.setDurationUnit(DurationUnit.MONTHS);
+		contractCreate.setRuptureDate(LocalDate.now().plusMonths(5));
+		contractCreate.setFse(false);
+		contractCreate.setHourlyRate(30.0);
+		contractCreate.setWorkTime(151.67);
 		return contractCreate;
 	}
 
-	private CommercialUpdate updateContractModel() {
-		CommercialUpdate contractUpdate = new CommercialUpdate();
+	private PermanentUpdate updateContractModel() {
+		PermanentUpdate contractUpdate = new PermanentUpdate();
 		contractUpdate.setContractDate(LocalDate.now().plusWeeks(6));
 		contractUpdate.setContractTitle("It is a title updated");
 		contractUpdate.setStartingDate(LocalDate.now().plusDays(8));
 		contractUpdate.setStructureContract(PortageCompanies.COELIS);
 		contractUpdate.setEndDate(LocalDate.now().plusMonths(6));
-		contractUpdate.setClientId(UUID.randomUUID());
-		contractUpdate.setGlobalAmount(60000.0);
-		contractUpdate.setMonthlyAmount(10000.0);
-		contractUpdate.setMissionDuration(6);
-		contractUpdate.setDurationUnit(DurationUnit.MONTHS);
+		contractUpdate.setRuptureDate(LocalDate.now().plusMonths(5));
+		contractUpdate.setFse(false);
+		contractUpdate.setHourlyRate(30.0);
+		contractUpdate.setWorkTime(151.67);
 		return contractUpdate;
 	}
 

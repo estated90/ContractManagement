@@ -38,15 +38,15 @@ public class PermanentContract extends Contract {
 	private CommentExit comment;
 
 	public PermanentContract buildPermanentContract(PermanentCreate contractPublic) {
-		this.buildPermanentCommon(contractPublic);
 		this.build(contractPublic, ContractType.CONTRACT);
+		this.buildPermanentCommon(contractPublic);
 		this.setAccountId(contractPublic.getAccountId());
 		return this;
 	}
 
 	public PermanentContract buildPermanentContractAmend(CreatePermanentAmendment contractPublic) {
-		this.buildPermanentCommon(contractPublic);
 		this.build(contractPublic, ContractType.AMENDMENT);
+		this.buildPermanentCommon(contractPublic);
 		this.setAccountId(contractPublic.getAccountId());
 		this.setContractAmendment(contractPublic.getContractAmendment());
 		return this;
@@ -54,6 +54,7 @@ public class PermanentContract extends Contract {
 
 	public PermanentContract buildPermanentCommon(PermanentPublic contractPublic) {
 		this.createStateContract(contractPublic.getEndDate());
+		this.build(contractPublic, this.getContractType());
 		this.setRuptureDate((contractPublic.getRuptureDate()));
 		this.setEndDate(contractPublic.getEndDate());
 		this.setHourlyRate(contractPublic.getHourlyRate());
