@@ -1,5 +1,7 @@
 package com.auxime.contract.jwt;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -31,6 +32,13 @@ public class JwtUtils {
 
 	@Value("#{systemEnvironment['AUXIME_JWT_SECRET']}")
 	private String jwtSecret;
+
+	/**
+	 * @param jwtSecret the jwtSecret to set
+	 */
+	public void setJwtSecret(String jwtSecret) {
+		this.jwtSecret = jwtSecret;
+	}
 
 	/**
 	 * @param authToken Token provided in the authorized header
@@ -57,7 +65,6 @@ public class JwtUtils {
 		} catch (IllegalArgumentException e) {
 			logger.error("JWT claims string is empty -> Message: \r-----------{}-------------", e.getMessage());
 		}
-
 		return false;
 	}
 
@@ -71,18 +78,10 @@ public class JwtUtils {
 
 	/**
 	 * @param token Token provided in the authorized header
-	 * @return Return the public UUID of the user
-	 */
-	public UUID getPublicIdFromJwtToken(String token) {
-		return UUID.fromString(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getId());
-	}
-
-	/**
-	 * @param token Token provided in the authorized header
 	 * @return the claims of the request
 	 */
-	public Claims getBoby(String token) {
-		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+	public Map<String, Object> getBoby(String token) {
+		return new HashMap<>(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody());
 	}
 
 }

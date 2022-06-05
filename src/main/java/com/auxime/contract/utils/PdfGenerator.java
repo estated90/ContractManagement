@@ -7,19 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import com.auxime.contract.constants.ExceptionMessageConstant;
-import com.auxime.contract.exception.PdfGeneratorException;
-import com.documents4j.api.DocumentType;
-import com.documents4j.api.IConverter;
-import com.documents4j.job.LocalConverter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +23,12 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.exception.PdfGeneratorException;
+import com.documents4j.api.DocumentType;
+import com.documents4j.api.IConverter;
+import com.documents4j.job.LocalConverter;
 
 @Service
 public class PdfGenerator {
@@ -83,21 +82,16 @@ public class PdfGenerator {
 	}
 
 	public void saveFilePdf(String fileName, XWPFDocument doc) throws PdfGeneratorException {
-		FileOutputStream out = null;
+
 		String savingPath = contractPath + fileName + ".docx";
-		try {
-			out = new FileOutputStream(savingPath);
+		try (FileOutputStream out = new FileOutputStream(savingPath)) {
+			doc.write(out);
+			doc.close();
 		} catch (FileNotFoundException e) {
 			logger.error(ExceptionMessageConstant.PATH_NOT_FOUND);
 			throw new PdfGeneratorException(ExceptionMessageConstant.PATH_NOT_FOUND);
-		} finally {
-			try {
-				doc.write(out);
-				out.close();
-				doc.close();
-			} catch (IOException e) {
-				logger.error(ExceptionMessageConstant.CLOSE_DOC_ERROR);
-			}
+		} catch (IOException e) {
+			logger.error(ExceptionMessageConstant.CLOSE_DOC_ERROR);
 		}
 		try {
 			convertToPDF(savingPath, contractPath, fileName);
@@ -110,30 +104,24 @@ public class PdfGenerator {
 	public void convertToPDF(String savingPath, String pdfPath, String fileName)
 			throws InterruptedException, ExecutionException, IOException {
 		ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		InputStream in = null;
-		try {
-			in = new BufferedInputStream(new FileInputStream(savingPath));
+		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(savingPath))) {
+			IConverter converter = LocalConverter.builder().baseFolder(new File(pdfPath))
+					.workerPool(20, 25, 2, TimeUnit.SECONDS).processTimeout(5, TimeUnit.SECONDS).build();
+
+			Future<Boolean> conversion = converter.convert(in).as(DocumentType.MS_WORD).to(bo).as(DocumentType.PDF)
+					.prioritizeWith(1000) // optional
+					.schedule();
+			conversion.get();
 		} catch (IOException e) {
 			logger.error(ExceptionMessageConstant.READING_ERROR);
 		}
-		IConverter converter = LocalConverter.builder()
-				.baseFolder(new File(pdfPath))
-				.workerPool(20, 25, 2, TimeUnit.SECONDS)
-				.processTimeout(5, TimeUnit.SECONDS)
-				.build();
 
-		Future<Boolean> conversion = converter
-				.convert(in).as(DocumentType.MS_WORD)
-				.to(bo).as(DocumentType.PDF)
-				.prioritizeWith(1000) // optional
-				.schedule();
-		conversion.get();
 		try (OutputStream outputStream = new FileOutputStream(pdfPath + fileName + ".pdf")) {
 			bo.writeTo(outputStream);
 		} catch (IOException e) {
 			logger.error(ExceptionMessageConstant.CONVERTION_ERROR);
+		} finally {
+			bo.close();
 		}
-		in.close();
-		bo.close();
 	}
 }

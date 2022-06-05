@@ -2,13 +2,13 @@ package com.auxime.contract.model;
 
 import java.time.LocalDate;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import com.auxime.contract.dto.permanent.CreatePermanentAmendment;
 import com.auxime.contract.dto.permanent.PermanentCreate;
@@ -23,44 +23,42 @@ import lombok.Setter;
  * @author Nicolas
  *
  */
-@Entity
-@Table(name = "permanent_contract")
-@AttributeOverride(name = "id", column = @Column(name = "permanent_contract_id"))
 @Setter
 @Getter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue("permanent_contract")
 public class PermanentContract extends Contract {
 
 	private LocalDate ruptureDate;
-	private LocalDate endDate;
-	private boolean fse;
 	private double hourlyRate;
 	private double workTime;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private CommentExit comment;
 
 	public PermanentContract buildPermanentContract(PermanentCreate contractPublic) {
-		this.buildPermanentCommon(contractPublic);
 		this.build(contractPublic, ContractType.CONTRACT);
+		this.buildPermanentCommon(contractPublic);
 		this.setAccountId(contractPublic.getAccountId());
 		return this;
 	}
 
 	public PermanentContract buildPermanentContractAmend(CreatePermanentAmendment contractPublic) {
-		this.buildPermanentCommon(contractPublic);
 		this.build(contractPublic, ContractType.AMENDMENT);
+		this.buildPermanentCommon(contractPublic);
 		this.setAccountId(contractPublic.getAccountId());
 		this.setContractAmendment(contractPublic.getContractAmendment());
 		return this;
 	}
 
 	public PermanentContract buildPermanentCommon(PermanentPublic contractPublic) {
-		this.createStateContract(contractPublic.getEndDate());
+		this.build(contractPublic, this.getContractType());
 		this.setRuptureDate((contractPublic.getRuptureDate()));
 		this.setEndDate(contractPublic.getEndDate());
-		this.setFse(contractPublic.getFse());
 		this.setHourlyRate(contractPublic.getHourlyRate());
 		this.setWorkTime(contractPublic.getWorkTime());
+		this.createStateContract();
 		return this;
 	}
 }

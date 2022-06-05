@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -33,6 +35,7 @@ public class Rates {
 	@Column(name = "rate")
 	private Integer rate;
 	@Column(name = "type_rate")
+	@Enumerated(EnumType.STRING)
 	private TypeRate typeRate;
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;

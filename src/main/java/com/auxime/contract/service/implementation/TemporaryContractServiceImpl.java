@@ -7,6 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractsName;
@@ -24,16 +34,6 @@ import com.auxime.contract.repository.TemporaryContractRepository;
 import com.auxime.contract.service.TemporaryContractService;
 import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -175,14 +175,20 @@ public class TemporaryContractServiceImpl implements TemporaryContractService {
 	@Transactional(rollbackFor = { TemporaryContractException.class })
 	public void deleteContract(UUID contractId) throws TemporaryContractException {
 		logger.info("Deleting a Temporary Contract {}", contractId);
+		TemporaryContract contract = contractVerifier(contractId);
+		contract.setStatus(false);
+		temporaryRepo.save(contract);
+	}
+	
+	private TemporaryContract contractVerifier(UUID contractId) throws TemporaryContractException {
+		logger.info("Deleting a CAPE {}", contractId);
 		Optional<TemporaryContract> contractOpt = temporaryRepo.findById(contractId);
-		if (contractOpt.isEmpty()) {
+		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
+			return contractOpt.get();
+		} else {
 			logger.error(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 			throw new TemporaryContractException(ExceptionMessageConstant.TEMPORARY_CONTRACT_NOT_FOUND);
 		}
-		logger.info("Activity is in DB and is being deleted");
-		contractOpt.get().setStatus(false);
-		temporaryRepo.save(contractOpt.get());
 	}
 
 	/**

@@ -60,7 +60,7 @@ public class ContractUpdater {
 	private void capeUpdater() {
 		List<Cape> capes = capeRepo.findAll();
 		capes.forEach(cape -> {
-			cape.createStateContract(cape.getEndDate());
+			cape.createStateContract();
 			capeRepo.save(cape);
 		});
 	}
@@ -71,7 +71,7 @@ public class ContractUpdater {
 	private void commercialUpdater() {
 		List<CommercialContract> contracts = commercialRepo.findAll();
 		contracts.forEach(contract -> {
-			contract.createStateContract(contract.getEndDate());
+			contract.createStateContract();
 			commercialRepo.save(contract);
 		});
 	}
@@ -82,7 +82,7 @@ public class ContractUpdater {
 	private void permanentUpdater() {
 		List<PermanentContract> contracts = permanentRepo.findAll();
 		contracts.forEach(contract -> {
-			contract.createStateContract(contract.getEndDate());
+			contract.createStateContract();
 			permanentRepo.save(contract);
 		});
 	}
@@ -93,7 +93,7 @@ public class ContractUpdater {
 	private void portageUpdater() {
 		List<PortageConvention> contracts = portageRepo.findAll();
 		contracts.forEach(contract -> {
-			contract.createStateContract(contract.getEndDate());
+			contract.createStateContract();
 			portageRepo.save(contract);
 		});
 	}
@@ -104,7 +104,7 @@ public class ContractUpdater {
 	private void temporaryUpdater() {
 		List<TemporaryContract> contracts = temporaryRepo.findAll();
 		contracts.forEach(contract -> {
-			contract.createStateContract(contract.getEndDate());
+			contract.createStateContract();
 			temporaryRepo.save(contract);
 		});
 	}

@@ -1,17 +1,16 @@
 package com.auxime.contract.model;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import com.auxime.contract.dto.cape.CapeCreate;
 import com.auxime.contract.dto.cape.CapeUpdate;
@@ -27,15 +26,14 @@ import lombok.Setter;
  * @version 1.0.0
  *
  */
-@Entity
-@Table(name = "cape")
-@AttributeOverride(name = "id", column = @Column(name = "cape_id"))
 @Setter
 @Getter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorValue("cape")
 public class Cape extends Contract {
 
-	private LocalDate endDate;
 	private boolean fse;
 	@OneToOne(targetEntity = CommentExit.class, cascade = CascadeType.ALL)
 	private CommentExit comment;
@@ -47,10 +45,8 @@ public class Cape extends Contract {
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
 		this.setAccountId(contractPublic.getAccountId());
-		this.createStateContract(endDate);
-		contractPublic.getRates().forEach(rateDto -> {
-			this.addRate(new Rates().build(rateDto));
-		});
+		this.createStateContract();
+		contractPublic.getRates().forEach(rateDto -> this.addRate(new Rates().build(rateDto)));
 		return this;
 	}
 
@@ -59,10 +55,8 @@ public class Cape extends Contract {
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
 		this.setAccountId(contractPublic.getAccountId());
-		this.createStateContract(endDate);
-		contractPublic.getRates().forEach(rateDto -> {
-			this.addRate(new Rates().build(rateDto));
-		});
+		this.createStateContract();
+		contractPublic.getRates().forEach(rateDto -> this.addRate(new Rates().build(rateDto)));
 		this.setContractAmendment(contractPublic.getContractAmendment());
 		return this;
 	}
@@ -71,7 +65,7 @@ public class Cape extends Contract {
 		this.build(contractPublic, ContractType.CONTRACT);
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
-		this.createStateContract(endDate);
+		this.createStateContract();
 		return this;
 	}
 
