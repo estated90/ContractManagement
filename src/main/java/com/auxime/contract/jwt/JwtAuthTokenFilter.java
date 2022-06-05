@@ -66,7 +66,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 				UUID username = tokenProvider.getUserNameFromJwtToken(jwt);
 				if (username != null) {
 					@SuppressWarnings("unchecked")
-					List<String> authoritiesAsRole = (List<String>) claims.get("roles");
+					List<Object> authoritiesAsRole = (List<Object>) claims.get("roles");
 					List<String> authorities = new ArrayList<>();
 					authoritiesAsRole.stream().forEach(role -> {
 						authorities.add(role.toString());
