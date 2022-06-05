@@ -3,6 +3,7 @@ package com.auxime.contract.jwt;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -19,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import io.jsonwebtoken.Claims;
+import com.auxime.contract.constants.RoleName;
 
 
 /**
@@ -61,7 +62,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 		try {
 			String jwt = getJwt(request);
 			if (jwt != null && tokenProvider.validateJwtToken(jwt)) {
-				Claims claims = tokenProvider.getBoby(jwt);
+				Map<String, Object> claims = tokenProvider.getBoby(jwt);
 				UUID username = tokenProvider.getUserNameFromJwtToken(jwt);
 				if (username != null) {
 					@SuppressWarnings("unchecked")
@@ -76,8 +77,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 					// It needs a list of authorities, which has type of GrantedAuthority interface,
 					// where SimpleGrantedAuthority is an implementation of that interface
 					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-							username, null,
-							authorities.stream().map(SimpleGrantedAuthority::new).toList());
+							username, null
+							,authorities.stream().map(SimpleGrantedAuthority::new).toList());
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
 			}

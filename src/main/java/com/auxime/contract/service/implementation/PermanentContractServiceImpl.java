@@ -7,6 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractsName;
@@ -24,16 +34,6 @@ import com.auxime.contract.repository.PermanentContractRepository;
 import com.auxime.contract.service.PermanentContractService;
 import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -174,14 +174,20 @@ public class PermanentContractServiceImpl implements PermanentContractService {
 	@Transactional(rollbackFor = { PermanentContractException.class })
 	public void deleteContract(UUID contractId) throws PermanentContractException {
 		logger.info("Deleting a Permanent Contract {}", contractId);
+		PermanentContract contract = contractVerifier(contractId);
+		contract.setStatus(false);
+		permanentRepo.save(contract);
+	}
+	
+	private PermanentContract contractVerifier(UUID contractId) throws PermanentContractException {
+		logger.info("Deleting a CAPE {}", contractId);
 		Optional<PermanentContract> contractOpt = permanentRepo.findById(contractId);
-		if (contractOpt.isEmpty()) {
-			logger.error(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
-			throw new PermanentContractException(ExceptionMessageConstant.PERMANENT_CONTRACT_NOT_FOUND);
+		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
+			return contractOpt.get();
+		} else {
+			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
+			throw new PermanentContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND);
 		}
-		logger.info("Activity is in DB and is being deleted");
-		contractOpt.get().setStatus(false);
-		permanentRepo.save(contractOpt.get());
 	}
 
 	/**
