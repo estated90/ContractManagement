@@ -51,11 +51,12 @@ public class TemporaryContract extends Contract{
 	}
 
 	public TemporaryContract buildTemporaryCommon(TemporaryPublic contractPublic){
+		this.setEndDate(contractPublic.getEndDate());
 		this.build(contractPublic, ContractType.CONTRACT);
 		this.setRuptureDate(contractPublic.getRuptureDate());
-		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setHourlyRate(contractPublic.getHourlyRate());
 		this.setWorkTime(contractPublic.getWorkTime());
+		this.createStateContract();
 		return this;
 	}
 }

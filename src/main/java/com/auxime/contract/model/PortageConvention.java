@@ -31,8 +31,9 @@ public class PortageConvention extends Contract{
 	private int commission;
 	
 	public PortageConvention buildConventionCommon(PortagePublic contractPublic){
-		this.build(contractPublic, ContractType.CONTRACT);
 		this.setEndDate(contractPublic.getEndDate());
+		this.build(contractPublic, ContractType.CONTRACT);
+		this.createStateContract();
 		return this;
 	}
 

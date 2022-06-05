@@ -42,6 +42,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.auxime.contract.constants.DurationUnit;
 import com.auxime.contract.constants.ExceptionMessageConstant;
+import com.auxime.contract.dto.CommentCommercialPublic;
 import com.auxime.contract.dto.commercial.CommercialCreate;
 import com.auxime.contract.dto.commercial.CommercialUpdate;
 import com.auxime.contract.dto.commercial.CreateCommercialAmendment;
@@ -264,6 +265,233 @@ class CommercialContractControllerTest {
 		mockMvc.perform(post(PATH + "/createAmendment").contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(amendment))).andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		CommercialUpdate contractUpdate = updateContractModel();
+		contractUpdate.setContractId(UUID.randomUUID());
+		mockMvc.perform(put(PATH + "/update").contentType(MediaType.APPLICATION_JSON).content(asJsonString(contractUpdate)))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+	}
+	
+	@Order(8)
+	@Test
+	@DisplayName("When going through validation process, execute all steps successfully")
+	void givenValidationProcess_whenExecutingTasks_thenReturnCorrectAnswers() throws Exception {
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		UUID id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		mockMvc.perform(put(PATH + "/validateContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		mockMvc.perform(put(PATH + "/refuseContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("PENDING_VALIDATION")));
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		CommentCommercialPublic comment = new CommentCommercialPublic();
+		comment.setComment("Comment to modify");
+		comment.setFirstName("FirstName");
+		comment.setLastName("LastName");
+		mockMvc.perform(put(PATH + "/askModification").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("MODIFICATION_REQUIRED")))
+				.andExpect(jsonPath("$.comments[0].comment", is("Comment to modify")))
+				.andExpect(jsonPath("$.comments[0].firstName", is("FirstName")))
+				.andExpect(jsonPath("$.comments[0].lastName", is("LastName")));
+		mockMvc.perform(put(PATH + "/askModification").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		comment = new CommentCommercialPublic();
+		comment.setComment("Ok done");
+		comment.setFirstName("Andree");
+		comment.setLastName("Sylvie");
+		mockMvc.perform(put(PATH + "/addComment").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("MODIFICATION_REQUIRED")))
+				.andExpect(jsonPath("$.comments").isArray())
+				.andExpect(jsonPath("$.comments", hasSize(2)));
+		mockMvc.perform(put(PATH + "/validateContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("VALIDATED")));
+	}
+	
+	@Order(9)
+	@Test
+	@DisplayName("When validating a contract without modificatuion, then correct saving")
+	void givenValidationWithNoModification_whenExecutingTasks_thenReturnCorrectAnswers() throws Exception {
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		UUID id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("PENDING_VALIDATION")));
+		mockMvc.perform(put(PATH + "/validateContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("VALIDATED")));
+	}
+	
+	@Order(10)
+	@Test
+	@DisplayName("When refusing a contract without modificatuion, then correct saving")
+	void givenRefusingWithNoModification_whenExecutingTasks_thenReturnCorrectAnswers() throws Exception {
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		UUID id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("PENDING_VALIDATION")));
+		mockMvc.perform(put(PATH + "/refuseContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("REFUSED")));
+	}
+	
+	@Order(11)
+	@Test
+	@DisplayName("When refusing a contract with modificatuion, then correct saving")
+	void givenRefusingWithModification_whenExecutingTasks_thenReturnCorrectAnswers() throws Exception {
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		UUID id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("PENDING_VALIDATION")));
+		CommentCommercialPublic comment = new CommentCommercialPublic();
+		comment.setComment("Comment to modify");
+		comment.setFirstName("FirstName");
+		comment.setLastName("LastName");
+		mockMvc.perform(put(PATH + "/askModification").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("MODIFICATION_REQUIRED")));
+		mockMvc.perform(put(PATH + "/refuseContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("REFUSED")));
+	}
+	
+	@Order(12)
+	@Test
+	@DisplayName("When refusing a contract with modificatuion, then correct saving")
+	void givenUnexistingContract_whenExecutingTasks_thenReturnErros() throws Exception {
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(createProfileInfoModel());
+		UUID id = UUID.randomUUID();
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		CommentCommercialPublic comment = new CommentCommercialPublic();
+		comment.setComment("Comment to modify");
+		comment.setFirstName("FirstName");
+		comment.setLastName("LastName");
+		mockMvc.perform(put(PATH + "/askModification").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		mockMvc.perform(put(PATH + "/refuseContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		mockMvc.perform(put(PATH + "/validateContract").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+		mockMvc.perform(put(PATH + "/addComment").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(comment)))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NOT_FOUND)));
+	}
+	
+	@Order(13)
+	@Test
+	@DisplayName("When Asking validation, answer depending of the info returned in ProfileInfo")
+	void givenAskingValidation_whenAnswering_thenReturnAnswerDependingOnProfile() throws Exception {
+		Optional<ProfileInfo> profileInfo = createProfileInfoModel();
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(profileInfo);
+		when(proxy.getAccountsyExist(any(UUID.class))).thenReturn(true);
+		MvcResult mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		String response = mvcResult.getResponse().getContentAsString();
+		UUID id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		profileInfo.get().setManagerId(null);
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(jsonPath("$.contractStatus", is("PENDING_VALIDATION")));
+		mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		response = mvcResult.getResponse().getContentAsString();
+		id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		profileInfo.get().setManagerId(null);
+		profileInfo.get().setBusinessManagerId(null);
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_INTERNAL_ERROR)));
+		mvcResult = mockMvc
+				.perform(post(PATH + "/create").contentType(MediaType.APPLICATION_JSON)
+						.content(asJsonString(createContractModel())))
+				.andExpect(MockMvcResultMatchers.status().isCreated())
+				.andExpect(jsonPath("$.contractStatus", is("DRAFT"))).andReturn();
+		response = mvcResult.getResponse().getContentAsString();
+		id = UUID.fromString(JsonPath.parse(response).read("$.contractId"));
+		when(proxy.getProfilesFromAccountId(any(UUID.class))).thenReturn(Optional.empty());
+		mockMvc.perform(put(PATH + "/pendingValidation").param("contractId", id.toString())
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest())
+				.andExpect(jsonPath("$.message", is(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR)));
 	}
 
 	private CommercialCreate createContractModel() {

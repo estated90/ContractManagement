@@ -111,15 +111,15 @@ public abstract class Contract {
 	 * 
 	 * @return the Updated object
 	 */
-	public Contract createStateContract(LocalDate endDate) {
+	public Contract createStateContract() {
 		if (this.getContractState() == ContractState.CANCELED) {
 			this.setContractState(ContractState.CANCELED);
 		} else {
 			if (this.getStartingDate().isAfter(LocalDate.now())) {
 				this.setContractState(ContractState.NOT_STARTED);
-			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), endDate)) {
+			} else if (dateCheckerBetween(LocalDate.now(), this.getStartingDate(), this.endDate)) {
 				this.setContractState(ContractState.ACTIVE);
-			} else if (LocalDate.now().isAfter(endDate)) {
+			} else if (LocalDate.now().isAfter(this.endDate)) {
 				this.setContractState(ContractState.INACTIVE);
 			}
 		}

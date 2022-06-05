@@ -85,7 +85,7 @@ public class CommercialContract extends Contract {
 		this.setMissionDuration(contractPublic.getMissionDuration());
 		this.setDurationUnit(contractPublic.getDurationUnit());
 		this.setClientId(contractPublic.getClientId());
-		this.createStateContract(this.getEndDate());
+		this.createStateContract();
 		return this;
 	}
 }

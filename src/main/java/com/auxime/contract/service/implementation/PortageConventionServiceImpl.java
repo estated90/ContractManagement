@@ -7,6 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.auxime.contract.builder.ContractsSpecification;
 import com.auxime.contract.constants.ContractState;
 import com.auxime.contract.constants.ContractsName;
@@ -24,16 +34,6 @@ import com.auxime.contract.repository.PortageConventionRepository;
 import com.auxime.contract.service.PortageConventionService;
 import com.auxime.contract.utils.GenerateListVariable;
 import com.auxime.contract.utils.PdfGenerator;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nicolas
@@ -174,14 +174,21 @@ public class PortageConventionServiceImpl implements PortageConventionService {
 	@Transactional(rollbackFor = { PortageConventionException.class })
 	public void deleteContract(UUID contractId) throws PortageConventionException {
 		logger.info("Deleting a Portage Convention {}", contractId);
+		PortageConvention contractOpt = contractVerifier(contractId);
+		logger.info("Activity is in DB and is being deleted");
+		contractOpt.setStatus(false);
+		portageRepo.save(contractOpt);
+	}
+	
+	private PortageConvention contractVerifier(UUID contractId) throws PortageConventionException {
+		logger.info("Deleting a CAPE {}", contractId);
 		Optional<PortageConvention> contractOpt = portageRepo.findById(contractId);
-		if (contractOpt.isEmpty()) {
+		if (contractOpt.isPresent() && contractOpt.get().isStatus()) {
+			return contractOpt.get();
+		} else {
 			logger.error(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 			throw new PortageConventionException(ExceptionMessageConstant.PORTAGE_CONVENTION_NOT_FOUND);
 		}
-		logger.info("Activity is in DB and is being deleted");
-		contractOpt.get().setStatus(false);
-		portageRepo.save(contractOpt.get());
 	}
 
 	/**

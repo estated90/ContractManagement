@@ -284,7 +284,7 @@ public class CommercialContractServiceImpl implements CommercialContractService 
 			throw new CommercialContractException(ExceptionMessageConstant.COMMERCIAL_CONTRACT_NO_VALIDATOR);
 		} else if (profileInfo.get().getManagerId() != null) {
 			contract.setValidatorId(profileInfo.get().getManagerId());
-		} else if (profileInfo.get().getBusinessManagerId() == null) {
+		} else if (profileInfo.get().getBusinessManagerId() != null) {
 			contract.setValidatorId(profileInfo.get().getBusinessManagerId());
 		} else {
 			logger.error(ExceptionMessageConstant.COMMERCIAL_CONTRACT_INTERNAL_ERROR);

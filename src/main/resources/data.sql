@@ -37,9 +37,19 @@ INSERT INTO contract (contract_typology,contract_id,account_id,contract_amendmen
 					  ('permanent_contract','0448a987-2e1a-4375-a4ea-8edc9b14d795','f99337eb-ff45-487a-a20d-f186ba71e99c', 'de72bff9-23aa-428d-91e9-c695c823ec7f', NOW(), 'ACTIVE', 'CDI Monsieur IMBERT', 'AMENDMENT', NOW() - INTERVAL '30 days', NOW() + INTERVAL '2 years',NOW() - INTERVAL '45 days', true, 'COELIS',
 					  NOW() - INTERVAL '20 days', false, null, null, null,null,null,null,null,NOW() + INTERVAL '30 days',20,151.67,10,null);
 
-INSERT INTO rates (rate_id,created_at,rate,type_rate,updated_at) VALUES ('4874684b-8f55-4f6b-8f38-e2398d129166', NOW()- INTERVAL '30 days', 9, 'ACTIVITY', null );
-INSERT INTO rates (rate_id,created_at,rate,type_rate,updated_at) VALUES ('d901a167-4ae2-42c7-96dd-de4e301af916', NOW()- INTERVAL '30 days', 14, 'QUALIOPI', null );
-INSERT INTO rates (rate_id,created_at,rate,type_rate,updated_at) VALUES ('8c0c7ac0-3707-47b5-a825-b06d125c5a04', NOW()- INTERVAL '30 days', 10, 'ACTIVITY', null );
-INSERT INTO rates (rate_id,created_at,rate,type_rate,updated_at) VALUES ('7a672266-f0f9-4af2-9eac-435c826e3ccb', NOW()- INTERVAL '30 days', 12, 'QUALIOPI', null );
-INSERT INTO contract_rates(cape_contract_id, rates) VALUES ('dce6d0df-8d4f-4612-890a-79503dd67f8c', '4874684b-8f55-4f6b-8f38-e2398d129166'), ('dce6d0df-8d4f-4612-890a-79503dd67f8c', 'd901a167-4ae2-42c7-96dd-de4e301af916');
-INSERT INTO contract_rates(cape_contract_id, rates) VALUES ('696271ec-19ca-416b-acb2-cbce1e1bfefc', '8c0c7ac0-3707-47b5-a825-b06d125c5a04'), ('696271ec-19ca-416b-acb2-cbce1e1bfefc', '7a672266-f0f9-4af2-9eac-435c826e3ccb');
+INSERT INTO contract (contract_typology,contract_id,account_id,contract_amendment,contract_date,contract_state,contract_title,contract_type,created_at,end_date,starting_date,status,structure_contract,
+					updated_at,fse,client_id,contract_status,duration_unit,global_amount,mission_duration,monthly_amount,validator_id,rupture_date,hourly_rate,work_time,commission,comment) VALUES 
+					('temporary_contract','f1d56482-2e80-41ee-aba5-a9cb0c48fa16','f99337eb-ff45-487a-a20d-f186ba71e99c', '46492afb-7f38-454a-90d8-cf284610e158', NOW(), 'ACTIVE', 'CDD Monsieur CHARLES avenant', 'CONTRACT', NOW() - INTERVAL '30 days', NOW() + INTERVAL '2 years',NOW() - INTERVAL '60 days', true, 'COELIS',
+					NOW() - INTERVAL '20 days', false, null, null, null,null,null,null,null,NOW() + INTERVAL '30 days',20,151.67,10,null);
+
+INSERT INTO contract (contract_typology,contract_id,account_id,contract_amendment,contract_date,contract_state,contract_title,contract_type,created_at,end_date,starting_date,status,structure_contract,
+					  updated_at,fse,client_id,contract_status,duration_unit,global_amount,mission_duration,monthly_amount,validator_id,hourly_rate,rupture_date,work_time,commission,comment) VALUES 
+					  ('portage_convention','3d3c4008-f904-4161-a5f0-6c7ff11b5057','f99337eb-ff45-487a-a20d-f186ba71e99c', '3b2d1af5-faf5-4a0f-8e3d-4dcd70ab4ae1', NOW(), 'INACTIVE', 'Convention de Portage Monsieur CHARLES', 'CONTRACT', NOW()- INTERVAL '30 days', NOW()+ INTERVAL '2 years',NOW() + INTERVAL '60 days', true, 'COELIS',
+					  null, false, null, null, null,null,null,null,null,null,null,null,10,null);
+
+INSERT INTO rates                            (rate_id,created_at,rate,type_rate,updated_at) VALUES ('4874684b-8f55-4f6b-8f38-e2398d129166', NOW()-                                   INTERVAL                                 '30                                      days', 9,  'ACTIVITY', null );
+INSERT INTO rates                            (rate_id,created_at,rate,type_rate,updated_at) VALUES ('d901a167-4ae2-42c7-96dd-de4e301af916', NOW()-                                   INTERVAL                                 '30                                      days', 14, 'QUALIOPI', null );
+INSERT INTO rates                            (rate_id,created_at,rate,type_rate,updated_at) VALUES ('8c0c7ac0-3707-47b5-a825-b06d125c5a04', NOW()-                                   INTERVAL                                 '30                                      days', 10, 'ACTIVITY', null );
+INSERT INTO rates                            (rate_id,created_at,rate,type_rate,updated_at) VALUES ('7a672266-f0f9-4af2-9eac-435c826e3ccb', NOW()-                                   INTERVAL                                 '30                                      days', 12, 'QUALIOPI', null );
+INSERT INTO contract_rates(cape_contract_id, rates)                                         VALUES ('dce6d0df-8d4f-4612-890a-79503dd67f8c', '4874684b-8f55-4f6b-8f38-e2398d129166'), ('dce6d0df-8d4f-4612-890a-79503dd67f8c', 'd901a167-4ae2-42c7-96dd-de4e301af916');
+INSERT INTO contract_rates(cape_contract_id, rates)                                         VALUES ('696271ec-19ca-416b-acb2-cbce1e1bfefc', '8c0c7ac0-3707-47b5-a825-b06d125c5a04'), ('696271ec-19ca-416b-acb2-cbce1e1bfefc', '7a672266-f0f9-4af2-9eac-435c826e3ccb');

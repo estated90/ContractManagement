@@ -53,12 +53,12 @@ public class PermanentContract extends Contract {
 	}
 
 	public PermanentContract buildPermanentCommon(PermanentPublic contractPublic) {
-		this.createStateContract(contractPublic.getEndDate());
 		this.build(contractPublic, this.getContractType());
 		this.setRuptureDate((contractPublic.getRuptureDate()));
 		this.setEndDate(contractPublic.getEndDate());
 		this.setHourlyRate(contractPublic.getHourlyRate());
 		this.setWorkTime(contractPublic.getWorkTime());
+		this.createStateContract();
 		return this;
 	}
 }

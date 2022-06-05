@@ -45,7 +45,7 @@ public class Cape extends Contract {
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
 		this.setAccountId(contractPublic.getAccountId());
-		this.createStateContract(this.getEndDate());
+		this.createStateContract();
 		contractPublic.getRates().forEach(rateDto -> this.addRate(new Rates().build(rateDto)));
 		return this;
 	}
@@ -55,7 +55,7 @@ public class Cape extends Contract {
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
 		this.setAccountId(contractPublic.getAccountId());
-		this.createStateContract(this.getEndDate());
+		this.createStateContract();
 		contractPublic.getRates().forEach(rateDto -> this.addRate(new Rates().build(rateDto)));
 		this.setContractAmendment(contractPublic.getContractAmendment());
 		return this;
@@ -65,7 +65,7 @@ public class Cape extends Contract {
 		this.build(contractPublic, ContractType.CONTRACT);
 		this.setEndDate(contractPublic.getStartingDate().plusYears(1));
 		this.setFse(contractPublic.getFse());
-		this.createStateContract(this.getEndDate());
+		this.createStateContract();
 		return this;
 	}
 
