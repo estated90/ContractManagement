@@ -3,7 +3,7 @@ package com.auxime.contract.configuration;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -11,10 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -31,12 +30,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Configuration
+@EnableAutoConfiguration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-	@Autowired
-	private JwtAuthEntryPoint unauthorizedHandler;
+public class WebSecurityConfig {
 
 	/**
 	 * @return New JwtAuthTokenFilter used for the token and connection
@@ -54,6 +51,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Bean
+	public JwtAuthEntryPoint unauthorizedHandler() {
+		return new JwtAuthEntryPoint();
+	}
+
 	/**
 	 * Any end point that requires defense against common vulnerabilities can be
 	 * specified here, including public ones. See
@@ -63,29 +65,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * @param http the {@link HttpSecurity} to modify
 	 * @throws Exception if an error occurs
 	 */
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-				.cors().and().authorizeRequests()
-				// Swagger security details
-				.antMatchers("/api/auth/**").permitAll().antMatchers("/api-docs/**").permitAll()
-				.antMatchers("/api/eventPlanning/signupEvent/**")
-				.hasAnyAuthority(RoleName.ROLE_USER.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/training/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/host/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/eventPlanning/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/attendants/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString(),
-						RoleName.ROLE_EXTERNAL_TRAINER.toString(), RoleName.ROLE_INTERNAL_TRAINER.toString())
-				.anyRequest().authenticated().and().exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf().disable().cors();
+		http.authorizeRequests(autorization -> {
+			// Swagger security details
+			autorization.antMatchers("/api-docs/**").permitAll();
+			// API application
+			autorization
+					.antMatchers("/cape/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/contracts/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/commercialContract/update").hasAnyAuthority(commercialAccess)
+					.antMatchers("/commercialContract/pendingValidation").hasAuthority(RoleName.ROLE_USER.toString())
+					.antMatchers("/commercialContract/addComment").hasAnyAuthority(commercialAccess)
+					.antMatchers("/commercialContract/create").hasAnyAuthority(commercialAccess)
+					.antMatchers("/commercialContract/createAmendment").hasAnyAuthority(commercialAccess)
+					.antMatchers("/commercialContract/myContractCount").hasAnyAuthority(all)
+					.antMatchers("/commercialContract/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/permanentContract/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/portageConvention/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/temporaryContract/**").hasAnyAuthority(internalStaff)
+					.antMatchers("/enums/**").permitAll()
+					.anyRequest().authenticated();
+		});
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+		return http.build();
 	}
 
 	/**
@@ -103,4 +108,37 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			out.flush();
 		};
 	}
+
+	String[] internalStaff = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(),
+			RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(),
+			RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(),
+			RoleName.ROLE_INVOICING.toString(), RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(),
+			RoleName.ROLE_QUALIOPI.toString(), RoleName.ROLE_SHAREHOLDER.toString() };
+	String[] internalUser = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_USER.toString() };
+	String[] support = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(),
+			RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString() };
+	String[] commercialAccess = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(),
+			RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString(), RoleName.ROLE_USER.toString() };
+	String[] modifier = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(),
+			RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString(),
+			RoleName.ROLE_PAYROLL_MANAGER.toString() };
+	String[] adminIt = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_IT.toString(),
+			RoleName.ROLE_DIRECTOR.toString() };
+	String[] partnerRoles = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_DEVELOPMENT.toString(),
+			RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString() };
+	String[] all = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_USER.toString(),
+			RoleName.ROLE_EXTERNAL_TRAINER.toString(), RoleName.ROLE_INTERNAL_TRAINER.toString() };
+	String[] allSecu = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_APP.toString() };
 }

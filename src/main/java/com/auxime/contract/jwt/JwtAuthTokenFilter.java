@@ -2,8 +2,8 @@ package com.auxime.contract.jwt;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -19,8 +19,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.auxime.contract.constants.RoleName;
 
 
 /**
@@ -62,15 +60,13 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 		try {
 			String jwt = getJwt(request);
 			if (jwt != null && tokenProvider.validateJwtToken(jwt)) {
-				Map<String, Object> claims = tokenProvider.getBoby(jwt);
 				UUID username = tokenProvider.getUserNameFromJwtToken(jwt);
 				if (username != null) {
-					@SuppressWarnings("unchecked")
-					List<Object> authoritiesAsRole = (List<Object>) claims.get("roles");
-					List<String> authorities = new ArrayList<>();
-					authoritiesAsRole.stream().forEach(role -> {
-						authorities.add(role.toString());
-					});
+					List<String> roles = tokenProvider.getRolesFromJwtToken(jwt);
+					Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+					roles.stream().forEach(role ->
+						authorities.add(new SimpleGrantedAuthority(role))
+					);
 					// 5. Create auth object
 					// UsernamePasswordAuthenticationToken: A built-in object, used by spring to
 					// represent the current authenticated / being authenticated user.
@@ -78,7 +74,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 					// where SimpleGrantedAuthority is an implementation of that interface
 					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 							username, null
-							,authorities.stream().map(SimpleGrantedAuthority::new).toList());
+							,roles.stream().map(SimpleGrantedAuthority::new).toList());
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
 			}

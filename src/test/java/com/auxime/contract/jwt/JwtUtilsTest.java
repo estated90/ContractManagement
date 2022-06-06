@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -90,11 +89,8 @@ class JwtUtilsTest {
 	
 	@Test
 	void givenToken_whenGettingBody_thenReturnClaims() {
-		Map<String, Object> body = utils.getBoby(generateJwtToken());
-		String firstName = (String) body.get("firstName");
-		String lastName = (String) body.get("lastName");
-		assertEquals("firstName", firstName);
-		assertEquals("lastName", lastName);
+		List<String> body = utils.getRolesFromJwtToken(generateJwtToken());
+		assertTrue(body.contains("ROLE_USER"));
 	}
 
 	private String generateJwtToken() {
