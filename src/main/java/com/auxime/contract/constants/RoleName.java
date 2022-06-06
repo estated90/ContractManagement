@@ -5,43 +5,39 @@ package com.auxime.contract.constants;
  * @author Nicolas
  *
  */
-public enum  RoleName {
+public enum RoleName {
     /**
      * Role for an internal user
      */
-    ROLE_USER,
+    ROLE_USER("USER"),
+    ROLE_DEVELOPMENT("DEVELOPMENT"),
+    ROLE_ADMIN("ADMIN"),
+    ROLE_COUNSELOR("COUNSELOR"),
+    ROLE_ACCOUNTANCY_MANAGER("ACCOUNTANCY_MANAGER"),
+    ROLE_INVOICING("INVOICING"),
+    ROLE_FSE("FSE"),
+    ROLE_EXPENSES("EXPENSES"),
+    ROLE_PAYROLL_MANAGER("PAYROLL_MANAGER"),
+    ROLE_DIRECTOR("DIRECTOR"),
+    ROLE_SHAREHOLDER("SHAREHOLDER"),
+    ROLE_IT("IT"),
+    ROLE_EXTERNAL_TRAINER("EXTERNAL_TRAINER"),
+    ROLE_INTERNAL_TRAINER("INTERNAL_TRAINER"),
+    ROLE_QUALIOPI("QUALIOPI"), 
+    ROLE_APP("APP");
+    
+    private String roleString;
+    
     /**
-     * Role for the development managers
-     */
-    ROLE_DEVELOPMENT,
-    /**
-     * Role for an admin user
-     */
-    ROLE_ADMIN,
-    /**
-     * Role for the counselors managers
-     */
-    ROLE_COUNSELOR,
+	 * @return the roleString
+	 */
+	public String getRoleString() {
+		return roleString;
+	}
+
+	// enum constructor - cannot be public or protected
+    private RoleName(String roleString) {
+        this.roleString = roleString;
+    }
     
-    ROLE_ACCOUNTANCY_MANAGER,
-    
-    ROLE_INVOICING,
-    
-    ROLE_FSE,
-    
-    ROLE_EXPENSES,
-    
-    ROLE_PAYROLL_MANAGER,
-    
-    ROLE_DIRECTOR,
-    
-    ROLE_SHAREHOLDER,
-    
-    ROLE_IT,
-    
-    ROLE_EXTERNAL_TRAINER,
-    
-    ROLE_INTERNAL_TRAINER,
-    
-    ROLE_QUALIOPI, ROLE_APP
 }
