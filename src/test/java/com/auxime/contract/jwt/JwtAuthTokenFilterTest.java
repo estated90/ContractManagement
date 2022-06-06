@@ -9,9 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -41,7 +39,7 @@ class JwtAuthTokenFilterTest {
 	private String bearer;
 	@InjectMocks
 	private JwtAuthTokenFilter tokenFilter;
-	private Map<String, Object> claims;
+	private List<String> roles;
 	
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
@@ -51,12 +49,8 @@ class JwtAuthTokenFilterTest {
 	void setUp() throws Exception {
 		uuid = "99923936-c3d3-4637-bb77-3f421b9f7f82";
 		bearer = "Bearer " + uuid;
-		claims = new HashMap<>();
-		claims.put("fistName", "fistName");
-		claims.put("lastName", "lastName");
-		List<RoleName> roles = new ArrayList<>();
-		roles.add(RoleName.ROLE_USER);
-		claims.put("roles", roles);
+		roles = new ArrayList<>();
+		roles.add(RoleName.ROLE_USER.name());
 	}
 
 	@AfterEach
@@ -73,7 +67,7 @@ class JwtAuthTokenFilterTest {
 		when(request.getHeader(anyString())).thenReturn(bearer);
 		when(tokenProvider.validateJwtToken(anyString())).thenReturn(true);
 		when(tokenProvider.getUserNameFromJwtToken(anyString())).thenReturn(UUID.fromString(uuid));
-		when(tokenProvider.getBoby(anyString())).thenReturn(claims);
+		when(tokenProvider.getRolesFromJwtToken(anyString())).thenReturn(roles);
 		// THEN
 		tokenFilter.doFilterInternal(request, response, filterChain);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -94,7 +88,6 @@ class JwtAuthTokenFilterTest {
 		when(request.getHeader(anyString())).thenReturn(bearer);
 		when(tokenProvider.validateJwtToken(anyString())).thenReturn(true);
 		when(tokenProvider.getUserNameFromJwtToken(anyString())).thenReturn(null);
-		when(tokenProvider.getBoby(anyString())).thenReturn(claims);
 		// THEN
 		tokenFilter.doFilterInternal(request, response, filterChain);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

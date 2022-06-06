@@ -1,7 +1,6 @@
 package com.auxime.contract.jwt;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,13 +31,6 @@ public class JwtUtils {
 
 	@Value("#{systemEnvironment['AUXIME_JWT_SECRET']}")
 	private String jwtSecret;
-
-	/**
-	 * @param jwtSecret the jwtSecret to set
-	 */
-	public void setJwtSecret(String jwtSecret) {
-		this.jwtSecret = jwtSecret;
-	}
 
 	/**
 	 * @param authToken Token provided in the authorized header
@@ -80,8 +72,15 @@ public class JwtUtils {
 	 * @param token Token provided in the authorized header
 	 * @return the claims of the request
 	 */
-	public Map<String, Object> getBoby(String token) {
-		return new HashMap<>(Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody());
+	@SuppressWarnings("unchecked")
+	public List<String> getRolesFromJwtToken(String token) {
+		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("roles", List.class);
 	}
-
+	
+	/**
+	 * @param jwtSecret the jwtSecret to set
+	 */
+	public void setJwtSecret(String jwtSecret) {
+		this.jwtSecret = jwtSecret;
+	}
 }

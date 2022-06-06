@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,6 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private JwtAuthEntryPoint unauthorizedHandler;
+	private static final String BASE_URL = "/api/contractManagement";
 
 	/**
 	 * @return New JwtAuthTokenFilter used for the token and connection
@@ -54,6 +56,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Bean
+	public JwtAuthEntryPoint unauthorizedHandler() {
+		return new JwtAuthEntryPoint();
+	}
+
 	/**
 	 * Any end point that requires defense against common vulnerabilities can be
 	 * specified here, including public ones. See
@@ -65,27 +72,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-				// .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-				.cors().and().authorizeRequests()
+		http.csrf().disable().cors();
+		http.authorizeRequests()
 				// Swagger security details
-				.antMatchers("/api/auth/**").permitAll().antMatchers("/api-docs/**").permitAll()
-				.antMatchers("/api/eventPlanning/signupEvent/**")
-				.hasAnyAuthority(RoleName.ROLE_USER.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/training/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/host/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/eventPlanning/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString())
-				.antMatchers("/api/attendants/**")
-				.hasAnyAuthority(RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_ADMIN.toString(),
-						RoleName.ROLE_EXTERNAL_TRAINER.toString(), RoleName.ROLE_INTERNAL_TRAINER.toString())
-				.anyRequest().authenticated().and().exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+				.anyRequest().authenticated();
+		// Swagger security details
+		http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler()).and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+	}
+
+	@Override
+	public void configure(WebSecurity web) {
+		web.ignoring().antMatchers(BASE_URL+"/v3/api-docs", BASE_URL+"/swagger-ui.html", BASE_URL+"/swagger-ui/**");
 	}
 
 	/**
@@ -103,4 +103,33 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			out.flush();
 		};
 	}
+
+	String[] internalStaff = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(),
+			RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(),
+			RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(),
+			RoleName.ROLE_INVOICING.toString(), RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(),
+			RoleName.ROLE_QUALIOPI.toString(), RoleName.ROLE_SHAREHOLDER.toString() };
+	String[] internalUser = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_USER.toString() };
+	String[] modifier = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_COUNSELOR.toString(),
+			RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString(),
+			RoleName.ROLE_PAYROLL_MANAGER.toString() };
+	String[] adminIt = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_IT.toString(),
+			RoleName.ROLE_DIRECTOR.toString() };
+	String[] partnerRoles = new String[] { RoleName.ROLE_ADMIN.toString(), RoleName.ROLE_DEVELOPMENT.toString(),
+			RoleName.ROLE_DIRECTOR.toString(), RoleName.ROLE_IT.toString() };
+	String[] all = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_USER.toString(),
+			RoleName.ROLE_EXTERNAL_TRAINER.toString(), RoleName.ROLE_INTERNAL_TRAINER.toString() };
+	String[] allSecu = new String[] { RoleName.ROLE_ACCOUNTANCY_MANAGER.toString(), RoleName.ROLE_ADMIN.toString(),
+			RoleName.ROLE_COUNSELOR.toString(), RoleName.ROLE_DEVELOPMENT.toString(), RoleName.ROLE_DIRECTOR.toString(),
+			RoleName.ROLE_EXPENSES.toString(), RoleName.ROLE_FSE.toString(), RoleName.ROLE_INVOICING.toString(),
+			RoleName.ROLE_IT.toString(), RoleName.ROLE_PAYROLL_MANAGER.toString(), RoleName.ROLE_QUALIOPI.toString(),
+			RoleName.ROLE_SHAREHOLDER.toString(), RoleName.ROLE_APP.toString() };
 }
