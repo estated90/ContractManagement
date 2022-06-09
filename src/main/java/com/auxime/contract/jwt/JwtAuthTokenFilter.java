@@ -1,8 +1,6 @@
 package com.auxime.contract.jwt;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,10 +61,6 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 				UUID username = tokenProvider.getUserNameFromJwtToken(jwt);
 				if (username != null) {
 					List<String> roles = tokenProvider.getRolesFromJwtToken(jwt);
-					Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-					roles.stream().forEach(role ->
-						authorities.add(new SimpleGrantedAuthority(role))
-					);
 					// 5. Create auth object
 					// UsernamePasswordAuthenticationToken: A built-in object, used by spring to
 					// represent the current authenticated / being authenticated user.
