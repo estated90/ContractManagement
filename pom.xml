@@ -14,7 +14,7 @@
 	<description>Application to manage and generate contract based on templates</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
+		<spring-cloud.version>2021.0.3</spring-cloud.version>
 		<sonar.projectKey>estated90_ContractManagement</sonar.projectKey>
 		<sonar.organization>estated90</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -55,10 +55,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
@@ -86,7 +82,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.8</version>
+			<version>1.6.9</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -103,32 +99,32 @@
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-api</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-util-conversion</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-transformer</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-util-all</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-local</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.documents4j</groupId>
 			<artifactId>documents4j-transformer-msoffice-word</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.8</version>
 		</dependency>
 
 
